@@ -1,0 +1,103 @@
+@extends('layouts.app')
+@section('title', 'My Visits')
+
+@section('content')
+
+<div class="p-6">
+
+    <h1 class="text-3xl font-bold text-white mb-6 tracking-wide">My Visits</h1>
+
+    {{-- Success Message --}}
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-500/20 border border-green-400/40
+                    text-green-100 rounded-xl backdrop-blur-lg">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Table Container --}}
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20
+                rounded-2xl shadow-xl overflow-hidden">
+
+        <table class="w-full table-auto text-white">
+            <thead>
+                <tr class="bg-white/10 text-white/80">
+                    <th class="p-3 text-left">Customer</th>
+                    <th class="p-3 text-left">Purpose</th>
+                    <th class="p-3 text-left">Status</th>
+                    <th class="p-3 text-left">Notes</th>
+                    <th class="p-3 text-left">Duration</th>
+                    <th class="p-3 text-left">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach ($visits as $v)
+                <tr class="border-t border-white/10 hover:bg-white/5 transition">
+
+                    <td class="p-3">{{ $v->customer->name }}</td>
+
+                    <td class="p-3 text-white/80">
+                        {{ $v->purpose }}
+                    </td>
+
+                    <td class="p-3">
+                        <span class="px-3 py-1 rounded-lg text-xs
+                            @if($v->status == 'started')
+                                bg-yellow-500/20 border border-yellow-400/40 text-yellow-200
+                            @else
+                                bg-green-500/20 border border-green-400/40 text-green-200
+                            @endif
+                        ">
+                            {{ ucfirst($v->status) }}
+                        </span>
+                    </td>
+
+                    <td class="p-3 text-white/60">
+                        {{ $v->notes ?? '-' }}
+                    </td>
+
+                    <td class="p-3 text-white/80">
+                        @if($v->status == 'completed' && $v->completed_at)
+                            {{ \Carbon\Carbon::parse($v->started_at)->diffForHumans($v->completed_at, true) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+
+                    <td class="p-3">
+                        @if($v->status == 'started')
+
+                            <form action="{{ route('salesman.visits.complete', $v->id) }}" method="POST">
+                                @csrf
+
+                                <textarea
+                                    name="notes"
+                                    class="w-full bg-white/10 text-white placeholder-white/50
+                                           p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
+                                    placeholder="Add notes"></textarea>
+
+                                <button
+                                    class="w-full py-2 rounded-xl text-white font-semibold
+                                           bg-gradient-to-r from-green-500 to-emerald-500
+                                           shadow hover:opacity-90 transition">
+                                    Complete
+                                </button>
+                            </form>
+
+                        @else
+                            <span class="text-green-300 font-semibold">Completed</span>
+                        @endif
+                    </td>
+
+                </tr>
+                @endforeach
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@endsection
