@@ -17,6 +17,7 @@ class Visit extends Model
         'status',
         'started_at',
         'completed_at',
+
     ];
 
     // Cast timestamps to Carbon instances
@@ -25,6 +26,8 @@ class Visit extends Model
         'completed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'images' => 'array',
+
     ];
 
     // Relationships

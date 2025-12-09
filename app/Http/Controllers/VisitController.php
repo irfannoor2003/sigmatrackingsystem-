@@ -46,14 +46,38 @@ class VisitController extends Controller
     }
 
     // Complete visit
-    public function complete(Request $request, $id)
-    {
-        $visit = Visit::findOrFail($id);
-        $visit->notes = $request->notes ?? $visit->notes;
-        $visit->status = 'completed';
-        $visit->completed_at = now();
-        $visit->save();
+   public function complete(Request $request, $id)
+{
+    $visit = Visit::findOrFail($id);
 
-        return back()->with('success', 'Visit completed successfully!');
+    $images = [];
+
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $img) {
+            $path = $img->store('visit_images', 'public');
+            $images[] = $path;
+        }
     }
+
+    // Merge new images with old ones
+    $existingImages = $visit->images ?? [];
+    $mergedImages = array_merge($existingImages, $images);
+
+    $visit->notes = $request->notes ?? $visit->notes;
+    $visit->images = $mergedImages;
+    $visit->status = 'completed';
+    $visit->completed_at = now();
+    $visit->save();
+
+    return back()->with('success', 'Visit completed successfully!');
+}
+public function show($id)
+{
+    $visit = Visit::where('id', $id)
+                  ->where('salesman_id', Auth::id())
+                  ->firstOrFail();
+
+    return view('salesman.visits.show', compact('visit'));
+}
+
 }

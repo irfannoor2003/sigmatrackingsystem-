@@ -95,5 +95,11 @@ public function adminReport(Request $request)
 
     return view('admin.reports.index', compact('visits','salesmen'));
 }
+public function show($id)
+{
+    $visit = Visit::with(['salesman', 'customer'])->findOrFail($id);
+    return view('admin.reports.show', compact('visit'));
+}
 
 }
+

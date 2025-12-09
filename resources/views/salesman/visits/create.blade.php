@@ -39,12 +39,19 @@
 
             {{-- Purpose --}}
             <label class="block text-sm text-white/80 mb-1">Purpose of Visit</label>
-            <input type="text"
-                   name="purpose"
-                   class="w-full px-4 py-3 mb-6 rounded-lg bg-white/10 text-white
-                          placeholder-white/50 focus:bg-white/20 outline-none"
-                   placeholder="Enter purpose"
-                   required>
+<select name="purpose"
+        class="w-full px-4 py-3 mb-6 rounded-lg bg-white/10 text-white
+               placeholder-white/50 focus:bg-white/20 outline-none"
+        required>
+    <option value="" class="text-black">-- Select Purpose --</option>
+    <option value="Follow-up" class="text-black">Follow-up</option>
+    <option value="Product Details" class="text-black">Product Details</option>
+    <option value="Order Taking" class="text-black">Order Taking</option>
+    <option value="Payment Collection" class="text-black">Payment Collection</option>
+    <option value="Complaint Visit" class="text-black">Complaint Visit</option>
+    <option value="New Lead Visit" class="text-black">New Lead Visit</option>
+</select>
+
 
             {{-- Hidden GPS --}}
             <input type="hidden" name="lat" id="lat">
@@ -75,13 +82,34 @@ document.getElementById('startVisitForm').addEventListener('submit', function(e)
     }
 
     navigator.geolocation.getCurrentPosition(function(position) {
+
         document.getElementById('lat').value = position.coords.latitude;
         document.getElementById('lng').value = position.coords.longitude;
+
         e.target.submit();
+
     }, function(error) {
-        alert("Unable to get your location. Make sure location services are enabled.");
-    });
+
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                alert("GPS permission denied. Please allow location.");
+                break;
+
+            case error.POSITION_UNAVAILABLE:
+                alert("GPS signal not available.");
+                break;
+
+            case error.TIMEOUT:
+                alert("GPS request timed out. Try again.");
+                break;
+
+            default:
+                alert("Unable to get your location.");
+        }
+
+    }, { timeout: 10000 });
 });
+
 </script>
 
 @endsection

@@ -76,7 +76,7 @@
                     <th class="p-3 text-left text-white text-sm">Purpose</th>
                     <th class="p-3 text-left text-white text-sm">Status</th>
                     <th class="p-3 text-left text-white text-sm">Notes</th>
-                    <th class="p-3 text-left text-white text-sm">Duration (min)</th>
+
                     <th class="p-3 text-left text-white text-sm">Date</th>
                 </tr>
             </thead>
@@ -86,10 +86,16 @@
                 <tr class="hover:bg-white/5 transition">
                     <td class="p-2 text-white/90">{{ $v->salesman->name }}</td>
                     <td class="p-2 text-white/90">{{ $v->customer->name }}</td>
-                    <td class="p-2 text-white/90">{{ $v->purpose }}</td>
+                    <td class="p-2 text-white/90">
+    <a href="{{ route('admin.reports.show', $v->id) }}"
+       class="text-indigo-300 hover:underline">
+       {{ $v->purpose }}
+    </a>
+</td>
+
                     <td class="p-2 text-white/90">{{ ucfirst($v->status) }}</td>
                     <td class="p-2 text-white/90">{{ $v->notes }}</td>
-                    <td class="p-2 text-white/90">{{ $v->duration ?? '-' }}</td>
+
                     <td class="p-2 text-white/90">{{ $v->started_at->format('Y-m-d H:i') }}</td>
                 </tr>
                 @endforeach

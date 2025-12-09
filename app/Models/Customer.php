@@ -9,25 +9,38 @@ class Customer extends Model
 {
     use HasFactory;
 
-    // Add this fillable property
     protected $fillable = [
-        'name',
-        'contact_person',
-        'phone1',
-        'phone2',
-        'email',
-        'city_id',
         'salesman_id',
+    'name',
+    'contact_person',
+    'phone1',
+    'phone2',
+    'email',
+    'address',
+    'city_id',
+    'industry_id',
+    'category_id',
+    'image',
     ];
 
-    // Relationships (optional)
-    public function salesman()
-    {
-        return $this->belongsTo(User::class, 'salesman_id');
-    }
+public function city()
+{
+    return $this->belongsTo(City::class);
+}
 
-    public function visits()
-    {
-        return $this->hasMany(Visit::class);
-    }
+public function industry()
+{
+    return $this->belongsTo(Industry::class);
+}
+
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+
+public function salesman()
+{
+    return $this->belongsTo(User::class, 'salesman_id');
+}
+
 }

@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\SalesmanController as AdminSalesmanController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Salesman\CustomerController as SalesmanCustomerController;
 
-
 // --------------------------------------------------
 // PUBLIC
 // --------------------------------------------------
@@ -52,14 +51,16 @@ Route::middleware(['auth','role:admin'])
 
     // Reports (Admin Only)
     Route::get('/reports', [ReportController::class, 'adminReport'])->name('reports.index');
+    Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
+
+    // Customers
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])->name('customers.show');
 
     // Salesmen
     Route::get('/salesmen', [AdminSalesmanController::class, 'index'])->name('salesmen.index');
     Route::get('/salesmen/create', [AdminSalesmanController::class, 'create'])->name('salesmen.create');
     Route::post('/salesmen/store', [AdminSalesmanController::class, 'store'])->name('salesmen.store');
-
-    // Customers
-    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
 });
 
 
@@ -77,18 +78,20 @@ Route::middleware(['auth','role:salesman'])
     Route::get('/customers', [SalesmanCustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/create', [SalesmanCustomerController::class, 'create'])->name('customers.create');
     Route::post('/customers', [SalesmanCustomerController::class, 'store'])->name('customers.store');
+    Route::get('/customers/{id}', [SalesmanCustomerController::class, 'show'])->name('customers.show');
 
     // Visits
     Route::get('/visits', [VisitController::class, 'index'])->name('visits.index');
     Route::get('/visits/create', [VisitController::class, 'create'])->name('visits.create');
     Route::post('/visits', [VisitController::class, 'store'])->name('visits.store');
     Route::post('/visits/{id}/complete', [VisitController::class, 'complete'])->name('visits.complete');
+    Route::get('/visits/{id}', [VisitController::class, 'show'])->name('visits.show');
 
-    // Attendance (optional)
+    // Attendance
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockin');
     Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockout');
 
-    // Reports (Salesman Only)
+    // Reports
     Route::get('/reports', [ReportController::class, 'salesmanReport'])->name('reports.index');
 });
