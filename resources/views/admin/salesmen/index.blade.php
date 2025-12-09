@@ -30,13 +30,20 @@
                 $salesmen = \App\Models\User::where('role','salesman')->paginate(20);
             @endphp
 
-            @foreach($salesmen as $s)
-            <tr class="hover:bg-white/5 transition">
-                <td class="p-2 text-white">{{ $s->name }}</td>
-                <td class="p-2 text-white/90">{{ $s->email }}</td>
-                <td class="p-2 text-white/60 text-sm">{{ $s->created_at->format('Y-m-d') }}</td>
-            </tr>
-            @endforeach
+            @forelse($salesmen as $s)
+                <tr class="hover:bg-white/5 transition">
+                    <td class="p-2 text-white">{{ $s->name }}</td>
+                    <td class="p-2 text-white/90">{{ $s->email }}</td>
+                    <td class="p-2 text-white/60 text-sm">{{ $s->created_at->format('Y-m-d') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="3"
+                        class="p-6 text-center text-white/70 bg-white/5">
+                        No Salesman Found
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 

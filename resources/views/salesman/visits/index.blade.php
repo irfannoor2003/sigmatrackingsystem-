@@ -32,87 +32,95 @@
             </thead>
 
             <tbody>
-                @foreach ($visits as $v)
-                <tr class="border-t border-white/10 hover:bg-white/5 transition">
 
-                    <td class="p-3">{{ $v->customer->name }}</td>
+                @forelse ($visits as $v)
+                    <tr class="border-t border-white/10 hover:bg-white/5 transition">
 
-                    <td class="p-3 text-white/80">
-                        {{ $v->purpose }}
-                    </td>
+                        <td class="p-3">{{ $v->customer->name }}</td>
 
-                    <td class="p-3">
-                        <span class="px-3 py-1 rounded-lg text-xs
-                            @if($v->status == 'started')
-                                bg-yellow-500/20 border border-yellow-400/40 text-yellow-200
+                        <td class="p-3 text-white/80">
+                            {{ $v->purpose }}
+                        </td>
+
+                        <td class="p-3">
+                            <span class="px-3 py-1 rounded-lg text-xs
+                                @if($v->status == 'started')
+                                    bg-yellow-500/20 border border-yellow-400/40 text-yellow-200
+                                @else
+                                    bg-green-500/20 border border-green-400/40 text-green-200
+                                @endif
+                            ">
+                                {{ ucfirst($v->status) }}
+                            </span>
+                        </td>
+
+                        <td class="p-3 text-white/60">
+                            {{ $v->notes ?? '-' }}
+                        </td>
+
+                        <td class="p-3 text-white/80">
+                            @if($v->status == 'completed' && $v->completed_at)
+                                {{ \Carbon\Carbon::parse($v->started_at)->diffForHumans($v->completed_at, true) }}
                             @else
-                                bg-green-500/20 border border-green-400/40 text-green-200
+                                -
                             @endif
-                        ">
-                            {{ ucfirst($v->status) }}
-                        </span>
-                    </td>
+                        </td>
 
-                    <td class="p-3 text-white/60">
-                        {{ $v->notes ?? '-' }}
-                    </td>
+                        <td class="p-3">
 
-                    <td class="p-3 text-white/80">
-                        @if($v->status == 'completed' && $v->completed_at)
-                            {{ \Carbon\Carbon::parse($v->started_at)->diffForHumans($v->completed_at, true) }}
-                        @else
-                            -
-                        @endif
-                    </td>
+                            {{-- If Visit Is Started → Show Complete Form --}}
+                            @if($v->status == 'started')
 
-                   <td class="p-3">
+                                <form action="{{ route('salesman.visits.complete', $v->id) }}"
+                                      method="POST" enctype="multipart/form-data">
+                                    @csrf
 
-    {{-- If Visit Is Started → Show Complete Form --}}
-    @if($v->status == 'started')
+                                    <textarea
+                                        name="notes"
+                                        class="w-full bg-white/10 text-white placeholder-white/50
+                                               p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
+                                        placeholder="Add notes"></textarea>
 
-        <form action="{{ route('salesman.visits.complete', $v->id) }}"
-              method="POST" enctype="multipart/form-data">
-            @csrf
+                                    {{-- Image Upload --}}
+                                    <input type="file"
+                                           name="images[]"
+                                           multiple
+                                           class="w-full text-white mb-2 bg-white/10 p-2 rounded-lg">
 
-            <textarea
-                name="notes"
-                class="w-full bg-white/10 text-white placeholder-white/50
-                       p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
-                placeholder="Add notes"></textarea>
+                                    <button
+                                        class="w-full py-2 rounded-xl text-white font-semibold
+                                               bg-gradient-to-r from-green-500 to-emerald-500
+                                               shadow hover:opacity-90 transition">
+                                        Complete
+                                    </button>
+                                </form>
 
-            {{-- Image Upload --}}
-            <input type="file"
-                   name="images[]"
-                   multiple
-                   class="w-full text-white mb-2 bg-white/10 p-2 rounded-lg">
+                            @else
+                                {{-- Completed --}}
+                                <div class="flex flex-col gap-2">
+                                    <span class="text-green-300 font-semibold">Completed</span>
 
-            <button
-                class="w-full py-2 rounded-xl text-white font-semibold
-                       bg-gradient-to-r from-green-500 to-emerald-500
-                       shadow hover:opacity-90 transition">
-                Complete
-            </button>
-        </form>
+                                    {{-- VIEW BUTTON --}}
+                                    <a href="{{ route('salesman.visits.show', $v->id) }}"
+                                       class="px-3 py-2 rounded-lg bg-blue-500/30 border border-blue-400/40
+                                              text-blue-100 text-sm text-center hover:bg-blue-500/40 transition">
+                                        View
+                                    </a>
+                                </div>
+                            @endif
 
-    @else
-        {{-- Completed --}}
-        <div class="flex flex-col gap-2">
-            <span class="text-green-300 font-semibold">Completed</span>
+                        </td>
 
-            {{-- VIEW BUTTON --}}
-            <a href="{{ route('salesman.visits.show', $v->id) }}"
-               class="px-3 py-2 rounded-lg bg-blue-500/30 border border-blue-400/40
-                      text-blue-100 text-sm text-center hover:bg-blue-500/40 transition">
-                View
-            </a>
-        </div>
-    @endif
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6"
+                            class="p-6 text-center text-white/70 bg-white/5">
+                            No record found
+                        </td>
+                    </tr>
+                @endforelse
 
-</td>
-
-
-                </tr>
-                @endforeach
             </tbody>
 
         </table>

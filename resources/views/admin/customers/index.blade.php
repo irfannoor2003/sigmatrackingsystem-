@@ -94,32 +94,39 @@
             </thead>
 
             <tbody>
-                @foreach ($customers as $c)
-                <tr class="border-t border-white/10 hover:bg-white/5 transition">
-                    <td class="p-2 text-white/90">{{ $c->id }}</td>
+                @forelse ($customers as $c)
+                    <tr class="border-t border-white/10 hover:bg-white/5 transition">
+                        <td class="p-2 text-white/90">{{ $c->id }}</td>
 
-                    <td class="p-2">
-                        <a href="{{ route('admin.customers.show', $c->id) }}"
-                            class="text-indigo-300 hover:text-indigo-400 underline font-semibold transition">
-                            {{ $c->name }}
-                        </a>
-                    </td>
+                        <td class="p-2">
+                            <a href="{{ route('admin.customers.show', $c->id) }}"
+                                class="text-indigo-300 hover:text-indigo-400 underline font-semibold transition">
+                                {{ $c->name }}
+                            </a>
+                        </td>
 
-                    <td class="p-2 text-white/80">{{ $c->phone1 }}</td>
+                        <td class="p-2 text-white/80">{{ $c->phone1 }}</td>
 
-                    <td class="p-2 text-white/70">
-                        {{ $c->city->name ?? '-' }}
-                    </td>
+                        <td class="p-2 text-white/70">
+                            {{ $c->city->name ?? '-' }}
+                        </td>
 
-                    <td class="p-2 text-white/70">
-                        {{ $c->industry->name ?? '-' }}
-                    </td>
+                        <td class="p-2 text-white/70">
+                            {{ $c->industry->name ?? '-' }}
+                        </td>
 
-                    <td class="p-2 text-white/70">
-                        {{ $c->category->name ?? '-' }}
-                    </td>
-                </tr>
-                @endforeach
+                        <td class="p-2 text-white/70">
+                            {{ $c->category->name ?? '-' }}
+                        </td>
+                    </tr>
+
+                @empty
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-white/60 text-lg">
+                            No Customers Found
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
 
