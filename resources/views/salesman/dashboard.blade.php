@@ -15,12 +15,29 @@
     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg">
         <h2 class="text-xl font-semibold text-magenta-300">Welcome!</h2>
         <p class="mt-2 text-white/80">
-            Here you can add customers, record visits, and check your daily progress.
+            Track your visits and customer additions for this month.
         </p>
     </div>
 
+    <!-- Graphs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+
+        <!-- Completed Visits Chart -->
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg">
+            <h3 class="text-lg font-semibold text-white mb-4">Visits Completed This Month</h3>
+            <canvas id="visitsChart" height="140"></canvas>
+        </div>
+
+        <!-- New Customers Chart -->
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg">
+            <h3 class="text-lg font-semibold text-white mb-4">Customers Added This Month</h3>
+            <canvas id="customersChart" height="140"></canvas>
+        </div>
+
+    </div>
+
     <!-- Action Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
 
         <!-- Add Customer -->
         <a href="{{ route('salesman.customers.create') }}"
@@ -47,5 +64,83 @@
 
 </div>
 
-@endsection
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+    const visitLabels = @json($visitLabels);
+    const visitData = @json($visitData);
+    const customerData = @json($customerData);
+
+    // Visits Chart
+    new Chart(document.getElementById('visitsChart'), {
+    type: 'bar',
+    data: {
+        labels: visitLabels,
+        datasets: [{
+            label: 'Completed Visits',
+            data: visitData,
+            backgroundColor: 'rgba(129, 140, 248, 0.6)',
+            borderColor: 'rgb(129, 140, 248)',
+            borderWidth: 2,
+            borderRadius: 8,
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: "#ffffff" },
+                grid: { color: "rgba(255,255,255,0.1)" }
+            },
+            x: {
+                ticks: { color: "#ffffff" },
+                grid: { color: "rgba(255,255,255,0.1)" }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: { color: "#ffffff" }
+            }
+        }
+    }
+});
+
+
+    // Customers Added Chart
+    new Chart(document.getElementById('customersChart'), {
+    type: 'line',
+    data: {
+        labels: visitLabels,
+        datasets: [{
+            label: 'Customers Added',
+            data: customerData,
+            fill: true,
+            borderColor: 'rgb(236, 72, 153)',
+            backgroundColor: 'rgba(236, 72, 153, 0.4)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: "#ffffff" },
+                grid: { color: "rgba(255,255,255,0.1)" }
+            },
+            x: {
+                ticks: { color: "#ffffff" },
+                grid: { color: "rgba(255,255,255,0.1)" }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: { color: "#ffffff" }
+            }
+        }
+    }
+});
+
+</script>
+
+@endsection

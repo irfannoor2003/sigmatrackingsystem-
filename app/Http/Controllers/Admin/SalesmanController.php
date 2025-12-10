@@ -8,11 +8,12 @@ use App\Models\User;
 
 class SalesmanController extends Controller
 {
-    public function index()
-    {
-        $salesmen = User::where('role', 'salesman')->get();
-        return view('admin.salesmen.index', compact('salesmen'));
-    }
+   public function index()
+{
+    $salesmen = User::where('role', 'salesman')->paginate(10);
+    return view('admin.salesmen.index', compact('salesmen'));
+}
+
 
     public function create()
     {

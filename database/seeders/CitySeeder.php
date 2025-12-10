@@ -12,7 +12,7 @@ class CitySeeder extends Seeder
     {
         $cities = [
             'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi',
-            'Faisalabad', 'Multan', 'Hyderabad', 'Peshawar'
+            'Faisalabad', 'Multan', 'Hyderabad', 'Peshawar','A','B'
         ];
 
         foreach ($cities as $city) {

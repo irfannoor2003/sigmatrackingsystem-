@@ -7,7 +7,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Sigma Tracking System')</title>
 
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
@@ -27,9 +26,17 @@
         }
 
         @keyframes gradientFlow {
-            0% { background-position: 0% 0%; }
-            50% { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
+            0% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            100% {
+                background-position: 0% 0%;
+            }
         }
 
         .glass {
@@ -60,164 +67,178 @@
 
     <div class="min-h-screen flex">
 
-        <!-- SIDEBAR -->
         <aside class="w-72 hidden md:flex flex-col glass shadow-2xl border-r border-white/10">
 
             <div class="p-6 border-b border-white/10">
-                <a href="{{ route('dashboard') ?? url('/') }}"
-                   class="hf-heading text-white">
-                   SES<span class="text-[var(--hf-magenta-light)]">.</span>
+                <a href="{{ route('dashboard') ?? url('/') }}" class="hf-heading text-white">
+                    SES<span class="text-[var(--hf-magenta-light)]">.</span>
                 </a>
                 <p class="text-xs text-gray-300 mt-1">Salesman Tracking System</p>
             </div>
 
-            <nav class="p-4 flex-1 text-gray-200">
+            <nav class="p-4 flex-1 text-gray-200 ">
 
                 @auth
 
-                <!-- USER INFO -->
-                <div class="mb-6 p-4 rounded-xl glass border border-white/10">
-                    <div class="text-sm text-gray-300">Logged in as:</div>
-                    <div class="font-semibold text-white">{{ auth()->user()->name }}</div>
-                    <div class="text-xs text-gray-400">{{ auth()->user()->email }}</div>
-                </div>
+                    <div class="mb-6 p-4 rounded-xl glass border border-white/10 ">
+                        <div class="text-sm text-gray-300">Logged in as:</div>
+                        <div class="font-semibold text-white">{{ auth()->user()->name }}</div>
+                        <div class="text-xs text-gray-400">{{ auth()->user()->email }}</div>
+                    </div>
 
-                <!-- ADMIN NAV -->
-                @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.dashboard') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                    @if (auth()->user()->role === 'admin')
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
-                        Dashboard
-                    </a>
+                            Dashboard
+                        </a>
 
-                    <a href="{{ route('admin.reports.index') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                        <a href="{{ route('admin.reports.index') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('admin.reports.*') ? 'sidebar-active' : '' }}">
-                        Reports
-                    </a>
+                            Reports
+                        </a>
 
-                    <a href="{{ route('admin.salesmen.index') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        Salesmen
-                    </a>
+                        <a href="{{ route('admin.salesmen.index') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            Salesmen
+                        </a>
 
-                    <a href="{{ url('/admin/customers') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        All Customers
-                    </a>
-                @endif
+                        <a href="{{ url('/admin/customers') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            All Customers
+                        </a>
+                    @endif
 
-                <!-- SALESMAN NAV -->
-                @if(auth()->user()->role === 'salesman')
-                    <a href="{{ route('salesman.dashboard') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                    @if (auth()->user()->role === 'salesman')
+                        <a href="{{ route('salesman.dashboard') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active' : '' }}">
-                        Dashboard
-                    </a>
+                            Dashboard
+                        </a>
 
-                    <a href="{{ route('salesman.customers.index') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        My Customers
-                    </a>
+                        <a href="{{ route('salesman.customers.index') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            My Customers
+                        </a>
 
-                    <a href="{{ route('salesman.customers.create') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        Add Customer
-                    </a>
+                        <a href="{{ route('salesman.customers.create') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            Add Customer
+                        </a>
 
-                    <a href="{{ route('salesman.visits.create') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        Start Visit
-                    </a>
+                        <a href="{{ route('salesman.visits.create') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            Start Visit
+                        </a>
 
-                    <a href="{{ route('salesman.visits.index') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        My Visits
-                    </a>
+                        <a href="{{ route('salesman.visits.index') }}"
+                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            My Visits
+                        </a>
 
-                    {{-- <a href="{{ route('salesman.attendance.index') }}"
+                        {{-- <a href="{{ route('salesman.attendance.index') }}"
                         class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
                         Attendance
                     </a> --}}
-                @endif
+                    @endif
 
-                <div class="border-t border-white/10 mt-6 pt-4">
-                    <a href="{{ route('profile.edit') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                        Profile
-                    </a>
+                    <div class="border-t border-white/10 mt-6 pt-4">
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                            Profile
+                        </a>
 
-                    <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
-                        @csrf
-                        <button type="submit" class="text-sm text-red-400 hover:text-red-300">
-                            Logout
-                        </button>
-                    </form>
-                </div>
+                        <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
+                            @csrf
+                            <button type="submit" class="text-sm text-red-400 hover:text-red-300">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
 
                 @endauth
             </nav>
         </aside>
 
-        <!-- MOBILE + CONTENT -->
-        <div x-data="{ open:false }" class="flex-1">
+        <div x-data="{ open: false }" class="flex-1">
 
-            <!-- TOPBAR -->
-            <header class="glass border-b border-white/10 shadow-xl">
+            <header class="glass border-b border-white/10 shadow-xl relative z-20">
                 <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
 
                     <div class="flex items-center gap-3">
-                        <button @click="open = !open"
-                                class="md:hidden p-2 rounded hover:bg-white/10">
-                            <svg class="h-6 w-6 text-white" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
-                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                       stroke-width="2"
-                                       d="M4 6h16M4 12h16M4 18h16"/>
+                        <button @click="open = !open" class="md:hidden p-2 rounded hover:bg-white/10">
+                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
 
                         <a href="{{ route('dashboard') }}"
-                            class="text-2xl font-extrabold text-white tracking-wide">
+                            class="text-xl md:text-2xl font-extrabold text-white tracking-wide">
                             Sigma Engineering Services<span class="text-[var(--hf-magenta-light)]">.</span>
                         </a>
                     </div>
 
                     @auth
-                    <div class="hidden md:block text-sm text-gray-300">
-                        {{ auth()->user()->name }} — {{ auth()->user()->role }}
-                    </div>
+                        <div class="hidden md:block text-sm text-gray-300">
+                            {{ auth()->user()->name }} — {{ auth()->user()->role }}
+                        </div>
                     @endauth
                 </div>
 
-                <!-- MOBILE DRAWER -->
-                <div x-show="open" x-cloak
-                     class="md:hidden glass border-t border-white/10">
+                <div x-show="open" x-cloak x-transition
+                    class="md:hidden glass border-t border-white/10 absolute top-16 left-0 w-full z-30 bg-black/80">
                     <div class="p-4">
 
                         @auth
-                        @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('admin.dashboard') }}" class="block py-2">Dashboard</a>
-                            <a href="{{ route('admin.reports.index') }}" class="block py-2">Reports</a>
-                        @endif
+                            <a href="{{ route('profile.edit') }}"
+                                class="block p-3 mb-4 rounded-xl glass border border-white/10 hover:bg-white/10 transition">
+                                <div class="text-sm text-gray-300">Logged in as:</div>
+                                <div class="font-semibold text-white">{{ auth()->user()->name }}</div>
+                                <div class="text-xs text-gray-400">{{ auth()->user()->email }}</div>
+                            </a>
 
-                        @if(auth()->user()->role === 'salesman')
-                            <a href="{{ route('salesman.dashboard') }}" class="block py-2">Dashboard</a>
-                            <a href="{{ route('salesman.customers.create') }}" class="block py-2">Add Customer</a>
-                            <a href="{{ route('salesman.visits.create') }}" class="block py-2">Start Visit</a>
-                            <a href="{{ route('salesman.attendance.index') }}" class="block py-2">Attendance</a>
-                        @endif
+                            @if (auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}"
+                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'sidebar-active-mobile' : '' }}">Dashboard</a>
+                                <a href="{{ route('admin.salesmen.index') }}"
+                                    class="block py-2 rounded hover:bg-white/10">
+                                    Salesmen
+                                </a>
 
-                        <form method="POST" action="{{ route('logout') }}" class="mt-4">
-                            @csrf
-                            <button class="text-red-400">Logout</button>
-                        </form>
+
+                                <a href="{{ route('admin.reports.index') }}"
+                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">Reports</a>
+                                <a href="{{ route('admin.customers.index') }}"
+                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">All
+                                    Customers</a>
+                            @endif
+
+                            @if (auth()->user()->role === 'salesman')
+                                <a href="{{ route('salesman.dashboard') }}"
+                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active-mobile' : '' }}">Dashboard</a>
+                                <a href="{{ route('salesman.customers.index') }}"
+                                    class="block py-2 rounded hover:bg-white/10">
+                                    My Customers</a>
+                                <a href="{{ route('salesman.customers.create') }}"
+                                    class="block py-2 rounded hover:bg-white/10">Add Customer</a>
+                                <a href="{{ route('salesman.visits.create') }}"
+                                    class="block py-2 rounded hover:bg-white/10">Start Visit</a>
+                                <a href="{{ route('salesman.visits.index') }}"
+                                    class="block py-2 rounded hover:bg-white/10">
+                                    My Visits
+                                </a>
+                                {{-- <a href="{{ route('salesman.attendance.index') }}" class="block py-2">Attendance</a> --}}
+                            @endif
+
+                            <form method="POST" action="{{ route('logout') }}" class="mt-4 pt-4 border-t border-white/10">
+                                @csrf
+                                <button class="text-red-400 hover:text-red-300">Logout</button>
+                            </form>
                         @endauth
                     </div>
                 </div>
             </header>
 
-            <!-- MAIN CONTENT -->
             <main class="p-6 max-w-7xl mx-auto">
 
                 @if (session('success'))
@@ -242,5 +263,15 @@
     @stack('scripts')
     @yield('scripts')
 
+    <style>
+        .sidebar-active-mobile {
+            background: rgba(255, 0, 170, 0.2);
+            /* border-left: 4px solid var(--hf-magenta-light); <-- Removed for mobile */
+            box-shadow: 0 0 12px rgba(255, 0, 170, 0.4);
+            color: white !important;
+        }
+    </style>
+
 </body>
+
 </html>

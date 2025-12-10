@@ -12,7 +12,10 @@ class VisitController extends Controller
     // Show create visit form
     public function create()
     {
-        $customers = Customer::where('salesman_id', Auth::id())->get();
+        $customers = Customer::where('salesman_id', Auth::id())
+                             ->orderBy('name')
+                             ->paginate(5); // FIXED
+
         return view('salesman.visits.create', compact('customers'));
     }
 
@@ -41,43 +44,47 @@ class VisitController extends Controller
     // List visits for logged-in salesman
     public function index()
     {
-        $visits = Visit::where('salesman_id', Auth::id())->get();
+        $visits = Visit::where('salesman_id', Auth::id())
+                       ->orderBy('id', 'desc')
+                       ->paginate(5); // FIXED
+
         return view('salesman.visits.index', compact('visits'));
     }
 
     // Complete visit
-   public function complete(Request $request, $id)
-{
-    $visit = Visit::findOrFail($id);
+    public function complete(Request $request, $id)
+    {
+        $visit = Visit::findOrFail($id);
 
-    $images = [];
+        $images = [];
 
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $img) {
-            $path = $img->store('visit_images', 'public');
-            $images[] = $path;
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                $path = $img->store('visit_images', 'public');
+                $images[] = $path;
+            }
         }
+
+        // Merge new images with old ones
+        $existingImages = $visit->images ?? [];
+        $mergedImages = array_merge($existingImages, $images);
+
+        $visit->notes = $request->notes ?? $visit->notes;
+        $visit->images = $mergedImages;
+        $visit->status = 'completed';
+        $visit->completed_at = now();
+        $visit->save();
+
+        return back()->with('success', 'Visit completed successfully!');
     }
 
-    // Merge new images with old ones
-    $existingImages = $visit->images ?? [];
-    $mergedImages = array_merge($existingImages, $images);
+    // Show single visit
+    public function show($id)
+    {
+        $visit = Visit::where('id', $id)
+                      ->where('salesman_id', Auth::id())
+                      ->firstOrFail();
 
-    $visit->notes = $request->notes ?? $visit->notes;
-    $visit->images = $mergedImages;
-    $visit->status = 'completed';
-    $visit->completed_at = now();
-    $visit->save();
-
-    return back()->with('success', 'Visit completed successfully!');
-}
-public function show($id)
-{
-    $visit = Visit::where('id', $id)
-                  ->where('salesman_id', Auth::id())
-                  ->firstOrFail();
-
-    return view('salesman.visits.show', compact('visit'));
-}
-
+        return view('salesman.visits.show', compact('visit'));
+    }
 }
