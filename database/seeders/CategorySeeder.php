@@ -12,7 +12,7 @@ class CategorySeeder extends Seeder
     public function run()
     {
         $items = [
-            'A', 'B', 'C', 'D', 'Retail', 'Wholesale'
+            'Retail', 'Wholesale','Shopkeeper',
         ];
 
         foreach ($items as $i) {

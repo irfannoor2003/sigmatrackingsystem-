@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto mt-10 px-4">
+<div class="max-w-4xl mx-auto mt-10 px-0">
 
     <!-- Main Card -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20
@@ -33,12 +33,12 @@
                     </div>
 
                     <div class="flex justify-between bg-white/10 py-3 px-4 rounded-xl">
-                        <span class="text-white/70">Phone 1</span>
+                        <span class="text-white/70">Mobile 1</span>
                         <span class="text-white">{{ $customer->phone1 }}</span>
                     </div>
 
                     <div class="flex justify-between bg-white/10 py-3 px-4 rounded-xl">
-                        <span class="text-white/70">Phone 2</span>
+                        <span class="text-white/70">Mobile 2</span>
                         <span class="text-white">{{ $customer->phone2 ?? 'N/A' }}</span>
                     </div>
 
@@ -72,7 +72,7 @@
                 <!-- BUTTONS -->
                 <div class="mt-6 flex gap-4">
                     <button id="showImageBtn"
-                        class="px-5 py-3 bg-purple-600/80 hover:bg-purple-600
+                        class="px-5 py-3 bg-[#ff2ba6]/80 hover:bg-[#ff2ba6]
                                text-white font-semibold rounded-xl shadow-lg transition">
                         Preview Document
                     </button>

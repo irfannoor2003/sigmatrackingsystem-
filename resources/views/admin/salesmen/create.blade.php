@@ -48,7 +48,7 @@
         <!-- Submit -->
         <button
             class="w-full py-3 rounded-xl text-white font-semibold tracking-wide
-                   bg-gradient-to-r from-indigo-500 to-purple-500 shadow-lg
+                   bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] shadow-lg
                    hover:opacity-90 transition">
             Create Salesman
         </button>

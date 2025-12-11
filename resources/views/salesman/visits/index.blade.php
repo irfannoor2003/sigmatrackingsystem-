@@ -3,7 +3,7 @@
 
 @section('content')
 
-<div class="p-6">
+<div class="p-0 sm:p-6 ">
 
     <h1 class="text-3xl font-bold text-white mb-6 tracking-wide">My Visits</h1>
 
@@ -22,6 +22,7 @@
         <table class="w-full table-auto text-white hidden md:table">
             <thead>
                 <tr class="bg-white/10 text-white/80">
+                    <th class="p-3 text-left">Id</th>
                     <th class="p-3 text-left">Customer</th>
                     <th class="p-3 text-left">Purpose</th>
                     <th class="p-3 text-left">Status</th>
@@ -35,6 +36,7 @@
                 @forelse ($visits as $v)
                     <tr class="border-t border-white/10 hover:bg-white/5 transition">
 
+                        <td class="p-3">{{ $v->id }}</td>
                         <td class="p-3">{{ $v->customer->name }}</td>
 
                         <td class="p-3 text-white/80">
@@ -108,7 +110,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6"
+                        <td colspan="7"
                             class="p-6 text-center text-white/70 bg-white/5">
                             No record found
                         </td>

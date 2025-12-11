@@ -79,7 +79,7 @@
             <!-- Button -->
             <button
                 onclick="toggleImageModal()"
-                class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500
+                class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6]
                        text-white font-semibold shadow hover:opacity-90 transition">
                 Preview Documents
             </button>

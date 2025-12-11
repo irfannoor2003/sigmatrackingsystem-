@@ -8,7 +8,7 @@
     <h2 class="text-2xl font-bold text-white tracking-wide">Salesmen</h2>
 
     <a href="{{ route('admin.salesmen.create') }}"
-       class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500
+       class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6]
               text-white font-semibold shadow hover:opacity-90 transition">
         Add Salesman
     </a>
@@ -22,6 +22,7 @@
         <table class="w-full">
             <thead>
                 <tr class="text-left text-sm text-white/70 border-b border-white/20">
+                    <th class="p-3">Id</th>
                     <th class="p-3">Name</th>
                     <th class="p-3">Email</th>
                     <th class="p-3">Customers (Total)</th>
@@ -57,6 +58,7 @@
                     @endphp
 
                     <tr class="hover:bg-white/5 transition">
+                        <td class="p-2 text-white">{{ $s->id }}</td>
                         <td class="p-2 text-white">{{ $s->name }}</td>
                         <td class="p-2 text-white/90">{{ $s->email }}</td>
                         <td class="p-2 text-white/80">{{ $totalCustomers }}</td>

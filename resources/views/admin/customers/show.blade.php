@@ -75,7 +75,8 @@
                 <!-- Buttons -->
                 <div class="mt-6 flex gap-4">
                     <button id="showImageBtn"
-                        class="px-5 py-3 bg-purple-600/80 hover:bg-purple-600
+                        class="px-5 py-3 bg-[#ff2ba6]/80 hover:bg-[#ff2ba6]
+
                                text-white font-semibold rounded-xl shadow-lg transition">
                         Preview Document
                     </button>

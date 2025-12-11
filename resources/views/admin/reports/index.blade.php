@@ -49,7 +49,7 @@
         <!-- Buttons -->
         <div class="flex gap-3 sm:col-span-2 md:col-span-1">
             <button type="submit"
-                class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow hover:opacity-90 w-full sm:w-auto">
+                class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] text-white font-semibold shadow hover:opacity-90 w-full sm:w-auto">
                 Filter
             </button>
 
@@ -68,6 +68,7 @@
         <table class="w-full border border-white/20 rounded-xl overflow-hidden">
             <thead class="bg-white/10 backdrop-blur-xl border-b border-white/20">
                 <tr>
+                    <th class="p-3 text-left text-white text-sm">Id</th>
                     <th class="p-3 text-left text-white text-sm">Salesman</th>
                     <th class="p-3 text-left text-white text-sm">Customer</th>
                     <th class="p-3 text-left text-white text-sm">Purpose</th>
@@ -81,6 +82,7 @@
 
                 @forelse($visits as $v)
                     <tr class="hover:bg-white/5 transition">
+                        <td class="p-2 text-white/90">{{ $v->id }}</td>
                         <td class="p-2 text-white/90">{{ $v->salesman->name }}</td>
                         <td class="p-2 text-white/90">{{ $v->customer->name }}</td>
 
@@ -99,7 +101,7 @@
 
                 @empty
                     <tr>
-                        <td colspan="6"
+                        <td colspan="7"
                             class="p-6 text-center text-white/70 bg-white/5">
                             No report found
                         </td>

@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-4xl mx-auto mt-10 px-4"> <!-- Added px-4 for small screens -->
+<div class="max-w-4xl mx-auto mt-10 "> <!-- Added px-4 for small screens -->
 
     <!-- Main Card -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20
@@ -60,7 +60,7 @@
         <!-- Buttons -->
         <div class="mt-10 flex flex-col md:flex-row gap-4"> <!-- Stack on mobile -->
             <button id="showImagesBtn"
-                class="w-full md:w-auto px-6 py-3 bg-purple-600/80 hover:bg-purple-600
+                class="w-full md:w-auto px-6 py-3 bg-[#ff2ba6]/80 hover:bg-[#ff2ba6]
                        text-white font-semibold rounded-xl shadow-lg transition">
                 Preview Document
             </button>

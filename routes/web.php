@@ -42,6 +42,9 @@ require __DIR__.'/auth.php';
 // ======================================================
 // ADMIN ROUTES
 // ======================================================
+// ======================================================
+// ADMIN ROUTES
+// ======================================================
 Route::middleware(['auth','role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -53,6 +56,16 @@ Route::middleware(['auth','role:admin'])
     Route::get('/reports', [ReportController::class, 'adminReport'])->name('reports.index');
     Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
 
+    // EXPORT CUSTOMERS (Admin Only)
+    Route::get('/customers/export/all', [AdminCustomerController::class, 'exportAll'])
+        ->name('customers.export.all');
+
+    Route::get('/customers/export/{id}', [AdminCustomerController::class, 'exportSingle'])
+        ->name('customers.export.single');
+
+    Route::post('/customers/export/bulk', [AdminCustomerController::class, 'exportBulk'])
+        ->name('customers.export.bulk');
+
     // Customers
     Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])->name('customers.show');
@@ -62,6 +75,7 @@ Route::middleware(['auth','role:admin'])
     Route::get('/salesmen/create', [AdminSalesmanController::class, 'create'])->name('salesmen.create');
     Route::post('/salesmen/store', [AdminSalesmanController::class, 'store'])->name('salesmen.store');
 });
+
 
 
 // ======================================================

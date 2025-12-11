@@ -3,14 +3,14 @@
 
 @section('content')
 
-<div class="p-6">
+<div class=" p-0 md:p-6">
 
     <h1 class="text-3xl font-bold text-white mb-6 tracking-wide">My Customers</h1>
 
     {{-- Add Customer Button --}}
     <div class="mb-6 flex justify-between">
         <a href="{{ route('salesman.customers.create') }}"
-            class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500
+            class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6]
                    text-white font-semibold shadow hover:opacity-90 transition">
             + Add Customer
         </a>
@@ -24,9 +24,10 @@
         <table class="w-full table-auto text-white">
             <thead>
                 <tr class="bg-white/10 text-white/80">
+                    <th class="p-3 text-left">Id</th>
                     <th class="p-3 text-left">Name</th>
                     <th class="p-3 text-left">Contact</th>
-                    <th class="p-3 text-left">Phone</th>
+                    <th class="p-3 text-left">Mobile</th>
                     <th class="p-3 text-left">Address</th>
                     <th class="p-3 text-left">Action</th>
                 </tr>
@@ -36,6 +37,7 @@
                 @forelse ($customers as $c)
                     <tr class="border-t border-white/10 hover:bg-white/5 transition">
 
+                        <td class="p-3">{{ $c->id }}</td>
                         <td class="p-3">{{ $c->name }}</td>
 
                         <td class="p-3 text-white/80">
@@ -61,7 +63,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5"
+                        <td colspan="7"
                             class="p-6 text-center text-white/70 bg-white/5">
                             No customers found
                         </td>
@@ -76,7 +78,7 @@
 
 
     <!-- ================= MOBILE VIEW WITH SAME WRAPPER AS VISITS ================= -->
-    <div class="md:hidden p-4 space-y-4">
+    <div class="md:hidden p-1 space-y-4">
 
         <!-- SAME WRAPPER DIV USED IN MY VISITS -->
         <div class="bg-white/10 border border-white/10 rounded-xl p-4 shadow-lg">

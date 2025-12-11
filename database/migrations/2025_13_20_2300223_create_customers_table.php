@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone2')->nullable();
             $table->string('email')->nullable();
 
-            // FINAL FOREIGN KEY STRUCTURE
+            // Foreign keys
             $table->unsignedBigInteger('city_id')->nullable();
             $table->unsignedBigInteger('industry_id')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
@@ -26,17 +26,16 @@ return new class extends Migration
 
             $table->unsignedBigInteger('salesman_id')->nullable();
             $table->string('address')->nullable();
+
+
+
             $table->timestamps();
 
-            // Foreign keys
+            // Foreign key constraints
             $table->foreign('city_id')->references('id')->on('cities')->nullOnDelete();
             $table->foreign('industry_id')->references('id')->on('industries')->nullOnDelete();
             $table->foreign('category_id')->references('id')->on('categories')->nullOnDelete();
-
-            $table->foreign('salesman_id')
-                ->references('id')
-                ->on('users')
-                ->nullOnDelete();
+            $table->foreign('salesman_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 

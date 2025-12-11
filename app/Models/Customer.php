@@ -10,7 +10,7 @@ class Customer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'salesman_id',
+    'salesman_id',
     'name',
     'contact_person',
     'phone1',
@@ -21,26 +21,28 @@ class Customer extends Model
     'industry_id',
     'category_id',
     'image',
-    ];
+    'landmark',
+];
 
-public function city()
-{
-    return $this->belongsTo(City::class);
-}
 
-public function industry()
-{
-    return $this->belongsTo(Industry::class);
-}
+    // Relationships
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
 
-public function category()
-{
-    return $this->belongsTo(Category::class);
-}
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
 
-public function salesman()
-{
-    return $this->belongsTo(User::class, 'salesman_id');
-}
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
+    public function salesman()
+    {
+        return $this->belongsTo(User::class, 'salesman_id');
+    }
 }

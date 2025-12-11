@@ -23,9 +23,9 @@
         justify-content: center;
         align-items: center;
 
-        background: linear-gradient(135deg, #000000, #2b0034, #4a008b, #6A00FF);
+        background: linear-gradient(135deg, #000000, #333333, #000000, #666666);
         background-size: 300% 300%;
-        animation: gradientFlow 12s ease infinite;
+
 
         font-family: 'Poppins', sans-serif;
         color: white;
@@ -108,7 +108,7 @@
 
     <!-- Admin -->
     <button class="btn-hf btn-admin"
-            onclick="location.href='{{ route('login') }}?role=admin'">
+            onclick="location.href='{{ route('login') }}'">
         Login
     </button>
 

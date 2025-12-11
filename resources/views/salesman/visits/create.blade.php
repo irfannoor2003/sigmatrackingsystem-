@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-xl mx-auto p-6">
+<div class="max-w-xl mx-auto p-0 md:p-6">
 
     <h1 class="text-3xl font-bold text-white mb-6 tracking-wide">Start a Visit</h1>
 
@@ -61,7 +61,7 @@
             <button
                 type="submit"
                 class="w-full py-3 rounded-xl text-white font-semibold tracking-wide
-                       bg-gradient-to-r from-indigo-500 to-purple-500 shadow-lg
+                       bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] shadow-lg
                        hover:opacity-90 transition">
                 Start Visit
             </button>

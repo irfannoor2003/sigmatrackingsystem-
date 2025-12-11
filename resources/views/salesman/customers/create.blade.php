@@ -34,24 +34,50 @@
                 required>
         </div>
 
-        <!-- Phone 1 -->
-        <div>
-            <label class="block text-sm text-white/80 mb-1">Phone 1</label>
-            <input name="phone1" type="text"
-                placeholder="Primary phone number"
-                class="w-full px-4 py-3 rounded-lg bg-white/10 text-white
-                placeholder-white/50 focus:bg-white/20 outline-none"
-                required>
-        </div>
+   <!-- Phone 1 -->
+<div>
+    <label class="block text-sm text-white/80 mb-1">Mobile 1</label>
 
-        <!-- Phone 2 -->
-        <div>
-            <label class="block text-sm text-white/80 mb-1">Phone 2</label>
-            <input name="phone2" type="text"
-                placeholder="Optional phone number"
-                class="w-full px-4 py-3 rounded-lg bg-white/10 text-white
-                placeholder-white/50 focus:bg-white/20 outline-none">
-        </div>
+    <div class="flex items-center bg-white/10 backdrop-blur-xl border border-white/20
+                rounded-lg overflow-hidden">
+        <span class="px-4 py-3 text-white bg-white/5 border-r border-white/10">
+            +92-
+        </span>
+
+        <input type="text"
+               id="phone1_local"
+               maxlength="10"
+               inputmode="numeric"
+               placeholder="3001234567"
+               class="w-full px-4 py-3 bg-transparent text-white placeholder-white/40
+                      outline-none">
+    </div>
+
+    <input type="hidden" name="phone1" id="phone1">
+</div>
+
+<!-- Phone 2 -->
+<div>
+    <label class="block text-sm text-white/80 mb-1">Mobile 2</label>
+
+    <div class="flex items-center bg-white/10 backdrop-blur-xl border border-white/20
+                rounded-lg overflow-hidden">
+        <span class="px-4 py-3 text-white bg-white/5 border-r border-white/10">
+            +92-
+        </span>
+
+        <input type="text"
+               id="phone2_local"
+               maxlength="10"
+               inputmode="numeric"
+               placeholder="3001234567 (optional)"
+               class="w-full px-4 py-3 bg-transparent text-white placeholder-white/40
+                      outline-none">
+    </div>
+
+    <input type="hidden" name="phone2" id="phone2">
+</div>
+
 
         <!-- Email -->
         <div>
@@ -72,6 +98,8 @@
                 placeholder-white/50 focus:bg-white/20 outline-none"
                 required>
         </div>
+
+
 
         <!-- Industry -->
         <div>
@@ -135,7 +163,7 @@
 
     <button
         class="w-full py-3 rounded-xl text-white font-semibold tracking-wide
-               bg-gradient-to-r from-indigo-500 to-purple-500 shadow-lg
+               bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] shadow-lg
                hover:opacity-90 transition">
         Save Customer
     </button>
@@ -145,3 +173,40 @@
 </div>
 
 @endsection
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    function setupPhone(localId, hiddenId) {
+        const local = document.getElementById(localId);
+        const hidden = document.getElementById(hiddenId);
+
+        // Update hidden field when typing
+        local.addEventListener("input", function () {
+            // allow only digits
+            this.value = this.value.replace(/\D/g, "");
+
+            // update hidden field
+            if (this.value.length > 0) {
+                hidden.value = "+92-" + this.value;
+            } else {
+                hidden.value = "";
+            }
+        });
+
+        // Force update hidden before form submit
+        const form = local.closest("form");
+        form.addEventListener("submit", function () {
+            local.value = local.value.replace(/\D/g, "");
+
+            hidden.value = local.value.length > 0
+                ? "+92-" + local.value
+                : "";
+        });
+    }
+
+    setupPhone("phone1_local", "phone1");
+    setupPhone("phone2_local", "phone2");
+
+});
+</script>

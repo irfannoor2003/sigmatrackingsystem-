@@ -9,6 +9,8 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
 
     <style>
         :root {
@@ -19,24 +21,9 @@
         }
 
         body {
-            background: linear-gradient(135deg, #000000, #2b0034, #4a008b, #6A00FF);
+            background: linear-gradient(135deg, #000000, #333333, #000000, #666666);
             background-size: 300% 300%;
-            animation: gradientFlow 12s ease infinite;
             color: white !important;
-        }
-
-        @keyframes gradientFlow {
-            0% {
-                background-position: 0% 0%;
-            }
-
-            50% {
-                background-position: 100% 100%;
-            }
-
-            100% {
-                background-position: 0% 0%;
-            }
         }
 
         .glass {
@@ -88,51 +75,60 @@
 
                     @if (auth()->user()->role === 'admin')
                         <a href="{{ route('admin.dashboard') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                             Dashboard
                         </a>
 
                         <a href="{{ route('admin.reports.index') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('admin.reports.*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
                             Reports
                         </a>
 
                         <a href="{{ route('admin.salesmen.index') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="users" class="w-5 h-5"></i>
                             Salesmen
                         </a>
 
-                        <a href="{{ url('/admin/customers') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <a href="{{ url('/admin/customers') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
                             All Customers
                         </a>
                     @endif
 
                     @if (auth()->user()->role === 'salesman')
                         <a href="{{ route('salesman.dashboard') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                             Dashboard
                         </a>
 
                         <a href="{{ route('salesman.customers.index') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="briefcase" class="w-5 h-5"></i>
                             My Customers
                         </a>
 
                         <a href="{{ route('salesman.customers.create') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
                             Add Customer
                         </a>
 
                         <a href="{{ route('salesman.visits.create') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="map-pin" class="w-5 h-5"></i>
                             Start Visit
                         </a>
 
                         <a href="{{ route('salesman.visits.index') }}"
-                            class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="calendar-check" class="w-5 h-5"></i>
                             My Visits
                         </a>
 
@@ -143,13 +139,15 @@
                     @endif
 
                     <div class="border-t border-white/10 mt-6 pt-4">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
                             Profile
                         </a>
 
                         <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
                             @csrf
-                            <button type="submit" class="text-sm text-red-400 hover:text-red-300">
+                            <button type="submit" class="flex items-center gap-3 text-sm text-red-400 hover:text-red-300">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
                                 Logout
                             </button>
                         </form>
@@ -186,7 +184,7 @@
                 </div>
 
                 <div x-show="open" x-cloak x-transition
-                    class="md:hidden glass border-t border-white/10 absolute top-16 left-0 w-full z-30 bg-black/80">
+                    class="md:hidden glass border-t border-white/10 absolute top-16 left-0 w-full z-30 bg-black">
                     <div class="p-4">
 
                         @auth
@@ -199,32 +197,53 @@
 
                             @if (auth()->user()->role === 'admin')
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'sidebar-active-mobile' : '' }}">Dashboard</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                                    Dashboard
+                                </a>
                                 <a href="{{ route('admin.salesmen.index') }}"
-                                    class="block py-2 rounded hover:bg-white/10">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="users" class="w-5 h-5"></i>
                                     Salesmen
                                 </a>
 
 
                                 <a href="{{ route('admin.reports.index') }}"
-                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">Reports</a>
-                                <a href="{{ route('admin.customers.index') }}"
-                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">All
-                                    Customers</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                                    Reports
+                                </a>
+                                <a href="{{ url('/admin/customers') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                                    All Customers
+                                </a>
                             @endif
 
                             @if (auth()->user()->role === 'salesman')
                                 <a href="{{ route('salesman.dashboard') }}"
-                                    class="block py-2 rounded hover:bg-white/10 {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active-mobile' : '' }}">Dashboard</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                                    Dashboard
+                                </a>
                                 <a href="{{ route('salesman.customers.index') }}"
-                                    class="block py-2 rounded hover:bg-white/10">
-                                    My Customers</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="briefcase" class="w-5 h-5"></i>
+                                    My Customers
+                                </a>
                                 <a href="{{ route('salesman.customers.create') }}"
-                                    class="block py-2 rounded hover:bg-white/10">Add Customer</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                                    Add Customer
+                                </a>
                                 <a href="{{ route('salesman.visits.create') }}"
-                                    class="block py-2 rounded hover:bg-white/10">Start Visit</a>
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                    Start Visit
+                                </a>
                                 <a href="{{ route('salesman.visits.index') }}"
-                                    class="block py-2 rounded hover:bg-white/10">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    <i data-lucide="calendar-check" class="w-5 h-5"></i>
                                     My Visits
                                 </a>
                                 {{-- <a href="{{ route('salesman.attendance.index') }}" class="block py-2">Attendance</a> --}}
@@ -232,7 +251,10 @@
 
                             <form method="POST" action="{{ route('logout') }}" class="mt-4 pt-4 border-t border-white/10">
                                 @csrf
-                                <button class="text-red-400 hover:text-red-300">Logout</button>
+                                <button class="flex items-center gap-3 text-red-400 hover:text-red-300">
+                                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                                    Logout
+                                </button>
                             </form>
                         @endauth
                     </div>
@@ -271,6 +293,22 @@
             color: white !important;
         }
     </style>
+
+    <script>
+        function renderLucide() {
+            lucide.createIcons();
+        }
+
+        // Initial render when DOM loads
+        document.addEventListener("DOMContentLoaded", renderLucide);
+
+        // Re-render when Alpine changes DOM
+        document.addEventListener("alpine:init", () => {
+            Alpine.effect(() => {
+                renderLucide();
+            });
+        });
+    </script>
 
 </body>
 
