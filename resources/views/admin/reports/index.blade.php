@@ -6,67 +6,76 @@
 
 <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-lg">
 
-    <h1 class="text-2xl font-bold text-white mb-6 tracking-wide">
-        Salesmen Visits Report
+    <h1 class="text-2xl font-bold text-white mb-6 tracking-wide flex items-center">
+        <i data-lucide="bar-chart-3" class="w-7 h-7 mr-3 text-pink-400"></i> Salesmen Visits Report
     </h1>
 
-    <!-- Filters -->
     <form method="GET" class="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
 
-        <!-- Salesman -->
-        <select name="salesman_id"
-            class="bg-white/10 text-white border border-white/20 p-3 rounded-xl outline-none">
-            <option value="" class="text-black">All Salesmen</option>
-            @foreach($salesmen as $s)
-                <option value="{{ $s->id }}"
-                    {{ request('salesman_id') == $s->id ? 'selected' : '' }}
-                    class="text-black">
-                    {{ $s->name }}
-                </option>
-            @endforeach
-        </select>
+        <div class="relative flex items-center">
+            <i data-lucide="users" class="absolute left-3 w-5 h-5 text-white/50 pointer-events-none"></i>
+            <select name="salesman_id"
+                class="bg-white/10 text-white border border-white/20 p-3 pl-10 rounded-xl outline-none w-full appearance-none">
 
-        <!-- Date From -->
-        <input type="date"
-            name="from_date"
-            value="{{ request('from_date') }}"
-            class="bg-white/10 text-white border border-white/20 p-3 rounded-xl outline-none">
+                <option value="" class="text-black">All Salesmen</option>
+                @foreach($salesmen as $s)
+                    <option value="{{ $s->id }}"
+                        {{ request('salesman_id') == $s->id ? 'selected' : '' }}
+                        class="text-black">
+                        {{ $s->name }}
+                    </option>
+                @endforeach
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 text-white/60 pointer-events-none"></i>
+        </div>
 
-        <!-- Date To -->
-        <input type="date"
-            name="to_date"
-            value="{{ request('to_date') }}"
-            class="bg-white/10 text-white border border-white/20 p-3 rounded-xl outline-none">
+        <div class="relative flex items-center">
+            <i data-lucide="calendar" class="w-5 h-5 absolute left-3 text-white/60"></i>
+            <input type="date"
+                name="from_date"
+                value="{{ request('from_date') }}"
+                class="bg-white/10 text-white border border-white/20 p-3 pl-10 rounded-xl outline-none w-full">
+        </div>
 
-        <!-- Status -->
-        <select name="status"
-            class="bg-white/10 text-white border border-white/20 p-3 rounded-xl outline-none">
-            <option value="" class="text-black">All Status</option>
-            <option value="started" {{ request('status')=='started'?'selected':'' }} class="text-black">Started</option>
-            <option value="completed" {{ request('status')=='completed'?'selected':'' }} class="text-black">Completed</option>
-        </select>
+        <div class="relative flex items-center">
+            <i data-lucide="calendar" class="w-5 h-5 absolute left-3 text-white/60"></i>
+            <input type="date"
+                name="to_date"
+                value="{{ request('to_date') }}"
+                class="bg-white/10 text-white border border-white/20 p-3 pl-10 rounded-xl outline-none w-full">
+        </div>
 
-        <!-- Buttons -->
+        <div class="relative flex items-center">
+            <i data-lucide="check-circle" class="w-5 h-5 absolute left-3 text-white/60"></i>
+            <select name="status"
+                class="bg-white/10 text-white border border-white/20 p-3 pl-10 rounded-xl outline-none w-full appearance-none">
+                <option value="" class="text-black">All Status</option>
+                <option value="started" {{ request('status')=='started'?'selected':'' }} class="text-black">Started</option>
+                <option value="completed" {{ request('status')=='completed'?'selected':'' }} class="text-black">Completed</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 text-white/60 pointer-events-none"></i>
+        </div>
+
         <div class="flex gap-3 sm:col-span-2 md:col-span-1">
             <button type="submit"
-                class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] text-white font-semibold shadow hover:opacity-90 w-full sm:w-auto">
-                Filter
+                class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff2ba6] to-[#ff2ba6] text-white font-semibold shadow hover:opacity-90 w-full sm:w-auto flex items-center justify-center">
+                <i data-lucide="filter" class="w-4 h-4 mr-2"></i> Filter
             </button>
 
             <button type="button"
                 onclick="window.print()"
-                class="px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white font-semibold shadow hover:bg-white/30 w-full sm:w-auto">
-                Print
+                class="px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white font-semibold shadow hover:bg-white/30 w-full sm:w-auto flex items-center justify-center">
+                <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Print
             </button>
         </div>
 
     </form>
 
 
-    <!-- ▌▌ DESKTOP / TABLE VIEW -->
     <div class="overflow-x-auto mt-4 hidden md:block">
         <table class="w-full border border-white/20 rounded-xl overflow-hidden">
             <thead class="bg-white/10 backdrop-blur-xl border-b border-white/20">
+                {{-- ICONS REMOVED FROM TABLE HEADERS --}}
                 <tr>
                     <th class="p-3 text-left text-white text-sm">Id</th>
                     <th class="p-3 text-left text-white text-sm">Salesman</th>
@@ -88,12 +97,21 @@
 
                         <td class="p-2 text-white/90">
                             <a href="{{ route('admin.reports.show', $v->id) }}"
-                               class="text-indigo-300 hover:underline">
-                                {{ $v->purpose }}
+                               class="text-indigo-300 hover:underline flex items-center">
+                                <i data-lucide="link" class="w-3 h-3 mr-1"></i> {{ $v->purpose }}
                             </a>
                         </td>
 
-                        <td class="p-2 text-white/90">{{ ucfirst($v->status) }}</td>
+                        <td class="p-2 text-white/90">
+                            <span class="inline-flex items-center">
+                                @if($v->status == 'started')
+                                    <i data-lucide="loader-2" class="w-4 h-4 mr-1 text-yellow-400"></i>
+                                @elseif($v->status == 'completed')
+                                    <i data-lucide="check-square" class="w-4 h-4 mr-1 text-green-400"></i>
+                                @endif
+                                {{ ucfirst($v->status) }}
+                            </span>
+                        </td>
                         <td class="p-2 text-white/90">{{ $v->notes }}</td>
 
                         <td class="p-2 text-white/90">{{ $v->started_at->format('Y-m-d H:i') }}</td>
@@ -103,7 +121,7 @@
                     <tr>
                         <td colspan="7"
                             class="p-6 text-center text-white/70 bg-white/5">
-                            No report found
+                            <i data-lucide="search-x" class="w-5 h-5 inline-block mr-2"></i> No report found
                         </td>
                     </tr>
                 @endforelse
@@ -115,44 +133,50 @@
 
 
 
-    <!-- ▌▌ MOBILE / CARD VIEW -->
     <div class="md:hidden space-y-4 mt-6">
 
         @forelse($visits as $v)
         <div class="bg-white/10 border border-white/10 p-4 rounded-xl shadow">
 
-            <div class="text-white font-semibold text-lg">
-                {{ $v->salesman->name }}
+            <div class="text-white font-semibold text-lg flex items-center">
+                <i data-lucide="user-tie" class="w-5 h-5 mr-2 text-pink-300"></i> {{ $v->salesman->name }}
             </div>
 
-            <div class="text-white/70 text-sm mb-3">
-                Customer: {{ $v->customer->name }}
+            <div class="text-white/70 text-sm mb-3 flex items-center">
+                <i data-lucide="building" class="w-4 h-4 mr-2"></i> Customer: {{ $v->customer->name }}
             </div>
 
             <div class="grid grid-cols-1 gap-3">
 
                 <div class="bg-white/5 p-3 rounded-xl">
-                    <div class="text-white/60 text-xs">Purpose</div>
+                    <div class="text-white/60 text-xs flex items-center"><i data-lucide="target" class="w-4 h-4 mr-2"></i> Purpose</div>
                     <a href="{{ route('admin.reports.show', $v->id) }}"
-                       class="text-indigo-300 text-sm">
-                        {{ $v->purpose }}
+                       class="text-indigo-300 text-sm flex items-center">
+                       <i data-lucide="link" class="w-3 h-3 mr-1"></i> {{ $v->purpose }}
                     </a>
                 </div>
 
                 <div class="bg-white/5 p-3 rounded-xl">
-                    <div class="text-white/60 text-xs">Status</div>
-                    <div class="text-white">{{ ucfirst($v->status) }}</div>
+                    <div class="text-white/60 text-xs flex items-center"><i data-lucide="activity" class="w-4 h-4 mr-2"></i> Status</div>
+                    <div class="text-white flex items-center">
+                        @if($v->status == 'started')
+                            <i data-lucide="loader-2" class="w-4 h-4 mr-2 text-yellow-400"></i>
+                        @elseif($v->status == 'completed')
+                            <i data-lucide="check-square" class="w-4 h-4 mr-2 text-green-400"></i>
+                        @endif
+                        {{ ucfirst($v->status) }}
+                    </div>
                 </div>
 
                 @if($v->notes)
                     <div class="bg-white/5 p-3 rounded-xl">
-                        <div class="text-white/60 text-xs">Notes</div>
+                        <div class="text-white/60 text-xs flex items-center"><i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i> Notes</div>
                         <div class="text-white">{{ $v->notes }}</div>
                     </div>
                 @endif
 
                 <div class="bg-white/5 p-3 rounded-xl">
-                    <div class="text-white/60 text-xs">Date</div>
+                    <div class="text-white/60 text-xs flex items-center"><i data-lucide="clock" class="w-4 h-4 mr-2"></i> Date</div>
                     <div class="text-white">{{ $v->started_at->format('Y-m-d H:i') }}</div>
                 </div>
 
@@ -161,16 +185,13 @@
         </div>
         @empty
             <div class="p-6 text-center text-white/70 bg-white/5 rounded-xl">
-                No report found
+                <i data-lucide="search-x" class="w-5 h-5 inline-block mr-2"></i> No report found
             </div>
         @endforelse
 
     </div>
 
 
-
-
-    <!-- Pagination -->
     <div class="mt-6">
         {{ $visits->links() }}
     </div>
