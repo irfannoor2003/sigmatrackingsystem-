@@ -18,7 +18,7 @@
     {{-- Success Message --}}
     @if(session('success'))
         <div class="mb-4 p-4 bg-green-500/20 border border-green-400/40
-                     text-green-100 rounded-xl backdrop-blur-lg flex items-center">
+                    text-green-100 rounded-xl backdrop-blur-lg flex items-center">
             {{-- Lucide Icon: check --}}
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check mr-2">
                 <path d="M20 6 9 17l-5-5"/>
@@ -156,18 +156,20 @@
                                     <textarea
                                         name="notes"
                                         class="w-full bg-white/10 text-white placeholder-white/50
-                                                 p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
+                                                p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
                                         placeholder="Add notes" required></textarea>
 
+                                    {{-- File upload for images only --}}
                                     <input type="file"
                                             name="images[]"
                                             multiple
+                                            accept="image/*" {{-- Suggested addition to hint for images only --}}
                                             class="w-full text-white mb-2 bg-white/10 p-2 rounded-lg" required>
 
                                     <button
                                         class="w-full py-2 rounded-xl text-white font-semibold flex items-center justify-center
-                                               bg-gradient-to-r from-green-500 to-emerald-500
-                                               shadow hover:opacity-90 transition">
+                                                bg-gradient-to-r from-green-500 to-emerald-500
+                                                shadow hover:opacity-90 transition">
                                         {{-- Lucide Icon: check-circle --}}
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle mr-1">
                                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -190,7 +192,7 @@
 
                                     <a href="{{ route('salesman.visits.show', $v->id) }}"
                                        class="px-3 py-2 rounded-lg bg-blue-500/30 border border-blue-400/40
-                                              text-blue-100 text-sm text-center hover:bg-blue-500/40 transition flex items-center justify-center">
+                                               text-blue-100 text-sm text-center hover:bg-blue-500/40 transition flex items-center justify-center">
                                         {{-- Lucide Icon: eye --}}
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye mr-1">
                                             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -292,19 +294,20 @@
                             <textarea
                                 name="notes"
                                 class="w-full bg-white/10 text-white placeholder-white/50
-                                         p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
+                                            p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
                                 placeholder="Add notes" required></textarea>
 
-                            <label class="block text-white/80 text-xs mb-1">Upload Documents/Images (Required)</label>
+                            {{-- File upload for images only (Replaced the previous input/label set) --}}
                             <input type="file"
                                     name="images[]"
                                     multiple
+                                    accept="image/*" {{-- Suggested addition to hint for images only --}}
                                     class="w-full text-white mb-3 bg-white/10 p-2 rounded-lg text-sm" required>
 
                             <button
                                 class="w-full py-2 rounded-xl text-white font-semibold flex items-center justify-center
-                                         bg-gradient-to-r from-green-500 to-emerald-500
-                                         shadow hover:opacity-90 transition">
+                                            bg-gradient-to-r from-green-500 to-emerald-500
+                                            shadow hover:opacity-90 transition">
                                 {{-- Lucide Icon: check-circle --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle mr-2">
                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -327,7 +330,7 @@
 
                             <a href="{{ route('salesman.visits.show', $v->id) }}"
                                class="px-3 py-2 rounded-lg bg-blue-500/30 border border-blue-400/40
-                                      text-blue-100 text-sm text-center hover:bg-blue-500/40 transition flex items-center justify-center">
+                                        text-blue-100 text-sm text-center hover:bg-blue-500/40 transition flex items-center justify-center">
                                 {{-- Lucide Icon: eye --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye mr-2">
                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
