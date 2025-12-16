@@ -198,9 +198,29 @@
                     </div>
 
                     @auth
-                        <div class="hidden md:block text-sm text-gray-300">
-                            {{ auth()->user()->name }} — {{ auth()->user()->role }}
-                        </div>
+                       <div class="hidden md:flex items-center gap-3
+            bg-white/10 backdrop-blur-md border border-white/20
+            px-4 py-2 rounded-xl shadow-lg">
+
+    <!-- Avatar Icon -->
+    <div class="w-9 h-9 flex items-center justify-center
+                rounded-full bg-[#ff2ba6]/20 text-[#fff]">
+        <i data-lucide="user" class="w-5 h-5"></i>
+    </div>
+
+    <!-- Text -->
+    <div class="leading-tight">
+        <div class="text-sm font-semibold text-[#fff]">
+            {{ auth()->user()->name }}
+        </div>
+
+        <div class="text-xs text-white/60 flex items-center gap-1">
+            <i data-lucide="shield" class="w-3 h-3 text-[#ff2ba6]"></i>
+            <span class="capitalize">{{ auth()->user()->role }}</span>
+        </div>
+    </div>
+</div>
+
                     @endauth
                 </div>
 

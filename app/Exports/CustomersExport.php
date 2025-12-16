@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Models\Customer;
-use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -22,7 +21,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
         $query = Customer::with(['city', 'industry', 'category', 'salesman']);
 
         // Export only selected IDs
-        if ($this->ids && count($this->ids) > 0) {
+        if (!empty($this->ids)) {
             $query->whereIn('id', $this->ids);
         }
 
@@ -34,13 +33,14 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
         return [
             'ID',
             'Name',
-            'Contact Number  1',
+            'Contact Number 1',
             'Contact Number 2',
             'Email',
             'City',
             'Industry',
             'Category',
-            'Salesman Name',     // ⭐ Added
+            'Salesman Name',
+            'Image',          // ⭐ Clickable Image Link
             'Created At'
         ];
     }
@@ -56,10 +56,12 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
             $c->city->name ?? '-',
             $c->industry->name ?? '-',
             $c->category->name ?? '-',
-
-            // ⭐ Salesman details
             $c->salesman->name ?? '-',
 
+            // ✅ Clickable image link (opens in Chrome/browser)
+            $c->image
+                ? '=HYPERLINK("' . asset('storage/' . $c->image) . '", "View Image")'
+                : '-',
 
             $c->created_at->format('Y-m-d'),
         ];
