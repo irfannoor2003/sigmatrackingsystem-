@@ -35,55 +35,91 @@
 
 <div class="overflow-x-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl hidden md:block">
     <table class="min-w-full text-sm">
-        <thead class="bg-white/10 text-white/80">
-            <tr>
-                <th class="p-4 text-left w-20">ID</th>
-                <th class="p-4 text-left">Company Name</th>
-                <th class="p-4 text-left">Contact Person</th>
-                <th class="p-4 text-left">Phone</th>
-                <th class="p-4 text-left">Address</th>
-                <th class="p-4 text-left">Email</th>
-            </tr>
-        </thead>
+     <thead class="bg-white/10 text-white/80">
+    <tr>
+        <th class="p-4 text-left w-20">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="w-4 h-4 text-white/40"></i>
+                Id
+            </div>
+        </th>
+
+        <th class="p-4 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4 text-[#ff2ba6]"></i>
+                Company
+            </div>
+        </th>
+
+        <th class="p-4 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user-check" class="w-4 h-4 text-white/70"></i>
+                Person
+            </div>
+        </th>
+
+        <th class="p-4 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="phone" class="w-4 h-4 text-white/70"></i>
+                Phone
+            </div>
+        </th>
+
+        <th class="p-4 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-white/70"></i>
+                Address
+            </div>
+        </th>
+
+        <th class="p-4 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="mail" class="w-4 h-4 text-white/70"></i>
+                Email
+            </div>
+        </th>
+    </tr>
+</thead>
+
         <tbody>
             @forelse($customers as $c)
                 <tr class="border-t border-white/10 hover:bg-white/5">
                     <td class="p-4 text-white/60 font-mono flex items-center gap-1">
-                        <i data-lucide="hash" class="w-3 h-3 text-white/40"></i>
+
                         {{ $c->id }}
                     </td>
 
                     <td class="p-4 font-semibold">
                         <div class="flex items-center gap-1">
-                            <i data-lucide="building-2" class="w-4 h-4 text-[#ff2ba6]"></i>
+
                             {{ $c->company_name }}
                         </div>
                     </td>
 
                     <td class="p-4">
                         <div class="flex items-center gap-1">
-                            <i data-lucide="user-check" class="w-4 h-4 text-white/70"></i>
+
                             {{ $c->contact_person ?? '-' }}
                         </div>
                     </td>
 
                     <td class="p-4">
                         <div class="flex items-center gap-1">
-                            <i data-lucide="phone" class="w-4 h-4 text-white/70"></i>
+
                             {{ $c->contact ?? '-' }}
                         </div>
                     </td>
 
                     <td class="p-4">
                         <div class="flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-white/70"></i>
+
                             {{ $c->address ?? '-' }}
                         </div>
                     </td>
 
                     <td class="p-4">
                         <div class="flex items-center gap-1">
-                            <i data-lucide="mail" class="w-4 h-4 text-white/70"></i>
+
                             {{ $c->email ?? '-' }}
                         </div>
                     </td>

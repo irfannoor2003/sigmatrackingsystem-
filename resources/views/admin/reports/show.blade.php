@@ -16,7 +16,7 @@
 
             <div>
                 <p class="mb-3 flex items-center">
-                    <i data-lucide="user-tie" class="w-5 h-5 mr-2 text-pink-300"></i>
+                    <i data-lucide="user" class="w-5 h-5 mr-2 text-pink-300"></i>
                     <strong class="text-white mr-2">Salesman:</strong> {{ $visit->salesman->name }}
                 </p>
                 <p class="mb-3 flex items-center">

@@ -35,15 +35,51 @@
 
         <table class="w-full table-auto text-white">
             <thead>
-                <tr class="bg-white/10 text-white/80">
-                    <th class="p-3 text-left">Id</th>
-                    <th class="p-3 text-left">Name</th>
-                    <th class="p-3 text-left">Contact</th>
-                    <th class="p-3 text-left">Mobile</th>
-                    <th class="p-3 text-left">Address</th>
-                    <th class="p-3 text-left">Action</th>
-                </tr>
-            </thead>
+    <tr class="bg-white/10 text-white/80">
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="w-4 h-4 text-white/50"></i>
+                Id
+            </div>
+        </th>
+
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-white/50"></i>
+                Name
+            </div>
+        </th>
+
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user-check" class="w-4 h-4 text-white/50"></i>
+                Contact
+            </div>
+        </th>
+
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="phone" class="w-4 h-4 text-white/50"></i>
+                Mobile
+            </div>
+        </th>
+
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-white/50"></i>
+                Address
+            </div>
+        </th>
+
+        <th class="p-3 text-left">
+            <div class="flex items-center gap-2">
+                <i data-lucide="settings" class="w-4 h-4 text-white/50"></i>
+                Action
+            </div>
+        </th>
+    </tr>
+</thead>
+
 
             <tbody>
                 @forelse ($customers as $c)

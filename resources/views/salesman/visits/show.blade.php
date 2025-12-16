@@ -53,19 +53,24 @@
                         </span>
                     </div>
 
-                    <div class="flex justify-between bg-white/10 py-3 px-4 rounded-xl text-sm md:text-base">
-                        <span class="text-white/70 flex items-center">
-                            {{-- Lucide Icon: sticky-note --}}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sticky-note mr-2">
-                                <path d="M15.5 8H20v14H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8.5L20 8.5z"/>
-                                <path d="M15 2v4a2 2 0 0 0 2 2h4"/>
-                            </svg>
-                            Notes
-                        </span>
-                        <span class="text-white">
-                            {{ $visit->notes ?? 'N/A' }}
-                        </span>
-                    </div>
+           <div class="bg-white/10 py-3 px-4 rounded-xl text-sm md:text-base">
+    <div class="flex items-center mb-2 text-white/70">
+        {{-- Lucide Icon: sticky-note --}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             class="lucide lucide-sticky-note mr-2">
+            <path d="M15.5 8H20v14H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8.5L20 8.5z"/>
+            <path d="M15 2v4a2 2 0 0 0 2 2h4"/>
+        </svg>
+        Notes
+    </div>
+
+    <div class="text-white break-words whitespace-pre-line max-h-40 overflow-y-auto pr-1">
+        {{ $visit->notes ?? 'N/A' }}
+    </div>
+</div>
+
+
 
                     <div class="flex justify-between bg-white/10 py-3 px-4 rounded-xl text-sm md:text-base">
                         <span class="text-white/70 flex items-center">

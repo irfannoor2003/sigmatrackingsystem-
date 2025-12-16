@@ -98,21 +98,65 @@
             <div class="glass rounded-2xl border border-white/20 overflow-hidden shadow-xl hidden md:block">
                 <table class="w-full min-w-[600px]">
                     <thead class="bg-white/10 backdrop-blur-xl">
-                        <tr class="text-left text-white/70 text-xs sm:text-sm uppercase tracking-wider">
+    <tr class="text-left text-white/70 text-xs sm:text-sm uppercase tracking-wider">
 
-                            <th class="p-3">
-                                <input type="checkbox" id="select-all" class="cursor-pointer">
-                            </th>
+        {{-- Select All --}}
+        <th class="p-3">
+            <input type="checkbox" id="select-all" class="cursor-pointer">
+        </th>
 
-                            <th class="p-3">Id</th>
-                            <th class="p-3">Name</th>
-                            <th class="p-3">Phone</th>
-                            <th class="p-3">City</th>
-                            <th class="p-3">Industry</th>
-                            <th class="p-3">Category</th>
-                            <th class="p-3">Action</th>
-                        </tr>
-                    </thead>
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="w-4 h-4 text-white/50"></i>
+                Id
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-white/50"></i>
+                Name
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="phone" class="w-4 h-4 text-white/50"></i>
+                Phone
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-white/50"></i>
+                City
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="factory" class="w-4 h-4 text-white/50"></i>
+                Industry
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-white/50"></i>
+                Category
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="settings" class="w-4 h-4 text-white/50"></i>
+                Action
+            </div>
+        </th>
+
+    </tr>
+</thead>
+
 
                     <tbody>
                         @forelse ($customers as $c)
@@ -183,7 +227,7 @@
 
                     <div class="flex items-center justify-between mb-2">
                         <h2 class="text-lg font-semibold text-white">
-                            {{ $c->name }}
+                            <i data-lucide="user" class="w-4 h-4 inline mr-1 text-white/70"></i>{{ $c->name }}
                         </h2>
                         <input type="checkbox" name="selected_customers[]" value="{{ $c->id }}"
                             class="cursor-pointer customer-checkbox">

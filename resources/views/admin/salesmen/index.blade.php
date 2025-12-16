@@ -23,17 +23,58 @@
     <div class="hidden md:block">
         <table class="w-full">
             <thead>
-                {{-- ICONS REMOVED FROM TABLE HEADERS --}}
-                <tr class="text-left text-sm text-white/70 border-b border-white/20">
-                    <th class="p-3">Id</th>
-                    <th class="p-3">Name</th>
-                    <th class="p-3">Email</th>
-                    <th class="p-3">Customers (Total)</th>
-                    <th class="p-3">Customers (This Month)</th>
-                    <th class="p-3">Visits (This Month)</th>
-                    <th class="p-3">Created</th>
-                </tr>
-            </thead>
+    <tr class="text-left text-sm text-white/70 border-b border-white/20">
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="w-4 h-4 text-white/50"></i>
+                Id
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-white/50"></i>
+                Name
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="mail" class="w-4 h-4 text-white/50"></i>
+                Email
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-white/50"></i>
+                Customers (Total)
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-indigo-300"></i>
+                Customers (This Month)
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-purple-300"></i>
+                Visits (This Month)
+            </div>
+        </th>
+
+        <th class="p-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-white/50"></i>
+                Created
+            </div>
+        </th>
+    </tr>
+</thead>
+
 
             <tbody class="divide-y divide-white/10">
 

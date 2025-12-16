@@ -75,17 +75,58 @@
     <div class="overflow-x-auto mt-4 hidden md:block">
         <table class="w-full border border-white/20 rounded-xl overflow-hidden">
             <thead class="bg-white/10 backdrop-blur-xl border-b border-white/20">
-                {{-- ICONS REMOVED FROM TABLE HEADERS --}}
-                <tr>
-                    <th class="p-3 text-left text-white text-sm">Id</th>
-                    <th class="p-3 text-left text-white text-sm">Salesman</th>
-                    <th class="p-3 text-left text-white text-sm">Customer</th>
-                    <th class="p-3 text-left text-white text-sm">Purpose</th>
-                    <th class="p-3 text-left text-white text-sm">Status</th>
-                    <th class="p-3 text-left text-white text-sm">Notes</th>
-                    <th class="p-3 text-left text-white text-sm">Date</th>
-                </tr>
-            </thead>
+    <tr>
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="w-4 h-4 text-white/60"></i>
+                Id
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-white/60"></i>
+                Salesman
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4 text-white/60"></i>
+                Customer
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="target" class="w-4 h-4 text-white/60"></i>
+                Purpose
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                Status
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="sticky-note" class="w-4 h-4 text-white/60"></i>
+                Notes
+            </div>
+        </th>
+
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-white/60"></i>
+                Date
+            </div>
+        </th>
+    </tr>
+</thead>
+
 
             <tbody class="divide-y divide-white/10">
 
@@ -139,7 +180,7 @@
         <div class="bg-white/10 border border-white/10 p-4 rounded-xl shadow">
 
             <div class="text-white font-semibold text-lg flex items-center">
-                <i data-lucide="user-tie" class="w-5 h-5 mr-2 text-pink-300"></i> {{ $v->salesman->name }}
+                <i data-lucide="user" class="w-5 h-5 mr-2 text-pink-300"></i> {{ $v->salesman->name }}
             </div>
 
             <div class="text-white/70 text-sm mb-3 flex items-center">

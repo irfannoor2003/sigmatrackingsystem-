@@ -57,10 +57,21 @@
                         <span class="text-white">{{ $customer->industry?->name ?? 'N/A' }}</span>
                     </div>
 
-                    <div class="flex justify-between items-center bg-white/10 py-3 px-4 rounded-xl">
-                        <span class="text-white/70 flex items-center gap-2"><i data-lucide="home" class="w-4 h-4"></i> Address</span>
-                        <span class="text-white">{{ $customer->address ?? 'N/A' }}</span>
-                    </div>
+                   <div class="flex justify-between items-start bg-white/10 py-3 px-4 rounded-xl">
+    <span class="text-white/70 flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="home" class="w-4 h-4"></i> Address
+    </span>
+
+    <div class="max-w-[60%] text-right">
+        <p id="address-{{ $customer->id }}"
+           class="text-white text-sm leading-relaxed line-clamp-2 break-words">
+            {{ $customer->address ?? 'N/A' }}
+        </p>
+
+
+    </div>
+</div>
+
 
                     <div class="flex justify-between items-center bg-white/10 py-3 px-4 rounded-xl">
                         <span class="text-white/70 flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> Added On</span>
