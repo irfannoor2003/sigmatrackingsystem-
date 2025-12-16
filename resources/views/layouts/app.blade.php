@@ -98,6 +98,13 @@
                             <i data-lucide="building-2" class="w-5 h-5"></i>
                             All Customers
                         </a>
+                        <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+                    <a href="{{ route('admin.old-customers.index') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                        Search / View Old
+                    </a>
                     @endif
 
                     @if (auth()->user()->role === 'salesman')
@@ -131,6 +138,20 @@
                             <i data-lucide="calendar-check" class="w-5 h-5"></i>
                             My Visits
                         </a>
+                        {{-- 🔹 NEW: OLD CUSTOMERS (SALESMAN) --}}
+                    <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+                    <a href="{{ route('salesman.old-customers.import') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="upload" class="w-5 h-5"></i>
+                        Import Old Customers
+                    </a>
+
+                    <a href="{{ route('salesman.old-customers.index') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                        View Old Customers
+                    </a>
 
                         {{-- <a href="{{ route('salesman.attendance.index') }}"
                         class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
@@ -218,6 +239,13 @@
                                     <i data-lucide="building-2" class="w-5 h-5"></i>
                                     All Customers
                                 </a>
+                                <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+                    <a href="{{ route('admin.old-customers.index') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                        Search / View Old
+                    </a>
                             @endif
 
                             @if (auth()->user()->role === 'salesman')
@@ -246,7 +274,22 @@
                                     <i data-lucide="calendar-check" class="w-5 h-5"></i>
                                     My Visits
                                 </a>
+
                                 {{-- <a href="{{ route('salesman.attendance.index') }}" class="block py-2">Attendance</a> --}}
+                                <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+                    <a href="{{ route('salesman.old-customers.import') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="upload" class="w-5 h-5"></i>
+                        Import Old Customers
+                    </a>
+
+                    <a href="{{ route('salesman.old-customers.index') }}"
+                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                        View Old Customers
+                    </a>
+
                             @endif
 
                             <form method="POST" action="{{ route('logout') }}" class="mt-4 pt-4 border-t border-white/10">

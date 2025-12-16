@@ -5,23 +5,70 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Visit;
 use App\Models\Customer;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VisitController extends Controller
 {
-    // Show create visit form
+    /**
+     * Show create visit form
+     */
     public function create()
     {
         $customers = Customer::where('salesman_id', Auth::id())
-                             ->orderBy('name')
-                             ->paginate(5); // FIXED
+            ->orderBy('name')
+            ->get();
 
         return view('salesman.visits.create', compact('customers'));
     }
 
-    // Start a visit
+    /**
+     * List visits
+     */
+    public function index()
+    {
+        $visits = Visit::where('salesman_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return view('salesman.visits.index', compact('visits'));
+    }
+
+    /**
+     * Distance calculator (meters)
+     */
+    private function distanceInMeters($lat1, $lng1, $lat2, $lng2)
+    {
+        $earthRadius = 6371000;
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+
+        $a =
+            sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
+
+        return $earthRadius * (2 * atan2(sqrt($a), sqrt(1 - $a)));
+    }
+
+    /**
+     * Start visit (office-only)
+     */
     public function store(Request $request)
     {
+        // ❌ Block multiple active visits
+        $activeVisit = Visit::where('salesman_id', Auth::id())
+            ->where('status', 'started')
+            ->first();
+
+        if ($activeVisit) {
+            return back()->with(
+                'error',
+                'You already have an active visit. Complete it first.'
+            );
+        }
+
         $request->validate([
             'lat' => 'required|numeric',
             'lng' => 'required|numeric',
@@ -29,61 +76,86 @@ class VisitController extends Controller
             'purpose' => 'required|string|max:255',
         ]);
 
+        $officeLat = config('office.lat');
+        $officeLng = config('office.lng');
+        $radius    = config('office.radius');
+
+        if (!$officeLat || !$officeLng) {
+            return back()->with('error', 'Office location not configured.');
+        }
+
+        $distance = $this->distanceInMeters(
+            $officeLat,
+            $officeLng,
+            $request->lat,
+            $request->lng
+        );
+
+        Log::info('Visit start attempt', [
+            'lat' => $request->lat,
+            'lng' => $request->lng,
+            'distance' => round($distance),
+        ]);
+
+        if ($distance > $radius) {
+            return back()->with(
+                'error',
+                'You are ' . round($distance) . ' meters away from the office.'
+            );
+        }
+
         Visit::create([
             'customer_id' => $request->customer_id,
             'salesman_id' => Auth::id(),
             'purpose' => $request->purpose,
             'status' => 'started',
             'started_at' => now(),
+            'start_lat' => $request->lat,
+            'start_lng' => $request->lng,
         ]);
 
-        return redirect()->route('salesman.visits.index')
-                         ->with('success', 'Visit started successfully!');
+        return redirect()
+            ->route('salesman.visits.index')
+            ->with('success', 'Visit started successfully!');
     }
 
-    // List visits for logged-in salesman
-    public function index()
-    {
-        $visits = Visit::where('salesman_id', Auth::id())
-                       ->orderBy('id', 'desc')
-                       ->paginate(5); // FIXED
-
-        return view('salesman.visits.index', compact('visits'));
-    }
-
-    // Complete visit
+    /**
+     * Complete visit
+     */
     public function complete(Request $request, $id)
     {
-        $visit = Visit::findOrFail($id);
+        $visit = Visit::where('id', $id)
+            ->where('salesman_id', Auth::id())
+            ->where('status', 'started')
+            ->firstOrFail();
 
         $images = [];
 
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $img) {
-                $path = $img->store('visit_images', 'public');
-                $images[] = $path;
+            foreach ($request->file('images') as $image) {
+                $images[] = $image->store('visit_images', 'public');
             }
         }
 
-        // Merge new images with old ones
-        $existingImages = $visit->images ?? [];
-        $mergedImages = array_merge($existingImages, $images);
-
-        $visit->notes = $request->notes ?? $visit->notes;
-        $visit->images = $mergedImages;
+        $visit->notes = $request->notes;
+        $visit->images = array_merge($visit->images ?? [], $images);
         $visit->status = 'completed';
         $visit->completed_at = now();
         $visit->save();
 
-        return back()->with('success', 'Visit completed successfully!');
+        return redirect()
+            ->route('salesman.visits.index')
+            ->with('success', 'Visit completed successfully!');
     }
 
-    // Show single visit
+    /**
+     * Show single visit
+     */
     public function show($id)
     {
         $visit = Visit::where('id', $id)
-                      ->where('salesman_id', Auth::id())
-                      ->firstOrFail();
+            ->where('salesman_id', Auth::id())
+            ->firstOrFail();
 
         return view('salesman.visits.show', compact('visit'));
     }

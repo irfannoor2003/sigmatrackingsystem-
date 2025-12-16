@@ -125,7 +125,7 @@ document.getElementById('startVisitForm').addEventListener('submit', function(e)
     // Geolocation options for better accuracy and timeout
     const options = {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 1000,
         maximumAge: 0
     };
 
