@@ -32,15 +32,17 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'ID',
-            'Name',
-            'Contact Number 1',
-            'Contact Number 2',
+            'Company Name',
+            'Contact Person',
+            'Mobile Number 1',
+            'Mobile Number 2',
             'Email',
             'City',
             'Industry',
             'Category',
             'Salesman Name',
-            'Image',          // ⭐ Clickable Image Link
+            'Image',
+            'Address',       // ⭐ Clickable Image Link
             'Created At'
         ];
     }
@@ -50,6 +52,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
         return [
             $c->id,
             $c->name,
+            $c->contact_person,
             $c->phone1,
             $c->phone2,
             $c->email,
@@ -62,7 +65,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
             $c->image
                 ? '=HYPERLINK("' . asset('storage/' . $c->image) . '", "View Image")'
                 : '-',
-
+             $c->address ?? '-',
             $c->created_at->format('Y-m-d'),
         ];
     }
