@@ -2,66 +2,149 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Attendance;
-use Auth;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    // Show today's attendance
-    public function index()
+    /**
+     * Get logged-in staff user (salesman / it / accounts)
+     */
+    private function staffUser()
     {
-        $today = Carbon::today()->toDateString();
+        $user = auth()->user();
 
-        $attendance = Attendance::where('salesman_id', Auth::id())
-                                ->where('date', $today)
-                                ->first();
-
-        return view('salesman.attendance.index', compact('attendance'));
-    }
-
-    // Clock in
-    public function clockIn(Request $request)
-    {
-        $today = Carbon::today()->toDateString();
-
-        // Prevent duplicate clock-in
-        if (Attendance::where('salesman_id', Auth::id())->where('date', $today)->exists()) {
-            return back()->with('error', 'You already clocked in today.');
+        if (!in_array($user->role, ['salesman', 'it', 'accounts'])) {
+            abort(403, 'Unauthorized action.');
         }
 
-        Attendance::create([
-            'salesman_id' => Auth::id(),
-            'date' => $today,
-            'clock_in' => Carbon::now()->format('H:i:s'),
+        return $user;
+    }
+
+    /**
+     * Resolve correct view path based on role
+     */
+    private function viewPath(string $view)
+    {
+        $role = auth()->user()->role;
+
+        // Salesman keeps old views (NO BREAKING CHANGE)
+        if ($role === 'salesman') {
+            return "salesman.attendance.$view";
+        }
+
+        // IT & Accounts use staff views
+        return "staff.attendance.$view";
+    }
+
+    /**
+     * Show today's attendance
+     */
+    public function index()
+    {
+        $user = $this->staffUser();
+        $today = Carbon::today()->toDateString();
+
+        $attendance = Attendance::where('salesman_id', $user->id)
+            ->where('date', $today)
+            ->first();
+
+        return view($this->viewPath('index'), compact('attendance'));
+    }
+
+    /**
+     * Clock In
+     */
+    public function clockIn(Request $request)
+    {
+        $user = $this->staffUser();
+        $today = Carbon::today()->toDateString();
+
+        $attendance = Attendance::where('salesman_id', $user->id)
+            ->where('date', $today)
+            ->first();
+
+        // 🚫 Admin marked leave
+        if ($attendance && $attendance->status === 'leave') {
+            return back()->with('error', 'You are marked on leave today.');
+        }
+
+        // ⛔ Already clocked in
+        if ($attendance && $attendance->clock_in) {
+            return back()->with('error', 'You have already clocked in today.');
+        }
+
+        Attendance::updateOrCreate(
+            [
+                'salesman_id' => $user->id,
+                'date' => $today,
+            ],
+            [
+                'status'   => 'present',
+                'clock_in' => now(),
+                'lat'      => $request->lat,
+                'lng'      => $request->lng,
+            ]
+        );
+
+        return back()->with('success', 'Clock-in successful.');
+    }
+
+    /**
+     * Clock Out
+     */
+    public function clockOut(Request $request)
+    {
+        $user = $this->staffUser();
+        $today = Carbon::today()->toDateString();
+
+        $attendance = Attendance::where('salesman_id', $user->id)
+            ->where('date', $today)
+            ->first();
+
+        if (!$attendance || !$attendance->clock_in) {
+            return back()->with('error', 'You must clock in first.');
+        }
+
+        if ($attendance->status === 'leave') {
+            return back()->with('error', 'You are on leave today.');
+        }
+
+        if ($attendance->clock_out) {
+            return back()->with('error', 'You have already clocked out.');
+        }
+
+        $clockOut = now();
+
+        $attendance->update([
+            'clock_out'     => $clockOut,
+            'total_minutes' => Carbon::parse($attendance->clock_in)
+                ->diffInMinutes($clockOut),
             'lat' => $request->lat,
             'lng' => $request->lng,
         ]);
 
-        return back()->with('success', 'Clock In Successful!');
+        return back()->with('success', 'Clock-out successful.');
     }
 
-    // Clock out
-    public function clockOut(Request $request)
+    /**
+     * Monthly Attendance History
+     */
+    public function history(Request $request)
     {
-        $today = Carbon::today()->toDateString();
+        $user = $this->staffUser();
+        $month = $request->get('month', now()->format('Y-m'));
 
-        $attendance = Attendance::where('salesman_id', Auth::id())
-                                ->where('date', $today)
-                                ->first();
+        $attendances = Attendance::where('salesman_id', $user->id)
+            ->whereMonth('date', Carbon::parse($month)->month)
+            ->whereYear('date', Carbon::parse($month)->year)
+            ->orderBy('date', 'desc')
+            ->get();
 
-        if (!$attendance) {
-            return back()->with('error', 'You need to Clock In first.');
-        }
-
-        if ($attendance->clock_out) {
-            return back()->with('error', 'You already clocked out today.');
-        }
-
-        $attendance->clock_out = Carbon::now()->format('H:i:s');
-        $attendance->save();
-
-        return back()->with('success', 'Clock Out Successful!');
+        return view(
+            $this->viewPath('history'),
+            compact('attendances', 'month')
+        );
     }
 }

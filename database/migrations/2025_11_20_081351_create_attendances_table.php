@@ -11,17 +11,40 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) { // plural name
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('salesman_id');
-            $table->date('date');
+
+            $table->foreignId('salesman_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            $table->date('date')->index();
+
+            // Attendance status
+            $table->enum('status', ['present', 'leave'])
+                ->default('present');
+
+            // Timing
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
-            $table->double('lat')->nullable();
-            $table->double('lng')->nullable();
+
+            // Total working minutes (better than time)
+            $table->integer('total_minutes')->nullable();
+
+            // GPS
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lng', 10, 7)->nullable();
+
+            // Office verification
+            $table->boolean('office_verified')->default(false);
+
+            // Optional admin note (leave reason)
+            $table->string('note')->nullable();
+
             $table->timestamps();
 
-            $table->foreign('salesman_id')->references('id')->on('users')->onDelete('cascade');
+            // One attendance per salesman per day
+            $table->unique(['salesman_id', 'date']);
         });
     }
 
@@ -30,6 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendances'); // matches the create name
+        Schema::dropIfExists('attendances');
     }
 };

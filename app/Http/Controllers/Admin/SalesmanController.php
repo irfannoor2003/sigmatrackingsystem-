@@ -3,17 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class SalesmanController extends Controller
 {
-   public function index()
-{
-    $salesmen = User::where('role', 'salesman')->paginate(10);
-    return view('admin.salesmen.index', compact('salesmen'));
-}
+    public function index()
+    {
+        // Only salesmen
+        $salesmen = User::where('role', 'salesman')
+            ->latest()
+            ->paginate(10);
 
+        return view('admin.salesmen.index', compact('salesmen'));
+    }
 
     public function create()
     {
@@ -22,19 +26,56 @@ class SalesmanController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'  => 'required',
-            'email' => 'required|email|unique:users,email',
+        $data = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => 'salesman',
-            'password' => bcrypt($request->password),
+        $data['password'] = Hash::make($data['password']);
+        $data['role'] = 'salesman';
+
+        User::create($data);
+
+        return redirect()
+            ->route('admin.salesmen.index')
+            ->with('success', 'Salesman created successfully.');
+    }
+
+    public function edit($id)
+    {
+        $salesman = User::where('role', 'salesman')->findOrFail($id);
+        return view('admin.salesmen.edit', compact('salesman'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $salesman = User::where('role', 'salesman')->findOrFail($id);
+
+        $data = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $salesman->id,
+            'password' => 'nullable|min:6',
         ]);
 
-        return redirect()->route('admin.salesmen.index')->with('success', 'Salesman added successfully');
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        } else {
+            unset($data['password']);
+        }
+
+        $salesman->update($data);
+
+        return redirect()
+            ->route('admin.salesmen.index')
+            ->with('success', 'Salesman updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $salesman = User::where('role', 'salesman')->findOrFail($id);
+        $salesman->delete();
+
+        return back()->with('success', 'Salesman deleted successfully.');
     }
 }

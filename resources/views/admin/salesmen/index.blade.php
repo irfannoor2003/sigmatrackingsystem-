@@ -66,12 +66,14 @@
             </div>
         </th>
 
-        <th class="p-3">
-            <div class="flex items-center gap-2">
-                <i data-lucide="calendar" class="w-4 h-4 text-white/50"></i>
-                Created
-            </div>
-        </th>
+
+        <th class="p-3 text-center">
+    <div class="flex items-center justify-center gap-2">
+        <i data-lucide="settings" class="w-4 h-4 text-white/50"></i>
+        Actions
+    </div>
+</th>
+
     </tr>
 </thead>
 
@@ -109,7 +111,34 @@
                         <td class="p-2 text-white/80">{{ $totalCustomers }}</td>
                         <td class="p-2 text-indigo-300 font-semibold">{{ $customersMonthly }}</td>
                         <td class="p-2 text-purple-300 font-semibold">{{ $visitsMonthly }}</td>
-                        <td class="p-2 text-white/60 text-sm">{{ $s->created_at->format('Y-m-d') }}</td>
+
+                        <td class="p-2">
+    <div class="flex items-center justify-center gap-2">
+
+        {{-- Edit --}}
+        <a href="{{ route('admin.salesmen.edit', $s->id) }}"
+           class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-300
+                  hover:bg-blue-500/30 transition flex items-center text-sm">
+            <i data-lucide="edit" class="w-4 h-4 mr-1"></i> Edit
+        </a>
+
+        {{-- Delete --}}
+        <form method="POST"
+              action="{{ route('admin.salesmen.destroy', $s->id) }}"
+              onsubmit="return confirm('Are you sure you want to delete this salesman?')">
+            @csrf
+            @method('DELETE')
+
+            <button type="submit"
+                    class="px-3 py-1 rounded-lg bg-red-500/20 text-red-300
+                           hover:bg-red-500/30 transition flex items-center text-sm">
+                <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete
+            </button>
+        </form>
+
+    </div>
+</td>
+
                     </tr>
 
                 @empty
@@ -176,6 +205,32 @@
                 <div class="text-xs text-white/50 mt-3 flex items-center">
                     <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Joined: {{ $s->created_at->format('Y-m-d') }}
                 </div>
+                <div class="mt-4 flex gap-2">
+
+    {{-- Edit --}}
+    <a href="{{ route('admin.salesmen.edit', $s->id) }}"
+       class="flex-1 text-center py-2 rounded-lg bg-blue-500/20 text-blue-300
+              hover:bg-blue-500/30 transition flex items-center justify-center text-sm">
+        <i data-lucide="edit" class="w-4 h-4 mr-1"></i> Edit
+    </a>
+
+    {{-- Delete --}}
+    <form method="POST"
+          action="{{ route('admin.salesmen.destroy', $s->id) }}"
+          class="flex-1"
+          onsubmit="return confirm('Delete this salesman?')">
+        @csrf
+        @method('DELETE')
+
+        <button type="submit"
+                class="w-full py-2 rounded-lg bg-red-500/20 text-red-300
+                       hover:bg-red-500/30 transition flex items-center justify-center text-sm">
+            <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete
+        </button>
+    </form>
+
+</div>
+
             </div>
 
         @empty

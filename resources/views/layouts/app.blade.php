@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Sigma Tracking System')</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
+
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -66,7 +68,9 @@
             <nav class="p-4 flex-1 text-gray-200 ">
 
                 @auth
-
+@php
+            $role = auth()->user()->role;
+        @endphp
                     <div class="mb-6 p-4 rounded-xl glass border border-white/10 ">
                         <div class="text-sm text-gray-300">Logged in as:</div>
                         <div class="font-semibold text-white">{{ auth()->user()->name }}</div>
@@ -80,31 +84,42 @@
                             <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                             Dashboard
                         </a>
-
-                        <a href="{{ route('admin.reports.index') }}"
+                        <a href="{{ route('admin.staff.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
-                        {{ request()->routeIs('admin.reports.*') ? 'sidebar-active' : '' }}">
-                            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                            Reports
+   {{ request()->routeIs('admin.staff.*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="users-round" class="w-5 h-5"></i>
+                            All Staff
+                        </a> <a href="{{ route('admin.attendance.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->routeIs('admin.attendance.*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                            Attendance Reports
                         </a>
-
                         <a href="{{ route('admin.salesmen.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
                             <i data-lucide="users" class="w-5 h-5"></i>
                             Salesmen
                         </a>
+                        <a href="{{ route('admin.reports.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+                        {{ request()->routeIs('admin.reports.*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                            Visits Reports
+                        </a>
 
-                        <a href="{{ url('/admin/customers') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+
+                        <a href="{{ url('/admin/customers') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
                             <i data-lucide="building-2" class="w-5 h-5"></i>
                             All Customers
                         </a>
                         <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
-                    <a href="{{ route('admin.old-customers.index') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="database" class="w-5 h-5"></i>
-                        Search / View Old
-                    </a>
+                        <a href="{{ route('admin.old-customers.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="database" class="w-5 h-5"></i>
+                            Search / View Old
+                        </a>
                     @endif
 
                     @if (auth()->user()->role === 'salesman')
@@ -113,6 +128,12 @@
                         {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active' : '' }}">
                             <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                             Dashboard
+                        </a>
+                        <a href="{{ route('salesman.attendance.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                            Attendance
                         </a>
 
                         <a href="{{ route('salesman.customers.index') }}"
@@ -139,31 +160,39 @@
                             My Visits
                         </a>
                         {{-- 🔹 NEW: OLD CUSTOMERS (SALESMAN) --}}
-                    <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+                        <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
-                    <a href="{{ route('salesman.old-customers.import') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="upload" class="w-5 h-5"></i>
-                        Import Old Customers
-                    </a>
+                        <a href="{{ route('salesman.old-customers.import') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="upload" class="w-5 h-5"></i>
+                            Import Old Customers
+                        </a>
 
-                    <a href="{{ route('salesman.old-customers.index') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="database" class="w-5 h-5"></i>
-                        View Old Customers
-                    </a>
-
-                        {{-- <a href="{{ route('salesman.attendance.index') }}"
-                        class="block px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        Attendance
-                    </a> --}}
+                        <a href="{{ route('salesman.old-customers.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            <i data-lucide="database" class="w-5 h-5"></i>
+                            View Old Customers
+                        </a>
+                    @endif
+                    @if (in_array($role, ['it', 'accounts']))
+                        <a href="{{ route('staff.attendance.index') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+        {{ request()->routeIs('staff.attendance*') ? 'sidebar-active' : '' }}">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                            Attendance
+                        </a>
                     @endif
 
+
                     <div class="border-t border-white/10 mt-6 pt-4">
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10">
-                            <i data-lucide="settings" class="w-5 h-5"></i>
-                            Profile
-                        </a>
+                       @if (auth()->user()->role === 'admin')
+    <a href="{{ route('profile.edit') }}"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10">
+        <i data-lucide="settings" class="w-5 h-5"></i>
+        Profile
+    </a>
+@endif
+
 
                         <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
                             @csrf
@@ -185,7 +214,8 @@
 
                     <div class="flex items-center gap-3">
                         <button @click="open = !open" class="md:hidden p-2 rounded hover:bg-white/10">
-                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
@@ -198,28 +228,30 @@
                     </div>
 
                     @auth
-                       <div class="hidden md:flex items-center gap-3
+                        <div
+                            class="hidden md:flex items-center gap-3
             bg-white/10 backdrop-blur-md border border-white/20
             px-4 py-2 rounded-xl shadow-lg">
 
-    <!-- Avatar Icon -->
-    <div class="w-9 h-9 flex items-center justify-center
+                            <!-- Avatar Icon -->
+                            <div
+                                class="w-9 h-9 flex items-center justify-center
                 rounded-full bg-[#ff2ba6]/20 text-[#fff]">
-        <i data-lucide="user" class="w-5 h-5"></i>
-    </div>
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
 
-    <!-- Text -->
-    <div class="leading-tight">
-        <div class="text-sm font-semibold text-[#fff]">
-            {{ auth()->user()->name }}
-        </div>
+                            <!-- Text -->
+                            <div class="leading-tight">
+                                <div class="text-sm font-semibold text-[#fff]">
+                                    {{ auth()->user()->name }}
+                                </div>
 
-        <div class="text-xs text-white/60 flex items-center gap-1">
-            <i data-lucide="shield" class="w-3 h-3 text-[#ff2ba6]"></i>
-            <span class="capitalize">{{ auth()->user()->role }}</span>
-        </div>
-    </div>
-</div>
+                                <div class="text-xs text-white/60 flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3 h-3 text-[#ff2ba6]"></i>
+                                    <span class="capitalize">{{ auth()->user()->role }}</span>
+                                </div>
+                            </div>
+                        </div>
 
                     @endauth
                 </div>
@@ -261,11 +293,17 @@
                                 </a>
                                 <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
-                    <a href="{{ route('admin.old-customers.index') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="database" class="w-5 h-5"></i>
-                        Search / View Old
-                    </a>
+                                <a href="{{ route('admin.old-customers.index') }}"
+                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                                    <i data-lucide="database" class="w-5 h-5"></i>
+                                    Search / View Old
+                                </a>
+                                <a href="{{ route('admin.attendance.index') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+   {{ request()->routeIs('admin.attendance.*') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                                    Attendance Reports
+                                </a>
                             @endif
 
                             @if (auth()->user()->role === 'salesman')
@@ -295,24 +333,38 @@
                                     My Visits
                                 </a>
 
-                                {{-- <a href="{{ route('salesman.attendance.index') }}" class="block py-2">Attendance</a> --}}
+                                <a href="{{ route('salesman.attendance.index') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+   {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="clock" class="w-5 h-5"></i>
+                                    Attendance
+                                </a>
+
                                 <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
-                    <a href="{{ route('salesman.old-customers.import') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="upload" class="w-5 h-5"></i>
-                        Import Old Customers
-                    </a>
+                                <a href="{{ route('salesman.old-customers.import') }}"
+                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                                    <i data-lucide="upload" class="w-5 h-5"></i>
+                                    Import Old Customers
+                                </a>
 
-                    <a href="{{ route('salesman.old-customers.index') }}"
-                       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                        <i data-lucide="database" class="w-5 h-5"></i>
-                        View Old Customers
-                    </a>
-
+                                <a href="{{ route('salesman.old-customers.index') }}"
+                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                                    <i data-lucide="database" class="w-5 h-5"></i>
+                                    View Old Customers
+                                </a>
                             @endif
+@if (in_array(auth()->user()->role, ['it', 'accounts']))
+    <a href="{{ route('staff.attendance.index') }}"
+        class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+        {{ request()->routeIs('staff.attendance*') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        Attendance
+    </a>
+@endif
 
-                            <form method="POST" action="{{ route('logout') }}" class="mt-4 pt-4 border-t border-white/10">
+                            <form method="POST" action="{{ route('logout') }}"
+                                class="mt-4 pt-4 border-t border-white/10">
                                 @csrf
                                 <button class="flex items-center gap-3 text-red-400 hover:text-red-300">
                                     <i data-lucide="log-out" class="w-5 h-5"></i>

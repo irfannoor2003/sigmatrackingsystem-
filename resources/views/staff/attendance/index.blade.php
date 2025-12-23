@@ -65,57 +65,72 @@
         @endif
     </div>
 
-    {{-- Actions --}}
-    <div class="flex gap-4">
+    @php
+    $role = auth()->user()->role;
 
-        {{-- Clock In --}}
-        <form id="clockinForm" method="POST"
-              action="{{ route('salesman.attendance.clockin') }}" class="flex-1">
-            @csrf
-            <input type="hidden" name="lat" id="clockin_lat">
-            <input type="hidden" name="lng" id="clockin_lng">
+    $clockInRoute = $role === 'salesman'
+        ? route('salesman.attendance.clockin')
+        : route('staff.attendance.clockin');
 
-            <button type="button"
-                onclick="clockIn()"
-                @if($attendance && ($attendance->clock_in || $attendance->status === 'leave'))
-                    disabled
-                @endif
-                class="w-full py-3 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-green-500 to-emerald-600
-                hover:opacity-90 transition shadow-lg
-                disabled:opacity-40 disabled:cursor-not-allowed">
-                ⏰ Clock In
-            </button>
-        </form>
+    $clockOutRoute = $role === 'salesman'
+        ? route('salesman.attendance.clockout')
+        : route('staff.attendance.clockout');
 
-        {{-- Clock Out --}}
-        <form id="clockoutForm" method="POST"
-              action="{{ route('salesman.attendance.clockout') }}" class="flex-1">
-            @csrf
-            <input type="hidden" name="lat" id="clockout_lat">
-            <input type="hidden" name="lng" id="clockout_lng">
+    $historyRoute = $role === 'salesman'
+        ? route('salesman.attendance.history')
+        : route('staff.attendance.history');
+@endphp
 
-            <button type="button"
-                onclick="clockOut()"
-                @if(!$attendance || !$attendance->clock_in || $attendance->clock_out || $attendance->status === 'leave')
-                    disabled
-                @endif
-                class="w-full py-3 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-red-500 to-pink-600
-                hover:opacity-90 transition shadow-lg
-                disabled:opacity-40 disabled:cursor-not-allowed">
-                🚪 Clock Out
-            </button>
-        </form>
-    </div>
+{{-- Actions --}}
+<div class="flex gap-4">
 
-    {{-- Monthly History --}}
-    <div class="mt-6 text-center">
-        <a href="{{ route('salesman.attendance.history') }}"
-           class="text-indigo-300 hover:underline text-sm font-semibold">
-            📅 View Monthly Attendance History
-        </a>
-    </div>
+    {{-- Clock In --}}
+    <form id="clockinForm" method="POST" action="{{ $clockInRoute }}" class="flex-1">
+        @csrf
+        <input type="hidden" name="lat" id="clockin_lat">
+        <input type="hidden" name="lng" id="clockin_lng">
+
+        <button type="button"
+            onclick="clockIn()"
+            @if($attendance && ($attendance->clock_in || $attendance->status === 'leave'))
+                disabled
+            @endif
+            class="w-full py-3 rounded-xl font-semibold text-white
+            bg-gradient-to-r from-green-500 to-emerald-600
+            hover:opacity-90 transition shadow-lg
+            disabled:opacity-40 disabled:cursor-not-allowed">
+            ⏰ Clock In
+        </button>
+    </form>
+
+    {{-- Clock Out --}}
+    <form id="clockoutForm" method="POST" action="{{ $clockOutRoute }}" class="flex-1">
+        @csrf
+        <input type="hidden" name="lat" id="clockout_lat">
+        <input type="hidden" name="lng" id="clockout_lng">
+
+        <button type="button"
+            onclick="clockOut()"
+            @if(!$attendance || !$attendance->clock_in || $attendance->clock_out || $attendance->status === 'leave')
+                disabled
+            @endif
+            class="w-full py-3 rounded-xl font-semibold text-white
+            bg-gradient-to-r from-red-500 to-pink-600
+            hover:opacity-90 transition shadow-lg
+            disabled:opacity-40 disabled:cursor-not-allowed">
+            🚪 Clock Out
+        </button>
+    </form>
+</div>
+
+{{-- Monthly History --}}
+<div class="mt-6 text-center">
+    <a href="{{ $historyRoute }}"
+       class="text-indigo-300 hover:underline text-sm font-semibold">
+        📅 View Monthly Attendance History
+    </a>
+</div>
+
 
 </div>
 </div>

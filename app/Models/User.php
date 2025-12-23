@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Models;
+use App\Models\Attendance;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
@@ -14,6 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     protected $hidden = [
@@ -29,7 +32,9 @@ class User extends Authenticatable
         ];
     }
 
-    // 🔥 Add These 🔥
+    // ===============================
+    // RELATIONSHIPS (SALESMAN ONLY)
+    // ===============================
     public function customers()
     {
         return $this->hasMany(Customer::class, 'salesman_id');
@@ -39,4 +44,31 @@ class User extends Authenticatable
     {
         return $this->hasMany(Visit::class, 'salesman_id');
     }
+
+    // ===============================
+    // ROLE HELPERS (RECOMMENDED)
+    // ===============================
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isSalesman()
+    {
+        return $this->role === 'salesman';
+    }
+
+    public function isIT()
+    {
+        return $this->role === 'it';
+    }
+
+    public function isAccounts()
+    {
+        return $this->role === 'accounts';
+    }
+    public function attendances()
+{
+    return $this->hasMany(Attendance::class, 'salesman_id');
+}
 }

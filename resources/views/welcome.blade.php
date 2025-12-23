@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Simga Login Selection</title>
+<title>Sigma Login Selection</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
+
 
 <!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -95,8 +97,19 @@
 </head>
 
 <body>
-
+<div>
+    <img src="" alt="">
+</div>
 <div class="glass-card">
+
+    <!-- LOGO -->
+    <div class="flex justify-center mb-6">
+        <img
+            src="{{ asset('images/logo.webp') }}"
+            alt="Sigma Logo"
+            class="h-20 w-auto drop-shadow-[0_0_15px_rgba(214,0,123,0.35)]"
+        >
+    </div>
 
     <h1 class="text-4xl font-extrabold tracking-wide mb-3">
         Welcome to <span class="text-[var(--hf-magenta-light)]">Sigma</span>
@@ -106,17 +119,17 @@
         Please login to continue
     </p>
 
-    <!-- Admin -->
-    <button class="btn-hf btn-admin"
-            onclick="location.href='{{ route('login') }}'">
+    <!-- Login -->
+    <button
+        class="btn-hf btn-admin"
+        onclick="location.href='{{ route('login') }}'">
         Login
     </button>
-
-
 
     <p class="text-gray-300 text-sm mt-6">
         © 2025 Sigma Tracking System
     </p>
+
 </div>
 
 </body>
