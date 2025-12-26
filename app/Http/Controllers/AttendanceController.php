@@ -9,13 +9,25 @@ use Illuminate\Http\Request;
 class AttendanceController extends Controller
 {
     /**
-     * Get logged-in staff user (salesman / it / accounts)
+     * Get logged-in staff user
+     * Allowed:
+     * salesman, it, account, store, office_boy
      */
     private function staffUser()
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['salesman', 'it', 'accounts'])) {
+        if (!$user) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!in_array($user->role, [
+            'salesman',
+            'it',
+            'account',
+            'store',
+            'office_boy',
+        ])) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -29,12 +41,12 @@ class AttendanceController extends Controller
     {
         $role = auth()->user()->role;
 
-        // Salesman keeps old views (NO BREAKING CHANGE)
+        // Salesman keeps old views
         if ($role === 'salesman') {
             return "salesman.attendance.$view";
         }
 
-        // IT & Accounts use staff views
+        // All other staff use staff views
         return "staff.attendance.$view";
     }
 
@@ -65,12 +77,10 @@ class AttendanceController extends Controller
             ->where('date', $today)
             ->first();
 
-        // 🚫 Admin marked leave
         if ($attendance && $attendance->status === 'leave') {
             return back()->with('error', 'You are marked on leave today.');
         }
 
-        // ⛔ Already clocked in
         if ($attendance && $attendance->clock_in) {
             return back()->with('error', 'You have already clocked in today.');
         }
@@ -147,4 +157,28 @@ class AttendanceController extends Controller
             compact('attendances', 'month')
         );
     }
+    /**
+ * Check if 8 hours reached and show reminder
+ */
+public function checkWorkHours()
+{
+    $user = $this->staffUser();
+    $today = Carbon::today()->toDateString();
+
+    $attendance = Attendance::where('salesman_id', $user->id)
+        ->where('date', $today)
+        ->first();
+
+    if (!$attendance || !$attendance->clock_in || $attendance->clock_out) {
+        return response()->json(['showReminder' => false]);
+    }
+
+    $hoursWorked = Carbon::parse($attendance->clock_in)->diffInHours(now());
+
+    return response()->json([
+        'showReminder' => $hoursWorked >= 8
+    ]);
 }
+
+}
+

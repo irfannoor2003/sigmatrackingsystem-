@@ -21,9 +21,11 @@ return new class extends Migration
             // ✅ EXTENDED ROLES (NO REDESIGN NEEDED)
             $table->enum('role', [
                 'admin',
-                'salesman',
-                'it',
-                'accounts'
+    'salesman',
+    'it',
+    'account',
+    'store',
+    'office_boy'
             ])->default('salesman');
 
             $table->rememberToken();

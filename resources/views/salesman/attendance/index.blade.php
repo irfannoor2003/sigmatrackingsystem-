@@ -143,4 +143,31 @@ function geoSubmit(formId, latId, lngId) {
 function clockIn()  { geoSubmit('clockinForm','clockin_lat','clockin_lng'); }
 function clockOut() { geoSubmit('clockoutForm','clockout_lat','clockout_lng'); }
 </script>
+
+<script>
+    // Request browser notification permission
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+
+    function checkAttendance() {
+        fetch('/attendance/check-work-hours')
+            .then(res => res.json())
+            .then(data => {
+                if (data.showReminder) {
+                    if (Notification.permission === 'granted') {
+                        new Notification('Reminder', {
+                            body: 'You have reached 8 hours. Please clock out!',
+                        });
+                    } else {
+                        alert('You have reached 8 hours. Please clock out!');
+                    }
+                }
+            });
+    }
+
+    // Check every 1 minute
+    setInterval(checkAttendance, 60000);
+</script>
+
 @endsection

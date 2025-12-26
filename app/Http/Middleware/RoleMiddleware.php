@@ -13,7 +13,7 @@ class RoleMiddleware
             abort(403);
         }
 
-        if (!in_array(auth()->user()->role, $roles)) {
+        if (!in_array(auth()->user()->role, $roles, true)) {
             abort(403, 'Unauthorized action.');
         }
 

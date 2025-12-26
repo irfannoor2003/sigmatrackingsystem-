@@ -11,7 +11,7 @@
     use App\Models\Customer;
 
     // TOTAL STAFF (exclude admin)
-    $totalStaff = User::whereIn('role', ['salesman','it','accounts'])->count();
+    $totalStaff = User::whereIn('role', ['salesman','it','account','store','office_boy'])->count();
 
     // TODAY WORKING STAFF
     $todayWorkingStaff = Attendance::whereDate('date', now()->toDateString())
@@ -27,7 +27,7 @@
         <i data-lucide="briefcase" class="w-8 h-8 text-cyan-400 absolute top-4 right-4"></i>
         <h3 class="text-sm font-medium text-white/80">Total Staff</h3>
         <p class="text-4xl font-extrabold text-white mt-2">{{ $totalStaff }}</p>
-        <span class="text-xs text-white/60 mt-2 inline-block">Sales · IT · Accounts</span>
+        <span class="text-xs text-white/60 mt-2 inline-block">Sales · IT · Accounts · Store · Office_boy</span>
     </div>
 
     <!-- Staff Working Today -->

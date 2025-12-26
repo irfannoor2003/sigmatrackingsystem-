@@ -28,7 +28,8 @@ class AttendanceReportController extends Controller
 
         $staffId = $request->staff;
 
-        $roles = ['salesman', 'it', 'accounts'];
+        $roles = ['salesman', 'it', 'account', 'store', 'office_boy'];
+
 
         /** --------------------------------
          * Staff list (for dropdown)
@@ -118,24 +119,78 @@ class AttendanceReportController extends Controller
      * ADMIN: Single Staff Monthly Attendance
      */
     public function staffReport($id, Request $request)
-    {
-        $monthInput = $request->month ?? now()->format('Y-m');
-        $date  = Carbon::createFromFormat('Y-m', $monthInput);
+{
+    $monthInput = $request->month ?? now()->format('Y-m');
+    $date = Carbon::createFromFormat('Y-m', $monthInput);
 
-        $user = User::findOrFail($id);
+    $user = User::findOrFail($id);
 
-        $attendances = Attendance::where('salesman_id', $id)
-            ->whereMonth('date', $date->month)
-            ->whereYear('date', $date->year)
-            ->orderBy('date', 'desc')
-            ->get();
+    // Existing attendance records (indexed by date)
+    $attendanceRecords = Attendance::where('salesman_id', $id)
+        ->whereMonth('date', $date->month)
+        ->whereYear('date', $date->year)
+        ->get()
+        ->keyBy(fn ($att) => Carbon::parse($att->date)->toDateString());
 
-        return view('admin.attendance.staff', compact(
-            'user',
-            'attendances',
-            'monthInput'
-        ));
+    $holidays = config('pakistan_holidays');
+
+    $daysInMonth = $date->daysInMonth;
+    $calendar = collect();
+
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+
+        $currentDate = Carbon::create(
+            $date->year,
+            $date->month,
+            $day
+        );
+
+        $dateString = $currentDate->toDateString();
+        $md = $currentDate->format('m-d');
+
+        // Default day structure
+       $today = now()->toDateString();
+
+$dayData = [
+    'date' => $dateString,
+    'day'  => $currentDate->format('l'),
+    'status' => $dateString > $today ? 'future' : 'absent',
+    'label'  => $dateString > $today ? 'Upcoming' : 'Absent',
+    'attendance' => null,
+];
+
+
+        // 🎉 Pakistan Holiday
+        if (isset($holidays[$md])) {
+            $dayData['status'] = 'off';
+            $dayData['label']  = $holidays[$md];
+        }
+
+        // 🌙 Sunday OFF
+        elseif ($currentDate->isSunday()) {
+            $dayData['status'] = 'off';
+            $dayData['label']  = 'Sunday';
+        }
+
+        // ✅ Attendance Exists
+        elseif ($attendanceRecords->has($dateString)) {
+            $attendance = $attendanceRecords[$dateString];
+
+            $dayData['attendance'] = $attendance;
+            $dayData['status'] = $attendance->status;
+            $dayData['label']  = ucfirst($attendance->status);
+        }
+
+        $calendar->push($dayData);
     }
+
+    return view('admin.attendance.staff', compact(
+        'user',
+        'calendar',
+        'monthInput'
+    ));
+}
+
 
     /**
      * ADMIN: Mark Leave

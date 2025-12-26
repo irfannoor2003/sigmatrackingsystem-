@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\SalesmanController as AdminSalesmanController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\OldCustomerController as AdminOldCustomerController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\PromotionController;
 
 // Salesman
 use App\Http\Controllers\Salesman\CustomerController as SalesmanCustomerController;
@@ -48,10 +49,13 @@ Route::get('/dashboard', function () {
         'admin'    => redirect()->route('admin.dashboard'),
         'salesman' => redirect()->route('salesman.dashboard'),
         'it',
-        'accounts' => redirect()->route('staff.attendance.index'),
+        'account',
+        'store',
+        'office_boy' => redirect()->route('staff.attendance.index'),
         default    => abort(403),
     };
 })->middleware('auth')->name('dashboard');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +120,14 @@ Route::middleware(['auth', 'role:admin'])
             Route::get('/export/excel', [AttendanceReportController::class, 'exportExcel'])->name('export.excel');
             Route::get('/export/pdf', [AttendanceReportController::class, 'exportPdf'])->name('export.pdf');
         });
+// Promotions (Emails)
+Route::post('/promotions/send', [PromotionController::class, 'send'])
+    ->name('promotions.send');
+
+
+
+
+
 
         // Staff Management
         Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
@@ -167,15 +179,20 @@ Route::middleware(['auth', 'role:salesman'])
 
 /*
 |--------------------------------------------------------------------------
-| IT & ACCOUNTS (ATTENDANCE ONLY)
+| IT, ACCOUNTS, STORE, OFFICE BOY (ATTENDANCE ONLY)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:it,accounts'])
+Route::middleware(['auth', 'role:it,account,store,office_boy'])
     ->prefix('staff/attendance')
     ->name('staff.attendance.')
     ->group(function () {
+
         Route::get('/', [AttendanceController::class, 'index'])->name('index');
         Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clockin');
         Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clockout');
         Route::get('/history', [AttendanceController::class, 'history'])->name('history');
+
     });
+
+Route::middleware('auth')->get('/attendance/check-work-hours', [AttendanceController::class, 'checkWorkHours']);
+

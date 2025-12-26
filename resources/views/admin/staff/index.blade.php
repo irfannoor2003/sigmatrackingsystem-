@@ -29,8 +29,10 @@
                     <option value="" class="text-black">All Roles</option>
 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }} class="text-black">Admin</option>
 <option value="salesman" {{ request('role') == 'salesman' ? 'selected' : '' }} class="text-black"> Salesman</option>
-<option value="accounts" {{ request('role') == 'accounts' ? 'selected' : '' }} class="text-black">Accounts</option>
+<option value="account" {{ request('role') == 'account' ? 'selected' : '' }} class="text-black">Accounts</option>
 <option value="it" {{ request('role') == 'it' ? 'selected' : '' }} class="text-black">IT</option>
+<option value="store" {{ request('role') == 'store' ? 'selected' : '' }} class="text-black">Store</option>
+<option value="office_boy" {{ request('role') == 'office_boy' ? 'selected' : '' }} class="text-black">Office_Boy</option>
 
                 </select>
             </div>

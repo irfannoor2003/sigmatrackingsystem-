@@ -174,7 +174,7 @@
                             View Old Customers
                         </a>
                     @endif
-                    @if (in_array($role, ['it', 'accounts']))
+                    @if (in_array($role, ['it', 'account', 'store', 'office_boy']))
                         <a href="{{ route('staff.attendance.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
         {{ request()->routeIs('staff.attendance*') ? 'sidebar-active' : '' }}">
@@ -354,7 +354,7 @@
                                     View Old Customers
                                 </a>
                             @endif
-@if (in_array(auth()->user()->role, ['it', 'accounts']))
+@if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
     <a href="{{ route('staff.attendance.index') }}"
         class="flex items-center gap-3 py-2 rounded hover:bg-white/10
         {{ request()->routeIs('staff.attendance*') ? 'sidebar-active-mobile' : '' }}">

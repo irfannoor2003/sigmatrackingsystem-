@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Models;
-use App\Models\Attendance;
 
+use App\Models\Attendance;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 
 class User extends Authenticatable
 {
@@ -33,8 +32,10 @@ class User extends Authenticatable
     }
 
     // ===============================
-    // RELATIONSHIPS (SALESMAN ONLY)
+    // RELATIONSHIPS
     // ===============================
+
+    // Salesman related
     public function customers()
     {
         return $this->hasMany(Customer::class, 'salesman_id');
@@ -45,9 +46,15 @@ class User extends Authenticatable
         return $this->hasMany(Visit::class, 'salesman_id');
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'salesman_id');
+    }
+
     // ===============================
-    // ROLE HELPERS (RECOMMENDED)
+    // ROLE HELPERS
     // ===============================
+
     public function isAdmin()
     {
         return $this->role === 'admin';
@@ -63,12 +70,25 @@ class User extends Authenticatable
         return $this->role === 'it';
     }
 
-    public function isAccounts()
+    public function isAccount()
     {
-        return $this->role === 'accounts';
+        return $this->role === 'account';
     }
-    public function attendances()
-{
-    return $this->hasMany(Attendance::class, 'salesman_id');
-}
+
+    // ✅ NEW ROLES
+    public function isStore()
+    {
+        return $this->role === 'store';
+    }
+
+    public function isOfficeBoy()
+    {
+        return $this->role === 'office_boy';
+    }
+
+    // ✅ Universal helper (VERY useful)
+    public function hasRole($roles)
+    {
+        return in_array($this->role, (array) $roles);
+    }
 }

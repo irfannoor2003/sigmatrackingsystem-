@@ -16,6 +16,19 @@
             Login to continue
         </p>
 
+        {{-- Validation / Auth Errors --}}
+@if ($errors->any())
+    <div class="mb-4 p-3 rounded-lg
+                bg-red-500/10 border border-red-400/40
+                text-red-300 text-sm">
+        <ul class="list-disc list-inside space-y-1">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
@@ -43,7 +56,7 @@
             />
 
             <!-- Remember + Forgot -->
-            <div class="flex items-center justify-between mb-4 text-gray-200 text-sm">
+            {{-- <div class="flex items-center justify-between mb-4 text-gray-200 text-sm">
                 <label class="flex items-center">
                     <input type="checkbox" name="remember" class="mr-2">
                     Remember me
@@ -51,7 +64,7 @@
                 <a href="{{ route('password.request') }}" class="underline hover:text-white">
                     Forgot?
                 </a>
-            </div>
+            </div> --}}
 
             <!-- Button -->
             <button

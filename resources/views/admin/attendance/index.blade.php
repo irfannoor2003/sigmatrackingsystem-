@@ -1,3 +1,14 @@
+<style>
+
+/* Chrome, Edge, Safari */
+input[type="month"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+
+</style>
 @extends('layouts.app')
 
 @section('title','Attendance Reports')
@@ -57,7 +68,7 @@
                         class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10 text-white">
                     <option value="">All Staff</option>
                     @foreach ($allStaff as $user)
-                        <option value="{{ $user->id }}"
+                        <option value="{{ $user->id }} " class="text-black bg-white"
                             {{ ($staffId ?? '') == $user->id ? 'selected' : '' }}>
                             {{ $user->name }} ({{ ucfirst($user->role) }})
                         </option>

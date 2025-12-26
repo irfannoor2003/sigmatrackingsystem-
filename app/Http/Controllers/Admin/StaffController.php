@@ -9,27 +9,35 @@ use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
+    // ✅ Central role list (single source of truth)
+    private array $roles = [
+        'admin',
+        'salesman',
+        'it',
+        'account',
+        'store',
+        'office_boy',
+    ];
+
     public function index(Request $request)
     {
-        // 1. Initialize the query
         $query = User::query();
 
-        // 2. Filter by Role if selected
+        // Filter by Role
         if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
 
-        // 3. Filter by Search (Name or Email)
+        // Search by Name or Email
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
 
-        // 4. Order and Paginate (matching your design's need for pagination links)
-        $staff = $query->orderBy('name', 'asc')->paginate(10);
+        $staff = $query->orderBy('name')->paginate(10);
 
         return view('admin.staff.index', compact('staff'));
     }
@@ -45,7 +53,7 @@ class StaffController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'role'     => 'required|in:admin,salesman,it,accounts',
+            'role'     => 'required|in:' . implode(',', $this->roles),
         ]);
 
         User::create([
@@ -55,8 +63,9 @@ class StaffController extends Controller
             'role'     => $request->role,
         ]);
 
-        return redirect()->route('admin.staff.index')
-                         ->with('success', 'Staff created successfully.');
+        return redirect()
+            ->route('admin.staff.index')
+            ->with('success', 'Staff created successfully.');
     }
 
     public function edit(User $staff)
@@ -69,7 +78,7 @@ class StaffController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $staff->id,
-            'role'     => 'required|in:admin,salesman,it,accounts',
+            'role'     => 'required|in:' . implode(',', $this->roles),
             'password' => 'nullable|min:6',
         ]);
 
@@ -85,7 +94,8 @@ class StaffController extends Controller
 
         $staff->update($data);
 
-        return redirect()->route('admin.staff.index')
-                         ->with('success', 'Staff updated successfully.');
+        return redirect()
+            ->route('admin.staff.index')
+            ->with('success', 'Staff updated successfully.');
     }
 }

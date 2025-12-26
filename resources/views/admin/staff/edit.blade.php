@@ -64,7 +64,9 @@
                 <option value="admin" {{ $staff->role == 'admin' ? 'selected' : '' }} class="text-black">Admin (Full Access)</option>
                 <option value="salesman" {{ $staff->role == 'salesman' ? 'selected' : '' }} class="text-black">Salesman</option>
                 <option value="it" {{ $staff->role == 'it' ? 'selected' : '' }} class="text-black">IT Department</option>
-                <option value="accounts" {{ $staff->role == 'accounts' ? 'selected' : '' }} class="text-black">Accounts</option>
+                <option value="account" {{ $staff->role == 'account' ? 'selected' : '' }} class="text-black">Accounts</option>
+                <option value="store" {{ $staff->role == 'store' ? 'selected' : '' }} class="text-black">Store</option>
+                <option value="office_boy" {{ $staff->role == 'office_boy' ? 'selected' : '' }} class="text-black">Office_boy</option>
             </select>
         </div>
 
