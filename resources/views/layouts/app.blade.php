@@ -68,9 +68,9 @@
             <nav class="p-4 flex-1 text-gray-200 ">
 
                 @auth
-@php
-            $role = auth()->user()->role;
-        @endphp
+                    @php
+                        $role = auth()->user()->role;
+                    @endphp
                     <div class="mb-6 p-4 rounded-xl glass border border-white/10 ">
                         <div class="text-sm text-gray-300">Logged in as:</div>
                         <div class="font-semibold text-white">{{ auth()->user()->name }}</div>
@@ -95,6 +95,15 @@
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                             Attendance Reports
                         </a>
+
+
+ <a href="{{ route('admin.attendance.leave-requests') }}"
+   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->routeIs('admin.attendance.leave-requests') ? 'sidebar-active' : '' }}">
+    <i data-lucide="mail" class="w-5 h-5"></i>
+    Leave Requests
+</a>
+
                         <a href="{{ route('admin.salesmen.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
                             <i data-lucide="users" class="w-5 h-5"></i>
@@ -185,13 +194,13 @@
 
 
                     <div class="border-t border-white/10 mt-6 pt-4">
-                       @if (auth()->user()->role === 'admin')
-    <a href="{{ route('profile.edit') }}"
-        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10">
-        <i data-lucide="settings" class="w-5 h-5"></i>
-        Profile
-    </a>
-@endif
+                        @if (auth()->user()->role === 'admin')
+                            <a href="{{ route('profile.edit') }}"
+                                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10">
+                                <i data-lucide="settings" class="w-5 h-5"></i>
+                                Profile
+                            </a>
+                        @endif
 
 
                         <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
@@ -304,6 +313,10 @@
                                     <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                                     Attendance Reports
                                 </a>
+                                <a href="{{ route('admin.attendance.leave-requests') }}"
+                                    class="block px-4 py-2 text-white hover:bg-white/10 rounded">
+                                    📨 Leave Requests
+                                </a>
                             @endif
 
                             @if (auth()->user()->role === 'salesman')
@@ -354,14 +367,14 @@
                                     View Old Customers
                                 </a>
                             @endif
-@if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
-    <a href="{{ route('staff.attendance.index') }}"
-        class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+                            @if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
+                                <a href="{{ route('staff.attendance.index') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
         {{ request()->routeIs('staff.attendance*') ? 'sidebar-active-mobile' : '' }}">
-        <i data-lucide="clock" class="w-5 h-5"></i>
-        Attendance
-    </a>
-@endif
+                                    <i data-lucide="clock" class="w-5 h-5"></i>
+                                    Attendance
+                                </a>
+                            @endif
 
                             <form method="POST" action="{{ route('logout') }}"
                                 class="mt-4 pt-4 border-t border-white/10">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\User;
 
 class Attendance extends Model
 {
@@ -18,7 +19,7 @@ class Attendance extends Model
         'lng',
         'office_verified',
         'note',
-        'leave_reason',
+
     ];
 
     protected $casts = [
@@ -92,4 +93,8 @@ return $this->clock_in->diffInMinutes($clockOut);
             $minutes % 60
         );
     }
+    public function user()
+{
+    return $this->belongsTo(User::class, 'salesman_id');
+}
 }

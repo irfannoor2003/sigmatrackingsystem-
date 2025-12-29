@@ -33,9 +33,7 @@ use App\Http\Controllers\Salesman\OldCustomerController as SalesmanOldCustomerCo
 | PUBLIC
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => view('welcome'));
 
 /*
 |--------------------------------------------------------------------------
@@ -43,19 +41,14 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function () {
-    $role = auth()->user()->role;
-
-    return match ($role) {
+    return match (auth()->user()->role) {
         'admin'    => redirect()->route('admin.dashboard'),
         'salesman' => redirect()->route('salesman.dashboard'),
-        'it',
-        'account',
-        'store',
-        'office_boy' => redirect()->route('staff.attendance.index'),
+        'it', 'account', 'store', 'office_boy'
+            => redirect()->route('staff.attendance.index'),
         default    => abort(403),
     };
 })->middleware('auth')->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -80,7 +73,6 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         // Reports
@@ -94,7 +86,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/customers/export/{id}', [AdminCustomerController::class, 'exportSingle'])->name('customers.export.single');
         Route::post('/customers/export/bulk', [AdminCustomerController::class, 'exportBulk'])->name('customers.export.bulk');
 
-        // Salesmen CRUD
+        // Salesmen
         Route::resource('salesmen', AdminSalesmanController::class)->except(['show']);
 
         /*
@@ -104,30 +96,25 @@ Route::middleware(['auth', 'role:admin'])
         */
         Route::prefix('attendance')->name('attendance.')->group(function () {
 
-            // Index (Month + Staff filter)
             Route::get('/', [AttendanceReportController::class, 'index'])->name('index');
 
-            // View single staff (MONTH FILTER PASSED)
             Route::get('/staff/{id}', [AttendanceReportController::class, 'staffReport'])->name('staff');
 
-            // Mark leave
             Route::post('/staff/{id}/leave', [AttendanceReportController::class, 'markLeave'])->name('leave');
 
-            // Update attendance (admin override)
             Route::post('/update/{attendanceId}', [AttendanceReportController::class, 'updateAttendance'])->name('update');
 
-            // Export Attendance
             Route::get('/export/excel', [AttendanceReportController::class, 'exportExcel'])->name('export.excel');
             Route::get('/export/pdf', [AttendanceReportController::class, 'exportPdf'])->name('export.pdf');
+
+            // ✅ Leave Requests
+            Route::get('/leave-requests', [AttendanceReportController::class, 'leaveRequests'])
+                ->name('leave-requests');
         });
-// Promotions (Emails)
-Route::post('/promotions/send', [PromotionController::class, 'send'])
-    ->name('promotions.send');
 
-
-
-
-
+        // Promotions
+        Route::post('/promotions/send', [PromotionController::class, 'send'])
+            ->name('promotions.send');
 
         // Staff Management
         Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
@@ -137,7 +124,8 @@ Route::post('/promotions/send', [PromotionController::class, 'send'])
         Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
 
         // Old Customers
-        Route::get('/old-customers', [AdminOldCustomerController::class, 'index'])->name('old-customers.index');
+        Route::get('/old-customers', [AdminOldCustomerController::class, 'index'])
+            ->name('old-customers.index');
     });
 
 /*
@@ -150,17 +138,17 @@ Route::middleware(['auth', 'role:salesman'])
     ->name('salesman.')
     ->group(function () {
 
-        // Dashboard
         Route::get('/dashboard', [SalesmanDashboardController::class, 'index'])->name('dashboard');
 
-        // Customers
-        Route::resource('customers', SalesmanCustomerController::class)->only(['index', 'create', 'store', 'show']);
+        Route::resource('customers', SalesmanCustomerController::class)
+            ->only(['index', 'create', 'store', 'show']);
 
-        // Visits
-        Route::resource('visits', VisitController::class)->only(['index', 'create', 'store', 'show']);
-        Route::post('/visits/{id}/complete', [VisitController::class, 'complete'])->name('visits.complete');
+        Route::resource('visits', VisitController::class)
+            ->only(['index', 'create', 'store', 'show']);
 
-        // Attendance
+        Route::post('/visits/{id}/complete', [VisitController::class, 'complete'])
+            ->name('visits.complete');
+
         Route::prefix('attendance')->name('attendance.')->group(function () {
             Route::get('/', [AttendanceController::class, 'index'])->name('index');
             Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clockin');
@@ -168,18 +156,18 @@ Route::middleware(['auth', 'role:salesman'])
             Route::get('/history', [AttendanceController::class, 'history'])->name('history');
         });
 
-        // Reports
         Route::get('/reports', [ReportController::class, 'salesmanReport'])->name('reports.index');
 
-        // Old Customers
         Route::get('/old-customers', [SalesmanOldCustomerController::class, 'index'])->name('old-customers.index');
-        Route::get('/old-customers/import', [SalesmanOldCustomerController::class, 'importForm'])->name('old-customers.import.form');
-        Route::post('/old-customers/import', [SalesmanOldCustomerController::class, 'import'])->name('old-customers.import');
+        Route::get('/old-customers/import', [SalesmanOldCustomerController::class, 'importForm'])
+            ->name('old-customers.import.form');
+        Route::post('/old-customers/import', [SalesmanOldCustomerController::class, 'import'])
+            ->name('old-customers.import');
     });
 
 /*
 |--------------------------------------------------------------------------
-| IT, ACCOUNTS, STORE, OFFICE BOY (ATTENDANCE ONLY)
+| STAFF (IT / ACCOUNTS / STORE / OFFICE BOY)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:it,account,store,office_boy'])
@@ -191,8 +179,16 @@ Route::middleware(['auth', 'role:it,account,store,office_boy'])
         Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clockin');
         Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clockout');
         Route::get('/history', [AttendanceController::class, 'history'])->name('history');
-
     });
 
-Route::middleware('auth')->get('/attendance/check-work-hours', [AttendanceController::class, 'checkWorkHours']);
+/*
+|--------------------------------------------------------------------------
+| COMMON
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')
+    ->get('/attendance/check-work-hours', [AttendanceController::class, 'checkWorkHours']);
 
+Route::middleware('auth')
+    ->post('/attendance/leave', [AttendanceController::class, 'requestLeave'])
+    ->name('attendance.leave');

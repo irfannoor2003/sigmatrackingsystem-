@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
              CitySeeder::class,
         IndustrySeeder::class,
         CategorySeeder::class,
+        CustomerSeeder::class,
 
         ]);
     }

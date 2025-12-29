@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+
 /* EXPORTS */
 use App\Exports\AttendanceExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -288,4 +289,17 @@ $dayData = [
         return Pdf::loadView('admin.attendance.pdf', compact('attendances'))
             ->download('attendance.pdf');
     }
+
+public function leaveRequests()
+{
+    $today = Carbon::today()->toDateString();
+
+    $leaves = Attendance::with('user')
+        ->where('date', $today)
+        ->where('status', 'leave')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('admin.attendance.leave-requests', compact('leaves'));
+}
 }

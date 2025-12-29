@@ -21,12 +21,13 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ STEP 1: Validate input
         $request->validate([
             'name'           => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'phone1'         => 'required|string|max:20',
             'phone2'         => 'nullable|string|max:20',
-            'email'          => 'required|email',
+            'email'          => 'nullable|email|max:255',
             'address'        => 'required|string',
             'landmark'       => 'nullable|string|max:255',
             'industry_id'    => 'required|integer',
@@ -35,20 +36,43 @@ class CustomerController extends Controller
             'image'          => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Handle image upload
+        // ✅ STEP 2: Normalize data (VERY IMPORTANT)
+        $name   = trim(strtolower($request->name));
+        $phone1 = preg_replace('/\D/', '', $request->phone1);
+        $email  = $request->email ? strtolower(trim($request->email)) : null;
+
+        // ✅ STEP 3: GLOBAL DUPLICATE CHECK
+        $exists = Customer::whereRaw('LOWER(name) = ?', [$name])
+            ->where('phone1', $phone1)
+            ->where(function ($q) use ($email) {
+                if ($email !== null) {
+                    $q->where('email', $email);
+                }
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors([
+                    'duplicate' => 'This customer already exists in the system.'
+                ])
+                ->withInput();
+        }
+
+        // ✅ STEP 4: Image upload
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('customers', 'public');
         }
 
-        // Create customer
+        // ✅ STEP 5: Create customer
         Customer::create([
             'salesman_id'    => Auth::id(),
             'name'           => $request->name,
             'contact_person' => $request->contact_person,
-            'phone1'         => $request->phone1,
+            'phone1'         => $phone1,
             'phone2'         => $request->phone2,
-            'email'          => $request->email,
+            'email'          => $email,
             'address'        => $request->address,
             'landmark'       => $request->landmark,
             'industry_id'    => $request->industry_id,
@@ -57,7 +81,8 @@ class CustomerController extends Controller
             'image'          => $imagePath,
         ]);
 
-        return redirect()->route('salesman.customers.index')
-                         ->with('success', 'Customer added successfully');
+        return redirect()
+            ->route('salesman.customers.index')
+            ->with('success', 'Customer added successfully');
     }
 }

@@ -179,6 +179,49 @@ public function checkWorkHours()
         'showReminder' => $hoursWorked >= 8
     ]);
 }
+/**
+ * Staff / Salesman request leave with reason
+ */
+/**
+ * Staff / Salesman request leave with reason
+ */
+public function requestLeave(Request $request)
+{
+    $user = $this->staffUser();
+
+    $request->validate([
+        'reason' => 'required|string|max:500',
+    ]);
+
+    $today = Carbon::today()->toDateString();
+
+    $attendance = Attendance::where('salesman_id', $user->id)
+        ->where('date', $today)
+        ->first();
+
+    // ❌ BLOCK leave if already clocked in
+    if ($attendance && $attendance->clock_in) {
+        return back()->with('error', 'You cannot request leave after clocking in.');
+    }
+
+    Attendance::updateOrCreate(
+        [
+            'salesman_id' => $user->id,
+            'date' => $today,
+        ],
+        [
+            'status' => 'leave',
+            'note' => $request->reason, // ✅ saved here
+            'clock_in' => null,
+            'clock_out' => null,
+            'total_minutes' => null,
+            'office_verified' => false,
+        ]
+    );
+
+    return back()->with('success', 'Leave request sent to admin.');
+}
+
 
 }
 

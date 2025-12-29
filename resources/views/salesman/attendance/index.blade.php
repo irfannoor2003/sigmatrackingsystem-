@@ -22,8 +22,14 @@
 
         @if($attendance && $attendance->status === 'leave')
             <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-sm font-semibold">
-                🚫 On Leave (Marked by Admin)
+                🚫 On Leave
             </span>
+
+            @if($attendance->note)
+                <p class="mt-2 text-sm text-white/80">
+                    📝 Reason: {{ $attendance->note }}
+                </p>
+            @endif
 
         @elseif(!$attendance || !$attendance->clock_in)
             <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-sm font-semibold">
@@ -65,59 +71,117 @@
         @endif
     </div>
 
-    {{-- Actions --}}
-    <div class="flex gap-4">
+@php
+    $role = auth()->user()->role;
 
-        {{-- Clock In --}}
-        <form id="clockinForm" method="POST"
-              action="{{ route('salesman.attendance.clockin') }}" class="flex-1">
-            @csrf
-            <input type="hidden" name="lat" id="clockin_lat">
-            <input type="hidden" name="lng" id="clockin_lng">
+    $clockInRoute = $role === 'salesman'
+        ? route('salesman.attendance.clockin')
+        : route('staff.attendance.clockin');
 
-            <button type="button"
-                onclick="clockIn()"
-                @if($attendance && ($attendance->clock_in || $attendance->status === 'leave'))
-                    disabled
-                @endif
-                class="w-full py-3 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-green-500 to-emerald-600
-                hover:opacity-90 transition shadow-lg
-                disabled:opacity-40 disabled:cursor-not-allowed">
-                ⏰ Clock In
-            </button>
-        </form>
+    $clockOutRoute = $role === 'salesman'
+        ? route('salesman.attendance.clockout')
+        : route('staff.attendance.clockout');
 
-        {{-- Clock Out --}}
-        <form id="clockoutForm" method="POST"
-              action="{{ route('salesman.attendance.clockout') }}" class="flex-1">
-            @csrf
-            <input type="hidden" name="lat" id="clockout_lat">
-            <input type="hidden" name="lng" id="clockout_lng">
+    $historyRoute = $role === 'salesman'
+        ? route('salesman.attendance.history')
+        : route('staff.attendance.history');
+@endphp
 
-            <button type="button"
-                onclick="clockOut()"
-                @if(!$attendance || !$attendance->clock_in || $attendance->clock_out || $attendance->status === 'leave')
-                    disabled
-                @endif
-                class="w-full py-3 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-red-500 to-pink-600
-                hover:opacity-90 transition shadow-lg
-                disabled:opacity-40 disabled:cursor-not-allowed">
-                🚪 Clock Out
-            </button>
-        </form>
-    </div>
+{{-- Actions --}}
+<div class="flex gap-4 mb-4">
 
-    {{-- Monthly History --}}
-    <div class="mt-6 text-center">
-        <a href="{{ route('salesman.attendance.history') }}"
-           class="text-indigo-300 hover:underline text-sm font-semibold">
-            📅 View Monthly Attendance History
-        </a>
-    </div>
+    {{-- Clock In --}}
+    <form id="clockinForm" method="POST" action="{{ $clockInRoute }}" class="flex-1">
+        @csrf
+        <input type="hidden" name="lat" id="clockin_lat">
+        <input type="hidden" name="lng" id="clockin_lng">
+
+        <button type="button"
+            onclick="clockIn()"
+            @if($attendance && ($attendance->clock_in || $attendance->status === 'leave'))
+                disabled
+            @endif
+            class="w-full py-3 rounded-xl font-semibold text-white
+            bg-gradient-to-r from-green-500 to-emerald-600
+            hover:opacity-90 transition shadow-lg
+            disabled:opacity-40 disabled:cursor-not-allowed">
+            ⏰ Clock In
+        </button>
+    </form>
+
+    {{-- Clock Out --}}
+    <form id="clockoutForm" method="POST" action="{{ $clockOutRoute }}" class="flex-1">
+        @csrf
+        <input type="hidden" name="lat" id="clockout_lat">
+        <input type="hidden" name="lng" id="clockout_lng">
+
+        <button type="button"
+            onclick="clockOut()"
+            @if(!$attendance || !$attendance->clock_in || $attendance->clock_out || $attendance->status === 'leave')
+                disabled
+            @endif
+            class="w-full py-3 rounded-xl font-semibold text-white
+            bg-gradient-to-r from-red-500 to-pink-600
+            hover:opacity-90 transition shadow-lg
+            disabled:opacity-40 disabled:cursor-not-allowed">
+            🚪 Clock Out
+        </button>
+    </form>
+</div>
+
+{{-- Request Leave Button --}}
+@if(
+    !$attendance ||
+    (
+        !$attendance->clock_in &&
+        $attendance->status !== 'leave'
+    )
+)
+<button
+    onclick="document.getElementById('leaveModal').classList.remove('hidden')"
+    class="w-full mb-4 py-3 rounded-xl font-semibold text-white
+    bg-gradient-to-r from-orange-500 to-red-600 hover:opacity-90">
+    🤒 Request Leave
+</button>
+@endif
+
+
+{{-- Monthly History --}}
+<div class="mt-4 text-center">
+    <a href="{{ $historyRoute }}"
+       class="text-indigo-300 hover:underline text-sm font-semibold">
+        📅 View Monthly Attendance History
+    </a>
+</div>
 
 </div>
+</div>
+
+{{-- Leave Modal --}}
+<div id="leaveModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-96">
+        <h3 class="text-xl font-bold mb-4">Leave Reason</h3>
+
+        <form method="POST" action="{{ route('attendance.leave') }}">
+            @csrf
+
+            <textarea name="reason" required
+                class="w-full border rounded-lg p-3"
+                placeholder="Explain your reason (illness, emergency, etc)"></textarea>
+
+            <div class="mt-4 flex justify-end gap-3">
+                <button type="button"
+                    onclick="document.getElementById('leaveModal').classList.add('hidden')"
+                    class="px-4 py-2 border rounded">
+                    Cancel
+                </button>
+
+                <button class="px-4 py-2 bg-red-600 text-white rounded">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection
 
@@ -143,31 +207,4 @@ function geoSubmit(formId, latId, lngId) {
 function clockIn()  { geoSubmit('clockinForm','clockin_lat','clockin_lng'); }
 function clockOut() { geoSubmit('clockoutForm','clockout_lat','clockout_lng'); }
 </script>
-
-<script>
-    // Request browser notification permission
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
-    }
-
-    function checkAttendance() {
-        fetch('/attendance/check-work-hours')
-            .then(res => res.json())
-            .then(data => {
-                if (data.showReminder) {
-                    if (Notification.permission === 'granted') {
-                        new Notification('Reminder', {
-                            body: 'You have reached 8 hours. Please clock out!',
-                        });
-                    } else {
-                        alert('You have reached 8 hours. Please clock out!');
-                    }
-                }
-            });
-    }
-
-    // Check every 1 minute
-    setInterval(checkAttendance, 60000);
-</script>
-
 @endsection
