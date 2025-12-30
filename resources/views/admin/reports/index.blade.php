@@ -167,7 +167,7 @@
 
                 @empty
                     <tr>
-                        <td colspan="7"
+                        <td colspan="8"
                             class="p-6 text-center text-white/70 bg-white/5">
                             <i data-lucide="search-x" class="w-5 h-5 inline-block mr-2"></i> No report found
                         </td>

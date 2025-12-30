@@ -22,21 +22,21 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-    <!-- Total Staff -->
+    {{-- <!-- Total Staff -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg relative">
         <i data-lucide="briefcase" class="w-8 h-8 text-cyan-400 absolute top-4 right-4"></i>
         <h3 class="text-sm font-medium text-white/80">Total Staff</h3>
         <p class="text-4xl font-extrabold text-white mt-2">{{ $totalStaff }}</p>
         <span class="text-xs text-white/60 mt-2 inline-block">Sales · IT · Accounts · Store · Office_boy</span>
-    </div>
+    </div> --}}
 
-    <!-- Staff Working Today -->
+    {{-- <!-- Staff Working Today -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg relative">
         <i data-lucide="check-circle" class="w-8 h-8 text-green-400 absolute top-4 right-4"></i>
         <h3 class="text-sm font-medium text-white/80">Working Today</h3>
         <p class="text-4xl font-extrabold text-white mt-2">{{ $todayWorkingStaff }}</p>
         <span class="text-xs text-white/60 mt-2 inline-block">Marked present today</span>
-    </div>
+    </div> --}}
 
     <!-- Salesmen -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg relative">
@@ -86,59 +86,61 @@
 <div class="mt-8 bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg border-l-8"
      style="border-left-color:#ff2ba6">
 
-    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+    {{-- <h3 class="text-lg font-semibold text-white flex items-center gap-2">
         <i data-lucide="activity" class="w-6 h-6 text-pink-400"></i>
         Recent Staff Activities
-    </h3>
+    </h3> --}}
 
-    <ul class="mt-5 space-y-4">
+    {{-- <ul class="mt-5 space-y-4"> --}}
 
         {{-- Attendance Activities --}}
-        @forelse($attendanceActivities as $a)
-            <li class="flex items-start gap-3">
+        {{-- @forelse($attendanceActivities as $a) --}}
+            {{-- <li class="flex items-start gap-3"> --}}
                 {{-- Icon --}}
-                <div class="w-9 h-9 flex items-center justify-center rounded-xl
-                    @if($a->status === 'present' && !$a->clock_out) bg-green-500/20 text-green-400
-                    @elseif($a->status === 'present') bg-blue-500/20 text-blue-400
-                    @else bg-red-500/20 text-red-400 @endif">
+                {{-- <div class="w-9 h-9 flex items-center justify-center rounded-xl --}}
+                    {{-- @if($a->status === 'present' && !$a->clock_out) bg-green-500/20 text-green-400 --}}
+                    {{-- @elseif($a->status === 'present') bg-blue-500/20 text-blue-400 --}}
+                    {{-- @else bg-red-500/20 text-red-400 @endif"> --}}
 
-                    @if($a->status === 'leave')
-                        <i data-lucide="ban" class="w-4 h-4"></i>
-                    @elseif(!$a->clock_out)
-                        <i data-lucide="play-circle" class="w-4 h-4"></i>
-                    @else
-                        <i data-lucide="stop-circle" class="w-4 h-4"></i>
-                    @endif
-                </div>
-
+                    {{-- @if($a->status === 'leave') --}}
+                        {{-- <i data-lucide="ban" class="w-4 h-4"></i> --}}
+                    {{-- @elseif(!$a->clock_out) --}}
+                        {{-- <i data-lucide="play-circle" class="w-4 h-4"></i> --}}
+                    {{-- @else --}}
+                        {{-- <i data-lucide="stop-circle" class="w-4 h-4"></i> --}}
+                    {{-- @endif --}}
+                {{-- </div> --}}
+{{--  --}}
                 {{-- Text --}}
-                <div>
+                {{-- <div> --}}
 
-                    <p class="text-sm text-white">
-                        <strong>{{ $a->salesman->name }}</strong>
+                    {{-- <p class="text-sm text-white"> --}}
+                        {{-- <strong>{{ $a->salesman->name }}</strong> --}}
 
-                        @if($a->status === 'leave')
-                            is on <span class="text-red-400 font-semibold">leave</span>
-                        @elseif(!$a->clock_out)
-                            <span class="text-green-400 font-semibold">clocked in</span>
-                            at {{ \Carbon\Carbon::parse($a->clock_in)->format('h:i A') }}
-                        @else
-                            <span class="text-blue-400 font-semibold">clocked out</span>
-                            at {{ \Carbon\Carbon::parse($a->clock_out)->format('h:i A') }}
-                        @endif
-                    </p>
+                        {{-- @if($a->status === 'leave') --}}
+                            {{-- is on <span class="text-red-400 font-semibold">leave</span> --}}
+                        {{-- @elseif(!$a->clock_out) --}}
+                            {{-- <span class="text-green-400 font-semibold">clocked in</span> --}}
+                            {{-- at {{ \Carbon\Carbon::parse($a->clock_in)->format('h:i A') }} --}}
+                        {{-- @else --}}
+                            {{-- <span class="text-blue-400 font-semibold">clocked out</span> --}}
+                            {{-- at {{ \Carbon\Carbon::parse($a->clock_out)->format('h:i A') }} --}}
+                        {{-- @endif --}}
+                    {{-- </p> --}}
 
-                    <span class="text-xs text-white/50">
-                        {{ $a->updated_at->diffForHumans() }}
-                    </span>
-                </div>
-            </li>
-        @empty
-            <li class="text-white/60 text-sm">No attendance activity found.</li>
-        @endforelse
+                    {{-- <span class="text-xs text-white/50"> --}}
+                        {{-- {{ $a->updated_at->diffForHumans() }} --}}
+                    {{-- </span> --}}
+                {{-- </div> --}}
+            {{-- </li> --}}
+        {{-- @empty --}}
+            {{-- <li class="text-white/60 text-sm">No attendance activity found.</li> --}}
+        {{-- @endforelse --}}
 
-        {{-- Divider --}}
+        {{-- Divider
         <div class="border-t border-white/10 my-4"></div>
+ --}}
+
            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
         <i data-lucide="activity" class="w-6 h-6 text-pink-400"></i>
         Recent Visits Activities
