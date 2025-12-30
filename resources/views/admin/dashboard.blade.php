@@ -113,6 +113,7 @@
 
                 {{-- Text --}}
                 <div>
+
                     <p class="text-sm text-white">
                         <strong>{{ $a->salesman->name }}</strong>
 
@@ -138,6 +139,10 @@
 
         {{-- Divider --}}
         <div class="border-t border-white/10 my-4"></div>
+           <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+        <i data-lucide="activity" class="w-6 h-6 text-pink-400"></i>
+        Recent Visits Activities
+    </h3>
 
         {{-- Visit Activities --}}
         @forelse($visitActivities as $v)

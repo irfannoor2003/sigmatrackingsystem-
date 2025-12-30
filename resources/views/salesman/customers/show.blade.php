@@ -66,7 +66,7 @@
                             </svg>
                             Mobile 1
                         </span>
-                        <span class="text-white">{{ $customer->phone1 }}</span>
+                        <span class="text-white">{{ $customer->phone1 ?? 'N/A'}}</span>
                     </div>
 
                     <div class="flex justify-between bg-white/10 py-3 px-4 rounded-xl items-center">

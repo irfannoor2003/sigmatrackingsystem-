@@ -5,17 +5,50 @@
 
     <div class="p-0 sm:p-6 ">
 
-        <h1 class="text-3xl font-bold text-white mb-6 tracking-wide flex items-center">
-            {{-- Lucide Icon: route --}}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-route mr-3 text-[#ff2ba6]">
-                <circle cx="6" cy="19" r="3" />
-                <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7H14a2 2 0 0 1-2-2V3" />
-                <circle cx="18" cy="5" r="3" />
-            </svg>
-            My Visits
-        </h1>
+   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+
+    <h1 class="text-3xl font-bold text-white tracking-wide flex items-center">
+        {{-- Lucide Icon --}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+            viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-route mr-3 text-[#ff2ba6]">
+            <circle cx="6" cy="19" r="3" />
+            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7H14a2 2 0 0 1-2-2V3" />
+            <circle cx="18" cy="5" r="3" />
+        </svg>
+        My Visits
+    </h1>
+
+    {{-- PRINT BUTTON --}}
+    <button
+        onclick="window.print()"
+        class="px-5 py-2 rounded-xl
+               bg-gradient-to-r from-pink-500 to-purple-500
+               text-white font-semibold
+               flex items-center justify-center
+               hover:opacity-90 transition
+               print:hidden">
+
+        {{-- Printer Icon --}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+            viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            class="mr-2">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5
+                     a2 2 0 0 1 2-2h16
+                     a2 2 0 0 1 2 2v5
+                     a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+
+        Print
+    </button>
+
+</div>
 
         {{-- Success Message --}}
         @if (session('success'))
@@ -107,6 +140,19 @@
                             </div>
                         </th>
                         <th class="p-3 text-left">
+    <div class="flex items-center">
+        {{-- Lucide Icon: map-pin --}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-map-pin mr-1">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+        </svg>
+        KM
+    </div>
+</th>
+                        <th class="p-3 text-left">
                             <div class="flex items-center">
                                 {{-- Lucide Icon: clock (Duration) --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -160,6 +206,13 @@
                                 </div>
                             </td>
 
+<td class="p-3 text-white/80">
+    @if ($v->distance_km)
+        {{ $v->distance_km }} km
+    @else
+        -
+    @endif
+</td>
 
                             <td class="p-3 text-white/80">
                                 @if ($v->status == 'completed' && $v->completed_at)
@@ -179,6 +232,10 @@
                                             class="w-full bg-white/10 text-white placeholder-white/50
                                                 p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
                                             placeholder="Add notes" required></textarea>
+                                        <input type="number" step="0.1" min="0" name="distance_km"
+    placeholder="Enter distance in KM"
+    class="w-full bg-white/10 text-white placeholder-white/50
+           p-2 rounded-lg mb-2 focus:bg-white/20" required>
 
                                         {{-- File upload for images only --}}
                                         <input type="file" name="images[]" multiple accept="image/*"
@@ -235,7 +292,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-6 text-center text-white/70 bg-white/5">
+                            <td colspan="8" class="p-6 text-center text-white/70 bg-white/5">
                                 No record found
                             </td>
                         </tr>
@@ -310,10 +367,20 @@
                             </div>
 
                             <div class="text-white/70 text-sm break-words whitespace-pre-line
-            line-clamp-3 transition-all duration-300"
-                                id="notes-{{ $v->id }}">
-                                {{ $v->notes ?? '-' }}
-                            </div>
+    line-clamp-3 transition-all duration-300"
+    id="notes-{{ $v->id }}">
+    {{ $v->notes ?? '-' }}
+</div>
+
+@if ($v->notes && strlen($v->notes) > 120)
+    <button
+        type="button"
+        onclick="toggleNotes({{ $v->id }}, this)"
+        class="mt-1 text-xs text-pink-400 hover:text-pink-300 transition">
+        Read more
+    </button>
+@endif
+
 
 
 
@@ -335,66 +402,94 @@
                                 -
                             @endif
                         </p>
+@if ($v->distance_km)
+<p class="text-white/80 text-sm mb-2 flex items-center ml-px">
+    {{-- Lucide Icon: map-pin --}}
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-map-pin mr-2 text-white/80">
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
+    </svg>
+    Distance: <span class="ml-1 font-semibold">{{ $v->distance_km }} km</span>
+</p>
+@endif
 
 
                         {{-- If Visit Started → Show Form --}}
-                        @if ($v->status == 'started')
-                            <form action="{{ route('salesman.visits.complete', $v->id) }}" method="POST"
-                                enctype="multipart/form-data">
-                                @csrf
+           {{-- ACTION AREA --}}
+<div class="mt-4">
 
-                                <textarea name="notes"
-                                    class="w-full bg-white/10 text-white placeholder-white/50
-                                            p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
-                                    placeholder="Add notes" required></textarea>
+    {{-- IF VISIT IS STARTED --}}
+    @if ($v->status == 'started')
 
-                                {{-- File upload for images only (Replaced the previous input/label set) --}}
-                                <input type="file" name="images[]" multiple accept="image/*" {{-- Suggested addition to hint for images only --}}
-                                    class="w-full text-white mb-3 bg-white/10 p-2 rounded-lg text-sm" required>
+        <form action="{{ route('salesman.visits.complete', $v->id) }}"
+              method="POST"
+              enctype="multipart/form-data">
+            @csrf
 
-                                <button
-                                    class="w-full py-2 rounded-xl text-white font-semibold flex items-center justify-center
-                                            bg-gradient-to-r from-green-500 to-emerald-500
-                                            shadow hover:opacity-90 transition">
-                                    {{-- Lucide Icon: check-circle --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-check-circle mr-2">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                        <path d="m9 11 2 2 4-4" />
-                                    </svg>
-                                    Complete Visit
-                                </button>
-                            </form>
-                        @else
-                            <div class="flex flex-col gap-2">
-                                <span class="text-green-300 font-semibold flex items-center">
-                                    {{-- Lucide Icon: check-check --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-check-check mr-2">
-                                        <path d="M18 6 7 17l-5-5" />
-                                        <path d="m19 12-5 5-2-2" />
-                                    </svg>
-                                    Completed
-                                </span>
+            <textarea name="notes"
+                class="w-full bg-white/10 text-white placeholder-white/50
+                       p-2 rounded-lg outline-none mb-2 focus:bg-white/20"
+                placeholder="Add notes" required></textarea>
 
-                                <a href="{{ route('salesman.visits.show', $v->id) }}"
-                                    class="px-3 py-2 rounded-lg bg-blue-500/30 border border-blue-400/40
-                                        text-blue-100 text-sm text-center hover:bg-blue-500/40 transition flex items-center justify-center">
-                                    {{-- Lucide Icon: eye --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye mr-2">
-                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
-                                    View Details
-                                </a>
-                            </div>
-                        @endif
+            {{-- KM Field --}}
+            <input type="number" step="0.1" min="0"
+                name="distance_km"
+                placeholder="Enter distance in KM"
+                class="w-full bg-white/10 text-white placeholder-white/50
+                       p-2 rounded-lg mb-2 focus:bg-white/20"
+                required>
+
+            {{-- Images --}}
+            <input type="file"
+                name="images[]"
+                multiple
+                accept="image/*"
+                class="w-full text-white mb-3 bg-white/10 p-2 rounded-lg text-sm"
+                required>
+
+            <button
+                class="w-full py-2 rounded-xl text-white font-semibold
+                       flex items-center justify-center
+                       bg-gradient-to-r from-green-500 to-emerald-500
+                       shadow hover:opacity-90 transition">
+                ✔ Complete Visit
+            </button>
+        </form>
+
+    {{-- IF VISIT IS COMPLETED --}}
+    @else
+
+        <a href="{{ route('salesman.visits.show', $v->id) }}"
+           class="w-full mt-2 px-4 py-2 rounded-xl
+                  bg-blue-500/30 border border-blue-400/40
+                  text-blue-100 text-sm font-semibold
+                  flex items-center justify-center
+                  hover:bg-blue-500/40 transition">
+
+            {{-- Eye Icon --}}
+            <svg xmlns="http://www.w3.org/2000/svg"
+                width="16" height="16"
+                viewBox="0 0 24 24"
+                fill="none" stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="mr-2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+
+            View Visit Details
+        </a>
+
+    @endif
+
+</div>
+
+
 
                     </div>
                 @empty
@@ -419,3 +514,47 @@ function toggleNotes(id, btn) {
         : 'Read less';
 }
 </script>
+
+<style>
+@media print {
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Hide buttons, forms, inputs */
+    button,
+    form,
+    input,
+    textarea,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    /* Force table visible */
+    table {
+        display: table !important;
+        width: 100%;
+        color: black !important;
+    }
+
+    th, td {
+        color: black !important;
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+    }
+
+    /* Remove glass effect */
+    .bg-white\/10,
+    .backdrop-blur-xl {
+        background: white !important;
+        border: none !important;
+    }
+
+    /* Hide mobile cards in print */
+    .md\:hidden {
+        display: none !important;
+    }
+}
+</style>

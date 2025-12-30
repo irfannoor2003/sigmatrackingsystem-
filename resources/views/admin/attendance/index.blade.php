@@ -21,7 +21,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
     )->format('F Y');
 @endphp
 
-<div class="max-w-6xl mx-auto mt-12 px-4">
+<div class="max-w-6xl mx-auto mt-12 px-0  sm-px-4">
 
     {{-- Header --}}
     <div class="relative glass p-8 rounded-2xl border border-white/20 shadow-2xl mb-8 overflow-hidden">

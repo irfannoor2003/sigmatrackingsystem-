@@ -3,7 +3,7 @@
 @section('title','My Attendance')
 
 @section('content')
-<div class="max-w-xl mx-auto mt-10 px-4">
+<div class="max-w-xl mx-auto mt-10 px-0">
 
 <div class="glass border border-white/20 p-6 rounded-3xl shadow-2xl">
 
@@ -158,31 +158,69 @@
 </div>
 
 {{-- Leave Modal --}}
-<div id="leaveModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-96">
-        <h3 class="text-xl font-bold mb-4">Leave Reason</h3>
+<div id="leaveModal"
+     class="hidden fixed inset-0 z-[9999] flex items-center justify-center
+            bg-black/70 backdrop-blur-xl p-4">
 
+    <div class="relative w-full max-w-md
+                bg-white/10 backdrop-blur-2xl
+                border border-white/20
+                rounded-3xl shadow-2xl p-6 md:p-8 animate-fadeIn">
+
+        {{-- Title --}}
+        <h3 class="text-2xl font-bold text-white mb-6 flex items-center">
+            {{-- Lucide Icon: alert-circle --}}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-alert-circle mr-3 text-red-400">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" x2="12" y1="8" y2="12"/>
+                <line x1="12" x2="12.01" y1="16" y2="16"/>
+            </svg>
+            Leave Reason
+        </h3>
+
+        {{-- Form --}}
         <form method="POST" action="{{ route('attendance.leave') }}">
             @csrf
 
-            <textarea name="reason" required
-                class="w-full border rounded-lg p-3"
-                placeholder="Explain your reason (illness, emergency, etc)"></textarea>
+            {{-- Reason --}}
+            <div class="mb-6">
+                <label class="block text-white/70 mb-2 font-medium">
+                    Reason for Leave
+                </label>
 
-            <div class="mt-4 flex justify-end gap-3">
+                <textarea name="reason" required rows="4"
+                    class="w-full px-4 py-3 rounded-2xl
+                           bg-black/40 border border-white/10
+                           text-white placeholder-white/40
+                           focus:ring-2 focus:ring-red-400/50 focus:border-transparent
+                           resize-none"
+                    placeholder="Explain your reason (illness, emergency, etc)"></textarea>
+            </div>
+
+            {{-- Buttons --}}
+            <div class="flex justify-end gap-3">
                 <button type="button"
                     onclick="document.getElementById('leaveModal').classList.add('hidden')"
-                    class="px-4 py-2 border rounded">
+                    class="px-5 py-2.5 rounded-xl
+                           bg-white/10 hover:bg-white/20
+                           text-white font-medium transition">
                     Cancel
                 </button>
 
-                <button class="px-4 py-2 bg-red-600 text-white rounded">
-                    Submit
+                <button type="submit"
+                    class="px-5 py-2.5 rounded-xl
+                           bg-red-600/80 hover:bg-red-600
+                           text-white font-semibold shadow-lg transition">
+                    Submit Leave
                 </button>
             </div>
         </form>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')

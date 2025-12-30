@@ -288,12 +288,12 @@
                 <p class="text-center text-white/50">No customers found</p>
             @endforelse
 
-            <button type="submit"
+            {{-- <button type="submit"
                 class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-green-500/50 to-emerald-500/50
                     text-white font-semibold shadow disabled:opacity-50 hover:opacity-90 w-full text-center">
                 <i data-lucide="download" class="w-5 h-5"></i>
                 Export Selected
-            </button>
+            </button> --}}
 
 
         </div>

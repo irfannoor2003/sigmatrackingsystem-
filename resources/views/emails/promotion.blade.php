@@ -111,7 +111,7 @@
                                         font-weight:600;
                                         color:#111827;
                                     ">
-                                        Asif
+                                        Sigma Engineering Services
                                     </p>
 
                                     <p style="
@@ -120,7 +120,15 @@
                                         color:#9ca3af;
                                         text-transform:capitalize;
                                     ">
-                                        Company Ceo
+                                        Call Us: +92-321 4428 202
+                                    </p>
+                                    <p style="
+                                        margin:2px 0 0 0;
+                                        font-size:12px;
+                                        color:#9ca3af;
+                                        text-transform:capitalize;
+                                    ">
+                                        Location: 2-B, Agro square Flats, Shadman Market, Lahore Punjab
                                     </p>
                                 </td>
                             </tr>

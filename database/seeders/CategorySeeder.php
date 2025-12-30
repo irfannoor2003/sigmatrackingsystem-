@@ -11,9 +11,10 @@ class CategorySeeder extends Seeder
 {
     public function run()
     {
-        $items = [
-            'Retail', 'Wholesale','Shopkeeper','Other'
-        ];
+       $items = [
+    'Important', 'Routine', 'Average', 'Others'
+];
+
 
         foreach ($items as $i) {
             Category::create(['name' => $i]);

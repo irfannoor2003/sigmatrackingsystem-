@@ -141,7 +141,7 @@ Route::middleware(['auth', 'role:salesman'])
         Route::get('/dashboard', [SalesmanDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('customers', SalesmanCustomerController::class)
-            ->only(['index', 'create', 'store', 'show']);
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 
         Route::resource('visits', VisitController::class)
             ->only(['index', 'create', 'store', 'show']);
@@ -157,6 +157,9 @@ Route::middleware(['auth', 'role:salesman'])
         });
 
         Route::get('/reports', [ReportController::class, 'salesmanReport'])->name('reports.index');
+        Route::get('/reports/monthly-visits', [ReportController::class, 'monthlyVisitReport'])
+    ->name('reports.monthly.visits');
+
 
         Route::get('/old-customers', [SalesmanOldCustomerController::class, 'index'])->name('old-customers.index');
         Route::get('/old-customers/import', [SalesmanOldCustomerController::class, 'importForm'])

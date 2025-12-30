@@ -106,4 +106,33 @@ class ReportController extends Controller
 
         return view('admin.reports.show', compact('visit'));
     }
+    // Salesman Monthly Visit Report (Printable)
+public function monthlyVisitReport(Request $request)
+{
+    $salesmanId = auth()->id();
+
+    $monthInput = $request->month ?? now()->format('Y-m');
+
+    $start = Carbon::createFromFormat('Y-m', $monthInput)->startOfMonth();
+    $end   = Carbon::createFromFormat('Y-m', $monthInput)->endOfMonth();
+
+    $visits = Visit::with('customer')
+        ->where('salesman_id', $salesmanId)
+        ->whereBetween('started_at', [$start, $end])
+        ->orderBy('started_at')
+        ->get();
+
+    $totalVisits = $visits->count();
+    $completedVisits = $visits->where('status', 'completed')->count();
+    $totalKm = $visits->sum('distance_km');
+
+    return view('salesman.reports.monthly-visits', compact(
+        'visits',
+        'monthInput',
+        'totalVisits',
+        'completedVisits',
+        'totalKm'
+    ));
+}
+
 }

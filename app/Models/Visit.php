@@ -17,25 +17,32 @@ class Visit extends Model
         'status',
         'started_at',
         'completed_at',
-
+        'distance_km',
+        'images',
+        'start_lat',
+        'start_lng',
     ];
 
-    // Cast timestamps to Carbon instances
     protected $casts = [
-        'started_at' => 'datetime',
+        'started_at'   => 'datetime',
         'completed_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'images' => 'array',
-
+        'created_at'   => 'datetime',
+        'updated_at'   => 'datetime',
+        'images'       => 'array',
+        'distance_km'  => 'decimal:2',
     ];
 
-    // Relationships
-    public function customer() {
+    /* ======================
+        Relationships
+    ====================== */
+
+    public function customer()
+    {
         return $this->belongsTo(Customer::class);
     }
 
-    public function salesman() {
+    public function salesman()
+    {
         return $this->belongsTo(User::class, 'salesman_id');
     }
 }

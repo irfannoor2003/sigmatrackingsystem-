@@ -117,6 +117,12 @@
                 Notes
             </div>
         </th>
+        <th class="p-3 text-left text-white text-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map" class="w-4 h-4 text-white/60"></i>
+                Km
+            </div>
+        </th>
 
         <th class="p-3 text-left text-white text-sm">
             <div class="flex items-center gap-2">
@@ -154,6 +160,7 @@
                             </span>
                         </td>
                         <td class="p-2 text-white/90">{{ $v->notes }}</td>
+                        <td class="p-2 text-white/90">{{ $v->distance_km }}</td>
 
                         <td class="p-2 text-white/90">{{ $v->started_at->format('Y-m-d H:i') }}</td>
                     </tr>
@@ -213,6 +220,12 @@
                     <div class="bg-white/5 p-3 rounded-xl">
                         <div class="text-white/60 text-xs flex items-center"><i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i> Notes</div>
                         <div class="text-white">{{ $v->notes }}</div>
+                    </div>
+                @endif
+                @if($v->distance_km)
+                    <div class="bg-white/5 p-3 rounded-xl">
+                        <div class="text-white/60 text-xs flex items-center"><i data-lucide="map" class="w-4 h-4 mr-2"></i> Km</div>
+                        <div class="text-white">{{ $v->distance_km }}</div>
                     </div>
                 @endif
 

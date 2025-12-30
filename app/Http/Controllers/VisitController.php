@@ -14,13 +14,13 @@ class VisitController extends Controller
      * Show create visit form
      */
     public function create()
-    {
-        $customers = Customer::where('salesman_id', Auth::id())
-            ->orderBy('name')
-            ->get();
+{
+    // Fetch all customers
+    $customers = Customer::orderBy('name')->get();
 
-        return view('salesman.visits.create', compact('customers'));
-    }
+    return view('salesman.visits.create', compact('customers'));
+}
+
 
     /**
      * List visits
@@ -123,30 +123,37 @@ class VisitController extends Controller
      * Complete visit
      */
     public function complete(Request $request, $id)
-    {
-        $visit = Visit::where('id', $id)
-            ->where('salesman_id', Auth::id())
-            ->where('status', 'started')
-            ->firstOrFail();
+{
+    $visit = Visit::where('id', $id)
+        ->where('salesman_id', Auth::id())
+        ->where('status', 'started')
+        ->firstOrFail();
 
-        $images = [];
+    $request->validate([
+        'notes' => 'nullable|string|max:1000',
+        'distance_km' => 'nullable|numeric|min:0',
+        'images.*' => 'nullable|image|max:5120', // optional, max 5MB
+    ]);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $images[] = $image->store('visit_images', 'public');
-            }
+    $images = [];
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $images[] = $image->store('visit_images', 'public');
         }
-
-        $visit->notes = $request->notes;
-        $visit->images = array_merge($visit->images ?? [], $images);
-        $visit->status = 'completed';
-        $visit->completed_at = now();
-        $visit->save();
-
-        return redirect()
-            ->route('salesman.visits.index')
-            ->with('success', 'Visit completed successfully!');
     }
+
+    $visit->notes = $request->notes;
+    $visit->distance_km = $request->distance_km; // save km entered by salesman
+    $visit->images = array_merge($visit->images ?? [], $images);
+    $visit->status = 'completed';
+    $visit->completed_at = now();
+    $visit->save();
+
+    return redirect()
+        ->route('salesman.visits.index')
+        ->with('success', 'Visit completed successfully!');
+}
+
 
     /**
      * Show single visit

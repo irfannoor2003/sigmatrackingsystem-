@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
 use App\Models\Industry;
 
 class IndustrySeeder extends Seeder
@@ -12,12 +11,13 @@ class IndustrySeeder extends Seeder
     public function run()
     {
         $items = [
-            'Pharmaceutical',
-            'Automotive',
-            'Manufacturing',
-            'Construction',
-            'Chemical',
-            'IT Services'
+            'Switchgear',
+            'Retailer',
+            'Sugar',
+            'Cements',
+            'Textile',
+            'Food/Beverages',
+            'Others'
         ];
 
         foreach ($items as $i) {

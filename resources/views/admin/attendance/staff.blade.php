@@ -23,7 +23,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 </style>
 
-<div class="max-w-6xl mx-auto mt-10 px-4 pb-20">
+<div class="max-w-6xl mx-auto mt-10 px-0  pb-20">
 
     {{-- HEADER --}}
     <div class="glass p-6 sm:p-8 rounded-3xl border border-white/20 shadow-2xl mb-6">
@@ -50,10 +50,10 @@ input[type="month"]::-webkit-calendar-picker-indicator {
     {{-- MONTH FILTER --}}
     <form method="GET"
           class="glass p-5 rounded-3xl border border-white/20 shadow-xl mb-6 flex flex-col sm:flex-row gap-4 items-end">
-        <div>
-            <label class="text-xs text-white/50 uppercase">Filter Month</label>
+        <div class="w-full">
+            <label class="text-xs text-white/50 uppercase block mb-2">Filter Month</label>
             <input type="month" name="month" value="{{ $monthInput }}"
-                   class="px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white">
+                   class="px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white w-full">
         </div>
 
         <button

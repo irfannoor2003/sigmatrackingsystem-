@@ -85,7 +85,11 @@
                         <span class="text-white/60">-</span>
                     @endif
                 </p>
-
+<p class="mb-3 flex items-center">
+                    <i data-lucide="map" class="w-5 h-5 mr-2 text-white/70"></i>
+                    <strong class="text-white mr-2">Km:</strong>
+                    {{ $visit->distance_km }}
+                </p>
             </div>
 
         </div>

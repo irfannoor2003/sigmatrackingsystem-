@@ -89,26 +89,31 @@
    {{ request()->routeIs('admin.staff.*') ? 'sidebar-active' : '' }}">
                             <i data-lucide="users-round" class="w-5 h-5"></i>
                             All Staff
-                        </a> <a href="{{ route('admin.attendance.index') }}"
+                        </a>
+                        <a href="{{ route('admin.attendance.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
-   {{ request()->routeIs('admin.attendance.*') ? 'sidebar-active' : '' }}">
+   {{ request()->routeIs('admin.attendance.index') ? 'sidebar-active' : '' }}">
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                             Attendance Reports
                         </a>
 
 
- <a href="{{ route('admin.attendance.leave-requests') }}"
-   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+
+                        <a href="{{ route('admin.attendance.leave-requests') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
    {{ request()->routeIs('admin.attendance.leave-requests') ? 'sidebar-active' : '' }}">
-    <i data-lucide="mail" class="w-5 h-5"></i>
-    Leave Requests
-</a>
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                            Leave Messages
+                        </a>
+
 
                         <a href="{{ route('admin.salesmen.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->routeIs('admin.salesmen.*') ? 'sidebar-active' : '' }}">
                             <i data-lucide="users" class="w-5 h-5"></i>
                             Salesmen
                         </a>
+
                         <a href="{{ route('admin.reports.index') }}"
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
                         {{ request()->routeIs('admin.reports.*') ? 'sidebar-active' : '' }}">
@@ -118,79 +123,102 @@
 
 
                         <a href="{{ url('/admin/customers') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->is('admin/customers*') ? 'sidebar-active' : '' }}">
                             <i data-lucide="building-2" class="w-5 h-5"></i>
                             All Customers
                         </a>
+
                         <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
                         <a href="{{ route('admin.old-customers.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->routeIs('admin.old-customers.*') ? 'sidebar-active' : '' }}">
                             <i data-lucide="database" class="w-5 h-5"></i>
                             Search / View Old
                         </a>
                     @endif
 
-                    @if (auth()->user()->role === 'salesman')
-                        <a href="{{ route('salesman.dashboard') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
-                        {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active' : '' }}">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                            Dashboard
-                        </a>
-                        <a href="{{ route('salesman.attendance.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
-   {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active' : '' }}">
-                            <i data-lucide="clock" class="w-5 h-5"></i>
-                            Attendance
-                        </a>
+                   @if (auth()->user()->role === 'salesman')
 
-                        <a href="{{ route('salesman.customers.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="briefcase" class="w-5 h-5"></i>
-                            My Customers
-                        </a>
+    {{-- Dashboard --}}
+    <a href="{{ route('salesman.dashboard') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active' : '' }}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
+    </a>
 
-                        <a href="{{ route('salesman.customers.create') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="user-plus" class="w-5 h-5"></i>
-                            Add Customer
-                        </a>
+    {{-- Attendance --}}
+    <a href="{{ route('salesman.attendance.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active' : '' }}">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        Attendance
+    </a>
 
-                        <a href="{{ route('salesman.visits.create') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                            Start Visit
-                        </a>
+    {{-- My Customers --}}
+    <a href="{{ route('salesman.customers.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.customers.index') ? 'sidebar-active' : '' }}">
+        <i data-lucide="briefcase" class="w-5 h-5"></i>
+        My Customers
+    </a>
 
-                        <a href="{{ route('salesman.visits.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="calendar-check" class="w-5 h-5"></i>
-                            My Visits
-                        </a>
-                        {{-- 🔹 NEW: OLD CUSTOMERS (SALESMAN) --}}
-                        <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+    {{-- Add Customer --}}
+    <a href="{{ route('salesman.customers.create') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.customers.create') ? 'sidebar-active' : '' }}">
+        <i data-lucide="user-plus" class="w-5 h-5"></i>
+        Add Customer
+    </a>
 
-                        <a href="{{ route('salesman.old-customers.import') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="upload" class="w-5 h-5"></i>
-                            Import Old Customers
-                        </a>
+    {{-- Start Visit --}}
+    <a href="{{ route('salesman.visits.create') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.visits.create') ? 'sidebar-active' : '' }}">
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+        Start Visit
+    </a>
 
-                        <a href="{{ route('salesman.old-customers.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                            <i data-lucide="database" class="w-5 h-5"></i>
-                            View Old Customers
-                        </a>
-                    @endif
-                    @if (in_array($role, ['it', 'account', 'store', 'office_boy']))
-                        <a href="{{ route('staff.attendance.index') }}"
-                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
-        {{ request()->routeIs('staff.attendance*') ? 'sidebar-active' : '' }}">
-                            <i data-lucide="clock" class="w-5 h-5"></i>
-                            Attendance
-                        </a>
-                    @endif
+    {{-- My Visits --}}
+    <a href="{{ route('salesman.visits.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.visits.index') ? 'sidebar-active' : '' }}">
+        <i data-lucide="calendar-check" class="w-5 h-5"></i>
+        My Visits
+    </a>
+
+    {{-- Old Customers --}}
+    <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+    {{-- Import Old Customers (URL-based active) --}}
+    <a href="{{ route('salesman.old-customers.import') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->is('salesman/old-customers/import*') ? 'sidebar-active' : '' }}">
+        <i data-lucide="upload" class="w-5 h-5"></i>
+        Import Old Customers
+    </a>
+
+    {{-- View Old Customers --}}
+    <a href="{{ route('salesman.old-customers.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.old-customers.index') ? 'sidebar-active' : '' }}">
+        <i data-lucide="database" class="w-5 h-5"></i>
+        View Old Customers
+    </a>
+
+@endif
+
+                 @if (in_array($role, ['it', 'account', 'store', 'office_boy']))
+    <a href="{{ route('staff.attendance.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('staff.attendance.*') ? 'sidebar-active' : '' }}">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        Attendance
+    </a>
+@endif
+
 
 
                     <div class="border-t border-white/10 mt-6 pt-4">
@@ -205,7 +233,8 @@
 
                         <form method="POST" action="{{ route('logout') }}" class="px-4 mt-3">
                             @csrf
-                            <button type="submit" class="flex items-center gap-3 text-sm text-red-400 hover:text-red-300">
+                            <button type="submit"
+                                class="flex items-center gap-3 text-sm text-red-400 hover:text-red-300">
                                 <i data-lucide="log-out" class="w-5 h-5"></i>
                                 Logout
                             </button>
@@ -278,103 +307,154 @@
                             </a>
 
                             @if (auth()->user()->role === 'admin')
+                                {{-- Dashboard --}}
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'sidebar-active-mobile' : '' }}">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('admin.dashboard') ? 'sidebar-active-mobile' : '' }}">
                                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                                     Dashboard
                                 </a>
+
+                                {{-- All Staff --}}
+                                <a href="{{ route('admin.staff.index') }}"
+                                    class="flex items-center gap-3  py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('admin.staff.*') ? 'sidebar-active' : '' }}">
+                                    <i data-lucide="users-round" class="w-5 h-5"></i>
+                                    All Staff
+                                </a>
+
+                                {{-- Attendance Reports --}}
+                                <a href="{{ route('admin.attendance.index') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('admin.attendance.index') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                                    Attendance Reports
+                                </a>
+
+                                {{-- Leave Requests (FIXED – no conflict now) --}}
+                                <a href="{{ route('admin.attendance.leave-requests') }}"
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('admin.attendance.leave-requests') ? 'sidebar-active-mobile' : '' }}">
+                                    <i data-lucide="mail" class="w-5 h-5"></i>
+                                    Leave Messages
+                                </a>
+
+                                {{-- Salesmen --}}
                                 <a href="{{ route('admin.salesmen.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('admin.salesmen.*') ? 'sidebar-active-mobile' : '' }}">
                                     <i data-lucide="users" class="w-5 h-5"></i>
                                     Salesmen
                                 </a>
 
-
+                                {{-- Visit Reports --}}
                                 <a href="{{ route('admin.reports.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('admin.reports.*') ? 'sidebar-active-mobile' : '' }}">
                                     <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                                    Reports
+                                    Visit Reports
                                 </a>
+
+                                {{-- All Customers (URL based) --}}
                                 <a href="{{ url('/admin/customers') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
+                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->is('admin/customers*') ? 'sidebar-active-mobile' : '' }}">
                                     <i data-lucide="building-2" class="w-5 h-5"></i>
                                     All Customers
                                 </a>
+
                                 <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
 
+                                {{-- Old Customers --}}
                                 <a href="{{ route('admin.old-customers.index') }}"
-                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
+                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('admin.old-customers.*') ? 'sidebar-active' : '' }}">
                                     <i data-lucide="database" class="w-5 h-5"></i>
                                     Search / View Old
                                 </a>
-                                <a href="{{ route('admin.attendance.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
-   {{ request()->routeIs('admin.attendance.*') ? 'sidebar-active-mobile' : '' }}">
-                                    <i data-lucide="calendar-clock" class="w-5 h-5"></i>
-                                    Attendance Reports
-                                </a>
-                                <a href="{{ route('admin.attendance.leave-requests') }}"
-                                    class="block px-4 py-2 text-white hover:bg-white/10 rounded">
-                                    📨 Leave Requests
-                                </a>
                             @endif
+
 
                             @if (auth()->user()->role === 'salesman')
-                                <a href="{{ route('salesman.dashboard') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10 {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active-mobile' : '' }}">
-                                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                                    Dashboard
-                                </a>
-                                <a href="{{ route('salesman.customers.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
-                                    <i data-lucide="briefcase" class="w-5 h-5"></i>
-                                    My Customers
-                                </a>
-                                <a href="{{ route('salesman.customers.create') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
-                                    <i data-lucide="user-plus" class="w-5 h-5"></i>
-                                    Add Customer
-                                </a>
-                                <a href="{{ route('salesman.visits.create') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
-                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
-                                    Start Visit
-                                </a>
-                                <a href="{{ route('salesman.visits.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10">
-                                    <i data-lucide="calendar-check" class="w-5 h-5"></i>
-                                    My Visits
-                                </a>
 
-                                <a href="{{ route('salesman.attendance.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
-   {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active-mobile' : '' }}">
-                                    <i data-lucide="clock" class="w-5 h-5"></i>
-                                    Attendance
-                                </a>
+    {{-- Dashboard --}}
+    <a href="{{ route('salesman.dashboard') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.dashboard') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
+    </a>
 
-                                <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+    {{-- Attendance --}}
+    <a href="{{ route('salesman.attendance.index') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.attendance.*') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        Attendance
+    </a>
 
-                                <a href="{{ route('salesman.old-customers.import') }}"
-                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                                    <i data-lucide="upload" class="w-5 h-5"></i>
-                                    Import Old Customers
-                                </a>
+    {{-- My Customers --}}
+    <a href="{{ route('salesman.customers.index') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.customers.index') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="briefcase" class="w-5 h-5"></i>
+        My Customers
+    </a>
 
-                                <a href="{{ route('salesman.old-customers.index') }}"
-                                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1">
-                                    <i data-lucide="database" class="w-5 h-5"></i>
-                                    View Old Customers
-                                </a>
-                            @endif
+    {{-- Add Customer --}}
+    <a href="{{ route('salesman.customers.create') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.customers.create') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="user-plus" class="w-5 h-5"></i>
+        Add Customer
+    </a>
+
+    {{-- Start Visit --}}
+    <a href="{{ route('salesman.visits.create') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.visits.create') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+        Start Visit
+    </a>
+
+    {{-- My Visits --}}
+    <a href="{{ route('salesman.visits.index') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('salesman.visits.index') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="calendar-check" class="w-5 h-5"></i>
+        My Visits
+    </a>
+
+    <div class="mt-4 text-xs uppercase text-gray-400 px-4">Old Customers</div>
+
+    {{-- Import Old Customers --}}
+    <a href="{{ route('salesman.old-customers.import') }}"
+   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+   {{ request()->is('salesman/old-customers/import*') ? 'sidebar-active-mobile' : '' }}">
+    <i data-lucide="upload" class="w-5 h-5"></i>
+    Import Old Customers
+</a>
+
+
+    {{-- View Old Customers --}}
+    <a href="{{ route('salesman.old-customers.index') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('salesman.old-customers.index') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="database" class="w-5 h-5"></i>
+        View Old Customers
+    </a>
+
+@endif
+
                             @if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
-                                <a href="{{ route('staff.attendance.index') }}"
-                                    class="flex items-center gap-3 py-2 rounded hover:bg-white/10
-        {{ request()->routeIs('staff.attendance*') ? 'sidebar-active-mobile' : '' }}">
-                                    <i data-lucide="clock" class="w-5 h-5"></i>
-                                    Attendance
-                                </a>
-                            @endif
+    <a href="{{ route('staff.attendance.index') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('staff.attendance.*') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        Attendance
+    </a>
+@endif
+
 
                             <form method="POST" action="{{ route('logout') }}"
                                 class="mt-4 pt-4 border-t border-white/10">

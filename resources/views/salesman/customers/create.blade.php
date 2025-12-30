@@ -133,7 +133,7 @@
                 placeholder="Enter email address"
                 class="w-full px-4 py-3 rounded-lg bg-white/10 text-white
                 placeholder-white/50 focus:bg-white/20 outline-none"
-                required>
+                >
         </div>
 
         <div class="md:col-span-2">
