@@ -3,7 +3,10 @@
 namespace App\Exports;
 
 use App\Models\Attendance;
+use App\Models\Holiday;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -16,46 +19,108 @@ class AttendanceExport implements FromCollection, WithHeadings
     public function __construct($salesmanId = null, $month = null, $year = null)
     {
         $this->salesmanId = $salesmanId;
-        $this->month = $month;
-        $this->year = $year;
+        $this->month     = $month;
+        $this->year      = $year;
     }
 
     public function collection()
     {
-        $query = Attendance::with('salesman');
+        $month = $this->month ?? now()->month;
+        $year  = $this->year ?? now()->year;
+
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end   = Carbon::create($year, $month, 1)->endOfMonth();
+
+        /* ================= ATTENDANCE ================= */
+        $attQuery = Attendance::with('salesman')
+            ->whereBetween('date', [$start, $end]);
 
         if ($this->salesmanId) {
-            $query->where('salesman_id', $this->salesmanId);
+            $attQuery->where('salesman_id', $this->salesmanId);
         }
 
-        if ($this->month && $this->year) {
-            $query->whereMonth('date', $this->month)
-                  ->whereYear('date', $this->year);
-        }
+        $attendances = $attQuery->get()
+            ->keyBy(fn ($a) =>
+                $a->salesman_id . '_' . Carbon::parse($a->date)->format('Y-m-d')
+            );
 
-        return $query
-            ->orderBy('date', 'desc')
+        /* ================= HOLIDAYS ================= */
+        $holidays = Holiday::whereBetween('date', [$start, $end])
             ->get()
-            ->map(function ($a) {
+            ->keyBy(fn ($h) =>
+                Carbon::parse($h->date)->format('Y-m-d')
+            );
 
-                $date = Carbon::parse($a->date);
+        /* ================= SALESMEN ================= */
+        $salesmen = $this->salesmanId
+            ? User::where('id', $this->salesmanId)->get()
+            : User::whereIn('role', [
+                'salesman','it','account','store','office_boy'
+            ])->get();
 
-                return [
-                    'Date'       => $date->format('d M Y'),
-                    'Day'        => $date->format('l'), // 👈 NEW (Monday, Tuesday)
-                    'Name'       => $a->salesman->name,
-                    'Role'       => ucfirst($a->salesman->role),
-                    'Status'     => ucfirst($a->status),
-                    'Clock In'   => $a->clock_in
-                        ? Carbon::parse($a->clock_in)->format('h:i A')
-                        : '-',
-                    'Clock Out'  => $a->clock_out
-                        ? Carbon::parse($a->clock_out)->format('h:i A')
-                        : '-',
-                    'Work (min)' => $a->total_minutes ?? 0,
-                    'Note'       => $a->note ?: '--',
-                ];
-            });
+        $rows = collect();
+
+        foreach ($salesmen as $salesman) {
+
+            $date = $start->copy();
+
+            while ($date <= $end) {
+
+                $dateKey = $date->format('Y-m-d');
+                $attKey  = $salesman->id . '_' . $dateKey;
+
+                $attendance = $attendances->get($attKey);
+                $holiday    = $holidays->get($dateKey);
+
+                /* ================= STATUS PRIORITY ================= */
+              if ($holiday) {
+    $status  = 'Holiday';
+    $remarks = $holiday->title;
+
+} elseif ($date->isSunday()) {
+    $status  = 'Sunday';
+    $remarks = 'Weekly Off';
+
+} elseif ($attendance && $attendance->status === 'leave') {
+    $status  = 'Leave';
+    $remarks = $attendance->note ?: '--';
+
+} elseif ($attendance && $attendance->short_leave) {
+    $status  = 'Short Leave';
+    $remarks = $attendance->note ?: 'Late arrival / Early leave';
+
+} elseif ($attendance) {
+    $status  = 'Present';
+    $remarks = $attendance->note ?: '--';
+
+} else {
+    $status  = 'Absent';
+    $remarks = '--';
+}
+
+                /* ================= WORK HOURS ================= */
+                $workHours = ($attendance && $attendance->total_minutes)
+                    ? floor($attendance->total_minutes / 60) . ':' .
+                      str_pad($attendance->total_minutes % 60, 2, '0', STR_PAD_LEFT)
+                    : '0:00';
+
+                $rows->push([
+                    'Date'           => $date->format('d M Y'),
+                    'Day'            => $date->format('l'),
+                    'Name'           => $salesman->name,
+                    'Role'           => ucfirst($salesman->role),
+                    'Status'         => $status,
+                    'Clock In'       => $attendance?->clock_in?->format('h:i A') ?? '-',
+                    'Clock Out'      => $attendance?->clock_out?->format('h:i A') ?? '-',
+                    'Work Hours'     => $workHours,
+                    'Reason / Note'  => $remarks,
+                ]);
+
+                $date->addDay();
+            }
+        }
+
+        return $rows;
     }
 
     public function headings(): array

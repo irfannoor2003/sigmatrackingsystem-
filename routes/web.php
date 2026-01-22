@@ -18,11 +18,13 @@ use App\Http\Controllers\ReportController;
 
 // Admin
 use App\Http\Controllers\Admin\AttendanceReportController;
+use App\Http\Controllers\Admin\ManualVisitController; // ✅ ADDED
 use App\Http\Controllers\Admin\SalesmanController as AdminSalesmanController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\OldCustomerController as AdminOldCustomerController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\HolidayController;
 
 // Salesman
 use App\Http\Controllers\Salesman\CustomerController as SalesmanCustomerController;
@@ -61,7 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -73,21 +75,39 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 
         // Reports
-        Route::get('/reports', [ReportController::class, 'adminReport'])->name('reports.index');
-        Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
+        Route::get('/reports', [ReportController::class, 'adminReport'])
+            ->name('reports.index');
+
+        Route::get('/reports/{id}', [ReportController::class, 'show'])
+            ->name('reports.show');
+
+        // Holidays
+        Route::post('/holiday/store', [HolidayController::class, 'store'])
+            ->name('holiday.store');
 
         // Customers
-        Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
-        Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])->name('customers.show');
-        Route::get('/customers/export/all', [AdminCustomerController::class, 'exportAll'])->name('customers.export.all');
-        Route::get('/customers/export/{id}', [AdminCustomerController::class, 'exportSingle'])->name('customers.export.single');
-        Route::post('/customers/export/bulk', [AdminCustomerController::class, 'exportBulk'])->name('customers.export.bulk');
+        Route::get('/customers', [AdminCustomerController::class, 'index'])
+            ->name('customers.index');
+
+        Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])
+            ->name('customers.show');
+
+        Route::get('/customers/export/all', [AdminCustomerController::class, 'exportAll'])
+            ->name('customers.export.all');
+
+        Route::get('/customers/export/{id}', [AdminCustomerController::class, 'exportSingle'])
+            ->name('customers.export.single');
+
+        Route::post('/customers/export/bulk', [AdminCustomerController::class, 'exportBulk'])
+            ->name('customers.export.bulk');
 
         // Salesmen
-        Route::resource('salesmen', AdminSalesmanController::class)->except(['show']);
+        Route::resource('salesmen', AdminSalesmanController::class)
+            ->except(['show']);
 
         /*
         |--------------------------------------------------------------------------
@@ -96,32 +116,67 @@ Route::middleware(['auth', 'role:admin'])
         */
         Route::prefix('attendance')->name('attendance.')->group(function () {
 
-            Route::get('/', [AttendanceReportController::class, 'index'])->name('index');
+            Route::get('/', [AttendanceReportController::class, 'index'])
+                ->name('index');
 
-            Route::get('/staff/{id}', [AttendanceReportController::class, 'staffReport'])->name('staff');
+            Route::get('/staff/{id}', [AttendanceReportController::class, 'staffReport'])
+                ->name('staff');
 
-            Route::post('/staff/{id}/leave', [AttendanceReportController::class, 'markLeave'])->name('leave');
+            Route::post('/staff/{id}/leave', [AttendanceReportController::class, 'markLeave'])
+                ->name('leave');
 
-            Route::post('/update/{attendanceId}', [AttendanceReportController::class, 'updateAttendance'])->name('update');
+            Route::post('/update/{attendanceId}', [AttendanceReportController::class, 'updateAttendance'])
+                ->name('update');
 
-            Route::get('/export/excel', [AttendanceReportController::class, 'exportExcel'])->name('export.excel');
-            Route::get('/export/pdf', [AttendanceReportController::class, 'exportPdf'])->name('export.pdf');
+            Route::get('/export/all',
+        [AttendanceReportController::class, 'exportAllExcel']
+    )->name('export.all');
 
-            // ✅ Leave Requests
-            Route::get('/leave-requests', [AttendanceReportController::class, 'leaveRequests'])
-                ->name('leave-requests');
+    Route::get('/export/single/{id}',
+        [AttendanceReportController::class, 'exportSingleExcel']
+    )->name('export.single');
+
+    Route::get('/export/pdf', [AttendanceReportController::class, 'exportPdf'])
+        ->name('export.pdf');
+
+    Route::get('/leave-requests', [AttendanceReportController::class, 'leaveRequests'])
+        ->name('leave-requests');
+
+            /*
+            |--------------------------------------------------------------------------
+            | ✅ MANUAL VISITS (ADMIN)
+            |--------------------------------------------------------------------------
+            */
+            Route::get(
+                '/manual-visit/{user}',
+                [ManualVisitController::class, 'create']
+            )->name('manual.visit.create');
+
+            Route::post(
+                '/manual-visit/{user}',
+                [ManualVisitController::class, 'store']
+            )->name('manual.visit.store');
         });
 
         // Promotions
         Route::post('/promotions/send', [PromotionController::class, 'send'])
             ->name('promotions.send');
 
-        // Staff Management
-        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-        Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
-        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-        Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
-        Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+        // Staff
+        Route::get('/staff', [StaffController::class, 'index'])
+            ->name('staff.index');
+
+        Route::get('/staff/create', [StaffController::class, 'create'])
+            ->name('staff.create');
+
+        Route::post('/staff', [StaffController::class, 'store'])
+            ->name('staff.store');
+
+        Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])
+            ->name('staff.edit');
+
+        Route::put('/staff/{staff}', [StaffController::class, 'update'])
+            ->name('staff.update');
 
         // Old Customers
         Route::get('/old-customers', [AdminOldCustomerController::class, 'index'])
@@ -138,7 +193,8 @@ Route::middleware(['auth', 'role:salesman'])
     ->name('salesman.')
     ->group(function () {
 
-        Route::get('/dashboard', [SalesmanDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [SalesmanDashboardController::class, 'index'])
+            ->name('dashboard');
 
         Route::resource('customers', SalesmanCustomerController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
@@ -156,14 +212,18 @@ Route::middleware(['auth', 'role:salesman'])
             Route::get('/history', [AttendanceController::class, 'history'])->name('history');
         });
 
-        Route::get('/reports', [ReportController::class, 'salesmanReport'])->name('reports.index');
+        Route::get('/reports', [ReportController::class, 'salesmanReport'])
+            ->name('reports.index');
+
         Route::get('/reports/monthly-visits', [ReportController::class, 'monthlyVisitReport'])
-    ->name('reports.monthly.visits');
+            ->name('reports.monthly.visits');
 
+        Route::get('/old-customers', [SalesmanOldCustomerController::class, 'index'])
+            ->name('old-customers.index');
 
-        Route::get('/old-customers', [SalesmanOldCustomerController::class, 'index'])->name('old-customers.index');
         Route::get('/old-customers/import', [SalesmanOldCustomerController::class, 'importForm'])
             ->name('old-customers.import.form');
+
         Route::post('/old-customers/import', [SalesmanOldCustomerController::class, 'import'])
             ->name('old-customers.import');
     });

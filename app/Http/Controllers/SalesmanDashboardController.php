@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Visit;
 use App\Models\Customer;
+use App\Models\Holiday; // ✅ import Holiday
 use Carbon\Carbon;
 
 class SalesmanDashboardController extends Controller
@@ -51,11 +52,15 @@ class SalesmanDashboardController extends Controller
             $customerData[] = isset($customers[$day]) ? count($customers[$day]) : 0;
         }
 
+        // ✅ Check if today is a holiday
+        $today = Carbon::today()->format('Y-m-d');
+        $todayHoliday = Holiday::where('date', $today)->first();
+
         return view('salesman.dashboard', [
-            'visitLabels' => $visitLabels,
-            'visitData'   => $visitData,
-            'customerData' => $customerData
+            'visitLabels'   => $visitLabels,
+            'visitData'     => $visitData,
+            'customerData'  => $customerData,
+            'todayHoliday'  => $todayHoliday, // pass holiday info to view
         ]);
     }
 }
-

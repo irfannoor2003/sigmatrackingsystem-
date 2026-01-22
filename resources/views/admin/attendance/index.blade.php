@@ -1,303 +1,383 @@
-<style>
-
-/* Chrome, Edge, Safari */
-input[type="month"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    opacity: 0.9;
-    cursor: pointer;
-}
-
-
-</style>
 @extends('layouts.app')
 
-@section('title','Attendance Reports')
+@section('title', 'Attendance Reports')
 
 @section('content')
-@php
-    $displayMonth = \Carbon\Carbon::createFromFormat(
-        'Y-m',
-        $monthInput ?? now()->format('Y-m')
-    )->format('F Y');
-@endphp
 
-<div class="max-w-6xl mx-auto mt-12 px-0  sm-px-4">
+    <style>
+        /* Month picker icon */
+        input[type="month"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.9;
+            cursor: pointer;
+        }
 
-    {{-- Header --}}
-    <div class="relative glass p-8 rounded-2xl border border-white/20 shadow-2xl mb-8 overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-400/20 blur-3xl rounded-full"></div>
-        <div class="relative flex items-center gap-4">
-            <div class="bg-white/10 p-3 rounded-2xl">
-                <i data-lucide="clipboard-list" class="w-8 h-8 text-[#ff2ba6]"></i>
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        table th,
+        table td {
+            vertical-align: middle;
+        }
+    </style>
+
+    @php
+        use Carbon\Carbon;
+        $displayMonth = Carbon::createFromFormat('Y-m', $monthInput ?? now()->format('Y-m'))->format('F Y');
+    @endphp
+
+    <div class="max-w-6xl mx-auto mt-12 px-0 sm:px-4">
+
+        {{-- HEADER --}}
+        <div class="relative glass p-8 rounded-2xl border border-white/20 shadow-2xl mb-8">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-400/20 blur-3xl rounded-full"></div>
+
+            <div class="relative flex flex-col lg:flex-row lg:items-center gap-4">
+
+                <div class="bg-white/10 p-3 rounded-2xl">
+                    <i data-lucide="clipboard-list" class="w-8 h-8 text-[#ff2ba6]"></i>
+                </div>
+
+                <div>
+                    <h2 class="text-3xl font-extrabold text-white">Attendance Reports</h2>
+                    <p class="text-sm text-white/40">
+                        {{ $displayMonth }} overview
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 lg:ml-auto w-full lg:w-auto">
+
+                    @if (auth()->user()->role === 'admin')
+                        <button onclick="openHolidayModal()"
+                            class="w-full sm:w-auto sm:ml-auto
+flex items-center justify-center gap-2
+px-6 py-3 rounded-2xl
+bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]
+hover:scale-105 transition
+text-white font-bold shadow-xl
+">
+                            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+                            Mark Holiday
+                        </button>
+                    @endif
+                    <a href="{{ route('admin.attendance.export.all', ['month' => $monthInput]) }}"
+                        class="inline-flex items-center justify-center px-5 py-3 rounded-2xl
+       bg-green-600 hover:bg-green-700
+       text-white font-semibold text-sm shadow"
+>
+                        Export All (Excel)
+                    </a>
+                </div>
             </div>
-            <div>
-                <h2 class="text-3xl font-extrabold text-white tracking-tight">
-                    Attendance Reports
-                </h2>
-                <p class="text-sm text-white/40">
-                    Monthly attendance & leave overview
+        </div>
+
+        {{-- FILTERS --}}
+        <form method="GET" action="{{ route('admin.attendance.index') }}"
+            class="glass p-6 md:p-8 rounded-2xl border border-white/20 shadow-2xl mb-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+
+                {{-- Month --}}
+                <div>
+                    <label class="text-xs text-white/50 mb-1 block">Month</label>
+                    <div class="relative">
+                        <i data-lucide="calendar" class="absolute left-4 top-3 w-5 h-5 text-white/40"></i>
+                        <input type="month" name="month" value="{{ $monthInput }}"
+                            class="w-full pl-12 px-4 py-3 rounded-2xl
+                               bg-black/40 border border-white/10 text-white">
+                    </div>
+                </div>
+
+                {{-- Staff --}}
+                <div>
+                    <label class="text-xs text-white/50 mb-1 block">Staff</label>
+                    <div class="relative">
+                        <i data-lucide="users" class="absolute left-4 top-3 w-5 h-5 text-white/40"></i>
+                        <select name="staff"
+                            class="bg-white/10 text-white border border-white/20 p-3 pl-10 rounded-xl w-full focus:ring-2 focus:ring-[#ff2ba6]/50 transition outline-none">
+
+                            <option value="" class="text-black">All Staff</option>
+                            @foreach ($allStaff as $user)
+                                <option value="{{ $user->id }}" {{ ($staffId ?? '') == $user->id ? 'selected' : '' }} class="text-black">
+                                    {{ $user->name }} ({{ ucfirst($user->role) }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Buttons --}}
+                <div class="flex gap-3">
+                    <button
+                        class="px-6 py-3 rounded-2xl font-bold text-white
+                           bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]">
+                        Apply
+                    </button>
+
+                    <a href="{{ route('admin.attendance.index') }}"
+                        class="px-6 py-3 rounded-2xl bg-white/5 text-white border border-white/10">
+                        Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        {{-- INSIGHTS --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+            <div class="glass p-6 rounded-2xl border border-emerald-400/30 hover:scale-[1.02] transition">
+                <p class="text-xs text-emerald-300">Star Performer</p>
+                <h3 class="text-xl text-white font-bold mt-1">
+                    {{ $bestAttendance?->salesman?->name ?? '--' }}
+                </h3>
+                <p class="text-sm text-emerald-200 flex items-center gap-1">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    {{ $bestAttendance->presents ?? 0 }} days
                 </p>
             </div>
+
+            <div class="glass p-6 rounded-2xl border border-rose-400/30 hover:scale-[1.02] transition">
+                <p class="text-xs text-rose-300">Most Leaves</p>
+                <h3 class="text-xl text-white font-bold mt-1">
+                    {{ $mostLeaves?->salesman?->name ?? '--' }}
+                </h3>
+                <p class="text-sm text-rose-200 flex items-center gap-1">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    {{ $mostLeaves->leaves ?? 0 }} leaves
+                </p>
+            </div>
+
+            <div class="glass p-6 rounded-2xl border border-sky-400/30 hover:scale-[1.02] transition">
+                <p class="text-xs text-sky-300">Hardest Worker</p>
+                <h3 class="text-xl text-white font-bold mt-1">
+                    {{ $hardestWorker?->salesman?->name ?? '--' }}
+                </h3>
+                <p class="text-sm text-sky-200 flex items-center gap-1">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    {{ number_format(($hardestWorker->minutes ?? 0) / 60, 1) }} hrs
+                </p>
+            </div>
+
+            <div class="glass p-6 rounded-2xl border border-purple-400/30 hover:scale-[1.02] transition">
+                <p class="text-xs text-purple-300">Attendance Health</p>
+                <h3 class="text-3xl text-white font-extrabold">
+                    {{ $attendanceRate }}%
+                </h3>
+            </div>
         </div>
-    </div>
 
-    {{-- Filters --}}
-    <form method="GET" action="{{ route('admin.attendance.index') }}"
-          class="glass p-6 md:p-8 rounded-2xl border border-white/20 shadow-2xl mb-8">
+        {{-- TABLE --}}
+        <div class="hidden md:block glass rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-
-            {{-- Month --}}
-            <div>
-                <label class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2 block">
-                    Month
-                </label>
-                <input type="month"
-                       name="month"
-                       value="{{ $monthInput }}"
-                       class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10 text-white
-                              focus:ring-2 focus:ring-pink-400/50">
-            </div>
-
-            {{-- Staff --}}
-            <div>
-                <label class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2 block">
-                    Staff
-                </label>
-                <select name="staff"
-                        class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10 text-white">
-                    <option value="">All Staff</option>
-                    @foreach ($allStaff as $user)
-                        <option value="{{ $user->id }} " class="text-black bg-white"
-                            {{ ($staffId ?? '') == $user->id ? 'selected' : '' }}>
-                            {{ $user->name }} ({{ ucfirst($user->role) }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            {{-- Buttons --}}
-            <div class="flex gap-3">
-                <button type="submit"
-                        class="px-6 py-3 rounded-2xl font-bold text-white
-                               bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]
-                               shadow-lg shadow-pink-900/20">
-                    Apply
-                </button>
-
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10
-                          text-white border border-white/10">
-                    Reset
-                </a>
-            </div>
-
-        </div>
-    </form>
-{{-- Attendance Insight Cards --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-
-    {{-- Star Performer --}}
-    <div class="glass p-6 rounded-2xl border border-emerald-400/30 hover:scale-[1.02] transition">
-        <p class="text-xs uppercase text-emerald-300 tracking-wider">
-            Star Performer
-        </p>
-        <h3 class="text-xl font-bold text-white mt-2">
-            {{ $bestAttendance?->salesman?->name ?? '--' }}
-        </h3>
-        <p class="text-sm text-emerald-200 mt-1">
-            ✅ {{ $bestAttendance->presents ?? 0 }} days present
-        </p>
-    </div>
-
-    {{-- Most Leaves --}}
-    <div class="glass p-6 rounded-2xl border border-rose-400/30 hover:scale-[1.02] transition">
-        <p class="text-xs uppercase text-rose-300 tracking-wider">
-            Most Leaves
-        </p>
-        <h3 class="text-xl font-bold text-white mt-2">
-            {{ $mostLeaves?->salesman?->name ?? '--' }}
-        </h3>
-        <p class="text-sm text-rose-200 mt-1">
-            🚫 {{ $mostLeaves->leaves ?? 0 }} leaves
-        </p>
-    </div>
-
-    {{-- Hardest Worker --}}
-    <div class="glass p-6 rounded-2xl border border-sky-400/30 hover:scale-[1.02] transition">
-        <p class="text-xs uppercase text-sky-300 tracking-wider">
-            Hardest Worker
-        </p>
-        <h3 class="text-xl font-bold text-white mt-2">
-            {{ $hardestWorker?->salesman?->name ?? '--' }}
-        </h3>
-        <p class="text-sm text-sky-200 mt-1">
-            ⏱ {{ number_format(($hardestWorker->minutes ?? 0) / 60, 1) }} hrs
-        </p>
-    </div>
-
-    {{-- Attendance Health --}}
-    <div class="glass p-6 rounded-2xl border border-purple-400/30 hover:scale-[1.02] transition">
-        <p class="text-xs uppercase text-purple-300 tracking-wider">
-            Attendance Health
-        </p>
-        <h3 class="text-3xl font-extrabold text-white mt-2">
-            {{ $attendanceRate }}%
-        </h3>
-        <p class="text-sm text-purple-200 mt-1">
-            📊 Overall monthly attendance
-        </p>
-    </div>
-
-</div>
-
-    {{-- Table (Visible on md and up) --}}
-    <div class="hidden md:block glass rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
-        <div class="p-6 bg-white/5 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-    <h3 class="text-xl font-bold text-white flex items-center gap-3">
-        <i data-lucide="users" class="w-6 h-6 text-[#ff2ba6]"></i>
-        Staff Attendance
-        <span class="text-xs text-[#ff2ba6]/70 font-semibold ml-2">
-            ({{ $displayMonth }})
-        </span>
-    </h3>
-
-    {{-- Export Buttons --}}
-    <div class="flex gap-3">
-        {{-- Excel --}}
-        <a href="{{ route('admin.attendance.export.excel', [
-                'month' => $monthInput,
-                'staff' => $staffId
-            ]) }}"
-           class="flex items-center gap-2 px-4 py-2 rounded-xl
-                  bg-emerald-500/20 text-emerald-400
-                  border border-emerald-400/30 hover:bg-emerald-500/30
-                  text-sm font-semibold">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-           Export Excel
-        </a>
-
-        {{-- PDF --}}
-        {{-- <a href="{{ route('admin.attendance.export.pdf', [
-                'month' => $monthInput,
-                'staff' => $staffId
-            ]) }}"
-           class="flex items-center gap-2 px-4 py-2 rounded-xl
-                  bg-rose-500/20 text-rose-400
-                  border border-rose-400/30 hover:bg-rose-500/30
-                  text-sm font-semibold">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-            PDF
-        </a> --}}
-    </div>
-</div>
-
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-white text-sm divide-y divide-white/20">
-                <thead class="bg-white/5 text-white/60 uppercase text-xs tracking-wider">
-                    <tr>
-                        <th class="px-6 py-3 text-left">#</th>
-                        <th class="px-6 py-3 text-left">Name</th>
-                        <th class="px-6 py-3 text-left">Email</th>
-                        <th class="px-6 py-3 text-left">Role</th>
-                        <th class="px-6 py-3 text-center">Present</th>
-                        <th class="px-6 py-3 text-center">Leaves</th>
-                        <th class="px-6 py-3 text-center">Action</th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-white/20">
-                    @forelse($staff as $index => $user)
-                        <tr class="hover:bg-[#ff2ba620] transition-colors">
-                            <td class="px-6 py-4">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4 font-semibold">{{ $user->name }}</td>
-                            <td class="px-6 py-4 text-white/60">{{ $user->email }}</td>
-                            <td class="px-6 py-4 text-white/60">{{ ucfirst($user->role) }}</td>
-                            <td class="px-6 py-4 text-[#ff2ba6] font-semibold text-center">
-                                {{ $user->monthAttendance }}
-                            </td>
-                            <td class="px-6 py-4 text-[#ff2ba6] font-semibold text-center">
-                                {{ $user->monthLeaves }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <a href="{{ route('admin.attendance.staff', ['id' => $user->id, 'month' => $monthInput]) }}"
-                                   class="inline-flex items-center px-4 py-1 rounded-xl
-                                          bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]
-                                          text-white text-sm font-semibold">
-                                    View
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-white text-sm">
+                    <thead class="bg-white/5 text-white/60 uppercase text-xs">
                         <tr>
-                            <td colspan="7" class="py-16 text-center text-white/40">
-                                <i data-lucide="folder-x" class="w-12 h-12 mx-auto mb-3"></i>
-                                <p class="text-lg font-semibold">No attendance records found</p>
-                                <p class="text-sm">There is no data available for this month</p>
-                            </td>
+                            <th class="px-6 py-3">#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th class="text-center">Present</th>
+                            <th class="text-center">Leaves</th>
+                            <th class="text-center">Action</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody class="divide-y divide-white/5">
+                        @forelse($staff as $i => $user)
+                            <tr class="hover:bg-white/10 transition">
+                                <td class="px-6 py-4 text-white/60">{{ $i + 1 }}</td>
+
+                                <td class="font-semibold flex items-center gap-2 mt-4">
+
+                                    {{ $user->name }}
+                                </td>
+
+                                <td class="text-white/50">{{ $user->email }}</td>
+
+                                <td>
+                                    <span class="px-3 py-1 text-xs rounded-full bg-white/10">
+                                        {{ ucfirst($user->role) }}
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
+                                        {{ $user->monthAttendance }}
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold">
+                                        {{ $user->monthLeaves }}
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="{{ route('admin.attendance.staff', ['id' => $user->id, 'month' => $monthInput]) }}"
+                                        class="inline-flex items-center gap-1 px-4 py-2 rounded-xl
+                                      bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]
+                                      hover:scale-105 transition text-white text-xs font-bold">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-10 text-center text-white/40">
+                                    No records found
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{{-- ▌▌ MOBILE VIEW (CARDS) --}}
+<div class="md:hidden space-y-4 mb-6">
+
+    @forelse($staff as $u)
+
+        <div class="p-4 bg-white/10 rounded-xl border border-white/10 shadow">
+
+            {{-- Name --}}
+            <div class="text-lg font-semibold text-white flex items-center">
+                <i data-lucide="user" class="w-5 h-5 mr-2 text-pink-300"></i>
+                {{ $u->name }}
+            </div>
+
+            {{-- Email --}}
+            <div class="text-white/70 text-sm flex items-center">
+                <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                {{ $u->email }}
+            </div>
+
+            {{-- Stats --}}
+            <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+
+                <div class="bg-white/5 p-3 rounded-lg">
+                    <div class="text-white/60 flex items-center">
+                        <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                        Present
+                    </div>
+                    <div class="text-emerald-300 font-semibold text-lg">
+                        {{ $u->monthAttendance }}
+                    </div>
+                </div>
+
+                <div class="bg-white/5 p-3 rounded-lg">
+                    <div class="text-white/60 flex items-center">
+                        <i data-lucide="x-circle" class="w-4 h-4 mr-2"></i>
+                        Leaves
+                    </div>
+                    <div class="text-rose-300 font-semibold text-lg">
+                        {{ $u->monthLeaves }}
+                    </div>
+                </div>
+
+                <div class="bg-white/5 p-3 rounded-lg col-span-2">
+                    <div class="text-white/60 flex items-center">
+                        <i data-lucide="badge-check" class="w-4 h-4 mr-2"></i>
+                        Role
+                    </div>
+                    <div class="text-white font-semibold">
+                        {{ ucfirst($u->role) }}
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Action --}}
+            <div class="mt-4">
+                <a href="{{ route('admin.attendance.staff', ['id' => $u->id, 'month' => $monthInput]) }}"
+                   class="block text-center py-2 rounded-lg
+                          bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a]
+                          text-white text-sm font-semibold">
+                    <i data-lucide="eye" class="inline w-4 h-4 mr-1"></i>
+                    View Attendance
+                </a>
+            </div>
+
+        </div>
+
+    @empty
+        <div class="text-center text-white/40 py-10">
+            No records found
+        </div>
+    @endforelse
+
+</div>
+
+    {{-- HOLIDAY MODAL --}}
+    <div id="holidayModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+        <div class="glass w-full max-w-md p-6 rounded-2xl border border-white/20 shadow-2xl relative">
+            <button onclick="closeHolidayModal()" class="absolute top-4 right-4 text-white/60">✕</button>
+
+            <h3 class="text-2xl font-bold text-white mb-4">📅 Mark Company Holiday</h3>
+
+            <form method="POST" action="{{ route('admin.holiday.store') }}">
+                @csrf
+
+                {{-- ERROR DISPLAY (CRITICAL) --}}
+                @if ($errors->any())
+                    <div class="mb-4 p-3 rounded-xl bg-red-500/20 text-red-300 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <div>• {{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- SUCCESS --}}
+                @if (session('success'))
+                    <div class="mb-4 p-3 rounded-xl bg-green-500/20 text-green-300 text-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                <input type="text" name="title" required
+                    class="w-full mb-3 px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white"
+                    placeholder="Holiday Title">
+
+                <label class="text-xs text-white/60">Start Date</label>
+                <input type="date" name="start_date" required
+                    class="w-full mb-3 px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white">
+
+                <label class="text-xs text-white/60">End Date (optional)</label>
+                <input type="date" name="end_date"
+                    class="w-full mb-4 px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white">
+
+                {{-- SUBMIT BUTTON --}}
+                <button type="submit"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-600
+               text-white font-bold">
+                    Save Holiday
+                </button>
+            </form>
+
         </div>
     </div>
 
-    {{-- Mobile Card Layout (Visible only on mobile) --}}
-    <div class="md:hidden mt-6 space-y-4">
-        @forelse($staff as $user)
-            <div class="glass p-5 rounded-2xl border border-white/10 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-[#ff2ba6]/5 blur-2xl rounded-full"></div>
+    <script>
+        function openHolidayModal() {
+            document.getElementById('holidayModal').classList.remove('hidden');
+        }
 
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff2ba6]/20 to-purple-600/20 flex items-center justify-center border border-white/10 text-[#ff2ba6]">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold">{{ $user->name }}</h4>
-                            <p class="text-white/40 text-xs">{{ $user->email }}</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] bg-white/10 text-white/60 px-2 py-1 rounded-md uppercase tracking-tighter">
-                        {{ $user->role }}
-                    </span>
-                </div>
+        function closeHolidayModal() {
+            document.getElementById('holidayModal').classList.add('hidden');
+        }
 
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="bg-black/20 rounded-2xl p-3 border border-white/5 text-center">
-                        <p class="text-[10px] text-white/40 uppercase mb-1">Present</p>
-                        <p class="text-emerald-400 font-bold text-lg">{{ $user->monthAttendance }}</p>
-                    </div>
-                    <div class="bg-black/20 rounded-2xl p-3 border border-white/5 text-center">
-                        <p class="text-[10px] text-white/40 uppercase mb-1">Leaves</p>
-                        <p class="text-[#ff2ba6] font-bold text-lg">{{ $user->monthLeaves }}</p>
-                    </div>
-                </div>
+        function toggleHolidayRange() {
+            const type = document.getElementById('holidayType').value;
+            document.getElementById('singleDate').classList.toggle('hidden', type === 'range');
+            document.getElementById('rangeDate').classList.toggle('hidden', type !== 'range');
+        }
+        lucide.createIcons();
+    </script>
 
-                <a href="{{ route('admin.attendance.staff', ['id' => $user->id, 'month' => $monthInput]) }}"
-                   class="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-[#ff2ba6] to-[#d41a8a] text-white font-bold text-sm shadow-lg shadow-pink-900/20">
-                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                    Detailed Report
-                </a>
-            </div>
-        @empty
-            <div class="glass p-12 rounded-2xl text-center text-white/30 border border-white/10">
-                <i data-lucide="users-2" class="w-10 h-10 mx-auto mb-2 opacity-20"></i>
-                <p>No staff records found</p>
-            </div>
-        @endforelse
-    </div>
-</div>
-
-<style>
-    .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-    }
-    table th, table td {
-        vertical-align: middle;
-    }
-</style>
 @endsection

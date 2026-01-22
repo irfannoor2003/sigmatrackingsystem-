@@ -187,17 +187,19 @@
                 Customer Document
             </h3>
 
-            @if ($customer->image)
-                <div class="rounded-xl overflow-hidden bg-white/10 border border-white/10 shadow-lg cursor-pointer"
-                     id="imageBox"
-                     data-image="{{ asset('storage/' . $customer->image) }}">
+         @if ($customer->image)
+    <div class="rounded-xl overflow-hidden bg-white/10 border border-white/10 shadow-lg cursor-pointer"
+         id="imageBox"
+         data-image="{{ asset($customer->image) }}">
 
-                    <img src="{{ asset('storage/' . $customer->image) }}"
-                         class="w-full h-64 object-cover">
-                </div>
-            @else
-                <p class="text-white/60 text-lg">No document uploaded</p>
-            @endif
+        <img src="{{ asset($customer->image) }}"
+             class="w-full h-64 object-cover">
+    </div>
+@else
+    <p class="text-white/60 text-lg">No document uploaded</p>
+@endif
+
+
 
         </div>
 

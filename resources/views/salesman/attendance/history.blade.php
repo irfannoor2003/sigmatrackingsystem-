@@ -1,136 +1,141 @@
 @extends('layouts.app')
 
-@section('title','Attendance History')
+@section('title','My Attendance')
 
 @section('content')
+@php
+use Carbon\Carbon;
 
-<div class="max-w-5xl mx-auto mt-8 px-4 text-white">
+$displayMonth = Carbon::createFromFormat('Y-m', $monthInput ?? now()->format('Y-m'))->format('F Y');
+$weeks = collect($calendar)->chunk(7);
+@endphp
 
-    <div class="glass p-5 sm:p-6 rounded-3xl border border-white/20 shadow-2xl">
+<style>
+input[type="month"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: .9;
+}
+.glass {
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(18px);
+}
 
-        {{-- HEADER --}}
-        <h2 class="text-2xl sm:text-3xl font-bold mb-6 flex items-center gap-2">
-            <i data-lucide="calendar-days" class="w-7 h-7 text-[#ff2ba6]"></i>
-            Monthly Attendance
+.badge {
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+</style>
+
+<div class="max-w-6xl mx-auto px-3 pb-24 text-white">
+
+    {{-- HEADER --}}
+    <div class="glass p-5 sm:p-6 rounded-3xl border border-white/20 shadow-xl mb-5">
+        <h2 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
+            <i data-lucide="calendar-days" class="w-6 h-6 text-pink-400"></i>
+            My Attendance
         </h2>
 
-        {{-- FILTER --}}
-        <form method="GET"
-              class="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-end">
+        <p class="text-sm text-white/50 mt-1">{{ $displayMonth }}</p>
 
-            <div class="relative">
-                <i data-lucide="calendar" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/60"></i>
-                <input type="month" name="month" value="{{ $month }}"
-                       class="pl-12 pr-4 py-3 rounded-xl bg-black/40
-                              border border-white/20 text-white w-full sm:w-auto d-block">
-            </div>
-
+        <form method="GET" class="mt-4 flex flex-col sm:flex-row gap-3">
+            <input type="month" name="month" value="{{ $monthInput }}"
+                   class="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-white w-full sm:w-auto">
             <button
-                class="px-5 py-3 rounded-xl bg-gradient-to-r
-                       from-pink-500/80 to-pink-500/80
-                       font-semibold flex items-center gap-2 w-full sm:w-auto">
-                <i data-lucide="filter"></i>
-                Filter
+                class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-600 font-bold">
+                Apply
             </button>
         </form>
+    </div>
 
-        {{-- ================= DESKTOP TABLE ================= --}}
-        <div class="hidden md:block overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="border-b border-white/20 text-white/70">
-                    <tr>
-                        <th class="py-3 text-left">Date</th>
-                        <th>Status</th>
-                        <th>Clock In</th>
-                        <th>Clock Out</th>
-                        <th>Work Time</th>
-                    </tr>
-                </thead>
+    {{-- CALENDAR --}}
+    <div class="space-y-6">
 
-                <tbody>
-                    @forelse($attendances as $attendance)
-                        <tr class="border-b border-white/10 hover:bg-white/5">
-                            <td class="py-3">
-                                {{ $attendance->date->format('d M Y') }}
-                            </td>
+        @foreach ($weeks as $week)
+            <div class="glass p-4 sm:p-5 rounded-3xl border border-white/20 shadow">
+                <div class="grid
+            grid-cols-2
+            sm:grid-cols-3
+            md:grid-cols-4
+            lg:grid-cols-7
+            gap-2
+            text-center text-xs">
 
-                            <td>
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                    @if($attendance->display_status === 'Present') bg-green-500/20 text-green-300
-                                    @elseif($attendance->display_status === 'Absent') bg-red-500/20 text-red-300
-                                    @elseif($attendance->display_status === 'Leave') bg-yellow-500/20 text-yellow-300
-                                    @else bg-white/20 text-white
-                                    @endif">
-                                    {{ $attendance->display_status }}
-                                </span>
-                            </td>
 
-                            <td>{{ $attendance->clock_in ?? '--' }}</td>
-                            <td>{{ $attendance->clock_out ?? '--' }}</td>
-                            <td class="font-semibold">
-                                {{ $attendance->working_duration }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-6 text-center text-white/60">
-                                No attendance data.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                    @foreach ($week as $day)
+                        @php
+                            $date = Carbon::parse($day['date']);
+                            $attendance = $day['attendance'] ?? null;
+                        @endphp
 
-        {{-- ================= MOBILE CARDS ================= --}}
-        <div class="md:hidden space-y-4">
+                        <div class="rounded-2xl p-3
+                            @if ($day['status']==='present') bg-green-500/20 text-green-300
+                            @elseif ($day['status']==='leave') bg-red-500/20 text-red-300
+                            @elseif ($day['status']==='holiday') bg-purple-500/20 text-purple-300
+                            @elseif ($day['status']==='future') bg-blue-500/10 text-blue-300 opacity-50
+                            @else bg-yellow-500/20 text-yellow-300 @endif
+                            @if($date->isToday()) ring-2 ring-pink-400 @endif">
 
-            @forelse($attendances as $attendance)
-                <div class="bg-white/10 border border-white/10 rounded-2xl p-4">
+                            {{-- DAY --}}
+                            <div class="opacity-70 text-[10px]">{{ $date->format('D') }}</div>
+                            <div class="text-lg font-bold">{{ $date->format('d') }}</div>
 
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-semibold">
-                            {{ $attendance->date->format('d M Y') }}
-                        </span>
+                            {{-- STATUS --}}
+                            <div class="uppercase text-[10px] tracking-wide">
+                                {{ $day['status']==='future' ? '--' : substr($day['status'],0,3) }}
+                            </div>
 
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                            @if($attendance->display_status === 'Present') bg-green-500/20 text-green-300
-                            @elseif($attendance->display_status === 'Absent') bg-red-500/20 text-red-300
-                            @elseif($attendance->display_status === 'Leave') bg-yellow-500/20 text-yellow-300
-                            @else bg-white/20 text-white
-                            @endif">
-                            {{ $attendance->display_status }}
-                        </span>
-                    </div>
+                            {{-- ATTENDANCE --}}
+                            @if($attendance)
+                                <div class="mt-1 text-[10px] font-mono opacity-80">
+                                    {{ optional($attendance->clock_in)->format('h:i') ?? '--' }}
+                                    -
+                                    {{ optional($attendance->clock_out)->format('h:i') ?? '--' }}
+                                </div>
 
-                    <div class="grid grid-cols-2 gap-3 text-sm text-white/80">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="log-in" class="w-4 h-4"></i>
-                            In: {{ $attendance->clock_in ?? '--' }}
+                                <div class="flex justify-center gap-1 mt-1 flex-wrap">
+                                    @if($attendance->short_leave)
+                                        <span class="badge bg-yellow-500/30 text-yellow-300">Short</span>
+                                    @endif
+                                    @if($attendance->auto_clock_out)
+                                        <span class="badge bg-blue-500/30 text-blue-300">Auto</span>
+                                    @endif
+                                </div>
+
+                                @if($attendance->note)
+                                    <div class="mt-1 text-[9px] text-white/60 truncate"
+                                         title="{{ $attendance->note }}">
+                                        {{ $attendance->note }}
+                                    </div>
+                                @endif
+                            @endif
+
+                            {{-- HOLIDAY / LEAVE REASON --}}
+                            @if(in_array($day['status'], ['holiday','leave']) && $day['holiday'] ?? false)
+                                <div class="mt-1 text-[9px] text-white/70 truncate"
+                                     title="{{ $day['holiday'] }}">
+                                    {{ $day['holiday'] }}
+                                </div>
+                            @endif
+
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="log-out" class="w-4 h-4"></i>
-                            Out: {{ $attendance->clock_out ?? '--' }}
-                        </div>
-
-                        <div class="col-span-2 flex items-center gap-2 font-semibold">
-                            <i data-lucide="timer" class="w-4 h-4"></i>
-                            Work Time: {{ $attendance->working_duration }}
-                        </div>
-                    </div>
+                    @endforeach
 
                 </div>
-            @empty
-                <div class="text-center py-6 text-white/60">
-                    No attendance data.
-                </div>
-            @endforelse
+            </div>
+        @endforeach
+    </div>
 
-        </div>
-
+    {{-- LEGEND --}}
+    <div class="flex flex-wrap gap-4 text-xs mt-6 text-white/70">
+        <span>🟢 Present</span>
+        <span>🟡 Absent</span>
+        <span>🔴 Leave</span>
+        <span>🟣 Holiday</span>
+        <span>🔵 Future</span>
     </div>
 
 </div>
 
+<script>lucide.createIcons();</script>
 @endsection

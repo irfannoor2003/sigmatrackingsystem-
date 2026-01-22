@@ -12,30 +12,37 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
-    // List customers of logged-in salesman
+    /* =========================================================
+        List customers of logged-in salesman
+    ========================================================== */
     public function index()
     {
-        $salesmanId = Auth::id();
-
         $customers = Customer::with(['city', 'industry', 'category'])
-            ->where('salesman_id', $salesmanId)
+            ->where('salesman_id', Auth::id())
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(10);
 
         return view('salesman.customers.index', compact('customers'));
     }
 
-    // Show create form
+    /* =========================================================
+        Show create form
+    ========================================================== */
     public function create()
     {
-        $cities = City::orderBy('name')->get();
-        $industries = Industry::orderBy('name')->get();
-        $categories = Category::orderBy('name')->get();
+        $cities     = City::orderBy('name', 'asc')->get();
+        $industries = Industry::orderBy('name', 'asc')->get();
+        $categories = Category::orderBy('name', 'asc')->get();
 
-        return view('salesman.customers.create', compact('cities', 'industries', 'categories'));
+        return view(
+            'salesman.customers.create',
+            compact('cities', 'industries', 'categories')
+        );
     }
 
-    // Store customer
+    /* =========================================================
+        Store customer
+    ========================================================== */
     public function store(Request $request)
     {
         $request->validate([
@@ -45,120 +52,138 @@ class CustomerController extends Controller
             'phone2'          => 'nullable|string|max:20',
             'email'           => 'nullable|email|max:255',
             'address'         => 'required|string|max:255',
-
-            // Required dropdowns
             'city_id'         => 'required|exists:cities,id',
             'industry_id'     => 'required|exists:industries,id',
             'category_id'     => 'required|exists:categories,id',
-
             'image'           => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Upload image
         $imagePath = null;
+
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('customers', 'public');
+
+            $image = $request->file('image');
+            $filename = time().'_'.$image->getClientOriginalName();
+            $destination = $_SERVER['DOCUMENT_ROOT'] . '/storage/customers';
+
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $image->move($destination, $filename);
+
+            $imagePath = 'storage/customers/' . $filename;
         }
 
-        // Create Customer
         Customer::create([
             'salesman_id'     => Auth::id(),
-
             'name'            => $request->name,
             'contact_person'  => $request->contact_person,
             'phone1'          => $request->phone1,
             'phone2'          => $request->phone2,
             'email'           => $request->email,
             'address'         => $request->address,
-
             'city_id'         => $request->city_id,
             'industry_id'     => $request->industry_id,
             'category_id'     => $request->category_id,
-
             'image'           => $imagePath,
-
-
         ]);
 
-        return redirect()->route('salesman.customers.index')
+        return redirect()
+            ->route('salesman.customers.index')
             ->with('success', 'Customer added successfully.');
     }
 
-    // Show customer only if it belongs to logged-in salesman
+    /* =========================================================
+        Show single customer (only own)
+    ========================================================== */
     public function show($id)
     {
-        $salesmanId = Auth::id();
-
         $customer = Customer::with(['city', 'industry', 'category'])
             ->where('id', $id)
-            ->where('salesman_id', $salesmanId)
+            ->where('salesman_id', Auth::id())
             ->firstOrFail();
 
         return view('salesman.customers.show', compact('customer'));
     }
-    // Show edit form (only own customers)
-public function edit($id)
-{
-    $customer = Customer::with(['city', 'industry', 'category'])
-        ->where('id', $id)
-        ->where('salesman_id', Auth::id())
-        ->firstOrFail();
 
-    $cities = City::orderBy('name', 'asc')->get();
-    $industries = Industry::orderBy('name', 'asc')->get();
-    $categories = Category::orderBy('name', 'asc')->get();
+    /* =========================================================
+        Edit customer
+    ========================================================== */
+    public function edit($id)
+    {
+        $customer = Customer::where('id', $id)
+            ->where('salesman_id', Auth::id())
+            ->firstOrFail();
 
-    return view('salesman.customers.edit', compact(
-        'customer',
-        'cities',
-        'industries',
-        'categories'
-    ));
-}
-// Update customer (only own customers)
-public function update(Request $request, $id)
-{
-    $customer = Customer::where('id', $id)
-        ->where('salesman_id', Auth::id())
-        ->firstOrFail();
+        $cities     = City::orderBy('name', 'asc')->get();
+        $industries = Industry::orderBy('name', 'asc')->get();
+        $categories = Category::orderBy('name', 'asc')->get();
 
-    $request->validate([
-        'name'            => 'required|string|max:255',
-        'contact_person'  => 'required|string|max:255',
-        'phone1'          => 'nullable|string|max:20',
-        'phone2'          => 'nullable|string|max:20',
-        'email'           => 'nullable|email|max:255',
-        'address'         => 'required|string|max:255',
-
-        'city_id'         => 'required|exists:cities,id',
-        'industry_id'     => 'required|exists:industries,id',
-        'category_id'     => 'required|exists:categories,id',
-
-        'image'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-    ]);
-
-    // Image update (optional)
-    if ($request->hasFile('image')) {
-        $customer->image = $request->file('image')->store('customers', 'public');
+        return view(
+            'salesman.customers.edit',
+            compact('customer', 'cities', 'industries', 'categories')
+        );
     }
 
-    $customer->update([
-        'name'            => $request->name,
-        'contact_person'  => $request->contact_person,
-        'phone1'          => $request->phone1,
-        'phone2'          => $request->phone2,
-        'email'           => $request->email,
-        'address'         => $request->address,
+    /* =========================================================
+        Update customer
+    ========================================================== */
+    public function update(Request $request, $id)
+    {
+        $customer = Customer::where('id', $id)
+            ->where('salesman_id', Auth::id())
+            ->firstOrFail();
 
-        'city_id'         => $request->city_id,
-        'industry_id'     => $request->industry_id,
-        'category_id'     => $request->category_id,
-    ]);
+        $request->validate([
+            'name'            => 'required|string|max:255',
+            'contact_person'  => 'required|string|max:255',
+            'phone1'          => 'nullable|string|max:20',
+            'phone2'          => 'nullable|string|max:20',
+            'email'           => 'nullable|email|max:255',
+            'address'         => 'required|string|max:255',
+            'city_id'         => 'required|exists:cities,id',
+            'industry_id'     => 'required|exists:industries,id',
+            'category_id'     => 'required|exists:categories,id',
+            'image'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
 
-    return redirect()
-        ->route('salesman.customers.index')
-        ->with('success', 'Customer updated successfully.');
-}
+        $data = $request->only([
+            'name',
+            'contact_person',
+            'phone1',
+            'phone2',
+            'email',
+            'address',
+            'city_id',
+            'industry_id',
+            'category_id',
+        ]);
 
+        if ($request->hasFile('image')) {
 
+            // delete old image
+            if ($customer->image && file_exists($_SERVER['DOCUMENT_ROOT'].'/'.$customer->image)) {
+                unlink($_SERVER['DOCUMENT_ROOT'].'/'.$customer->image);
+            }
+
+            $image = $request->file('image');
+            $filename = time().'_'.$image->getClientOriginalName();
+            $destination = $_SERVER['DOCUMENT_ROOT'] . '/storage/customers';
+
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $image->move($destination, $filename);
+
+            $data['image'] = 'storage/customers/' . $filename;
+        }
+
+        $customer->update($data);
+
+        return redirect()
+            ->route('salesman.customers.index')
+            ->with('success', 'Customer updated successfully.');
+    }
 }

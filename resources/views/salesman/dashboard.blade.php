@@ -4,12 +4,20 @@
 
 @section('content')
 
-<div class=" p-0 md:p-6">
+<div class="p-0 md:p-6">
 
     <!-- Page Title -->
     <h1 class="text-3xl font-bold text-white tracking-wide mb-8">
         Salesman Dashboard
     </h1>
+
+    <!-- ✅ Holiday Banner -->
+    @if($todayHoliday)
+        <div class="bg-red-500/20 text-red-400 p-4 rounded mb-6 text-center font-semibold">
+            📢 Today ({{ \Carbon\Carbon::parse($todayHoliday->date)->format('F d, Y') }}) is a company holiday:
+            <span class="font-bold">{{ $todayHoliday->title }}</span>
+        </div>
+    @endif
 
     <!-- Welcome Card -->
     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-lg flex items-center gap-4">
@@ -49,8 +57,10 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
 
         <!-- Add Customer -->
-        <a href="{{ route('salesman.customers.create') }}"
-           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4" style="border-left-color:#ff2ba6;">
+        <a href="{{ $todayHoliday ? '#' : route('salesman.customers.create') }}"
+           @if($todayHoliday) class="opacity-50 cursor-not-allowed" @endif
+           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4"
+           style="border-left-color:#ff2ba6;">
             <div class="flex items-center gap-3">
                 <i data-lucide="user-plus" class="w-7 h-7 text-pink-500"></i>
                 <h3 class="text-xl font-semibold text-magenta-300">Add Customer</h3>
@@ -59,8 +69,10 @@
         </a>
 
         <!-- Add Visit -->
-        <a href="{{ route('salesman.visits.create') }}"
-           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4" style="border-left-color:#ff2ba6;">
+        <a href="{{ $todayHoliday ? '#' : route('salesman.visits.create') }}"
+           @if($todayHoliday) class="opacity-50 cursor-not-allowed" @endif
+           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4"
+           style="border-left-color:#ff2ba6;">
             <div class="flex items-center gap-3">
                 <i data-lucide="map-pin" class="w-7 h-7 text-pink-500"></i>
                 <h3 class="text-xl font-semibold text-magenta-300">Add Visit</h3>
@@ -69,8 +81,10 @@
         </a>
 
         <!-- My Visits -->
-        <a href="{{ route('salesman.visits.index') }}"
-           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4" style="border-left-color:#ff2ba6;">
+        <a href="{{ $todayHoliday ? '#' : route('salesman.visits.index') }}"
+           @if($todayHoliday) class="opacity-50 cursor-not-allowed" @endif
+           class="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 hover:bg-white/20 transition border-l-4"
+           style="border-left-color:#ff2ba6;">
             <div class="flex items-center gap-3">
                 <i data-lucide="clipboard" class="w-7 h-7 text-pink-500"></i>
                 <h3 class="text-xl font-semibold text-magenta-300">My Visits</h3>

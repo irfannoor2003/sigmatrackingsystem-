@@ -7,6 +7,7 @@ use App\Models\Visit;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class VisitController extends Controller
 {
@@ -25,14 +26,34 @@ class VisitController extends Controller
     /**
      * List visits
      */
-    public function index()
-    {
-        $visits = Visit::where('salesman_id', Auth::id())
-            ->latest()
-            ->paginate(10);
 
-        return view('salesman.visits.index', compact('visits'));
+
+public function index(Request $request)
+{
+    $query = Visit::with('customer')
+        ->where('salesman_id', Auth::id())
+        ->orderBy('started_at', 'desc');
+
+    // ================= MONTH FILTER =================
+    if ($request->month === 'current') {
+        $query->whereBetween('started_at', [
+            Carbon::now()->startOfMonth(),
+            Carbon::now()->endOfMonth(),
+        ]);
     }
+
+    if ($request->month === 'previous') {
+        $query->whereBetween('started_at', [
+            Carbon::now()->subMonth()->startOfMonth(),
+            Carbon::now()->subMonth()->endOfMonth(),
+        ]);
+    }
+
+    $visits = $query->paginate(10)->withQueryString();
+
+    return view('salesman.visits.index', compact('visits'));
+}
+
 
     /**
      * Distance calculator (meters)
@@ -135,12 +156,28 @@ class VisitController extends Controller
         'images.*' => 'nullable|image|max:5120', // optional, max 5MB
     ]);
 
-    $images = [];
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $image) {
-            $images[] = $image->store('visit_images', 'public');
-        }
+   $images = [];
+
+if ($request->hasFile('images')) {
+
+    $destination = $_SERVER['DOCUMENT_ROOT'] . '/storage/visit_images';
+
+    // Ensure folder exists
+    if (!file_exists($destination)) {
+        mkdir($destination, 0755, true);
     }
+
+    foreach ($request->file('images') as $image) {
+
+        $filename = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
+
+        // Move image to PUBLIC subdomain folder
+        $image->move($destination, $filename);
+
+        // Save PUBLIC relative path
+        $images[] = 'storage/visit_images/' . $filename;
+    }
+}
 
     $visit->notes = $request->notes;
     $visit->distance_km = $request->distance_km; // save km entered by salesman

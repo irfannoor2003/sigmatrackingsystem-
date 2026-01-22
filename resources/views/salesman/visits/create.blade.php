@@ -101,11 +101,14 @@
                     required>
                 <option value="" class="text-black">-- Select Purpose --</option>
                 <option value="Complaint Visit" class="text-black">Complaint Visit</option>
+                <option value="Delivery" class="text-black">Delivery </option>
                 <option value="Follow-up" class="text-black">Follow-up</option>
                 <option value="New Lead Visit" class="text-black">New Lead Visit</option>
                 <option value="Order Taking" class="text-black">Order Taking</option>
                 <option value="Product Details" class="text-black">Product Details</option>
                 <option value="Payment Collection" class="text-black">Payment Collection</option>
+                <option value="Recovery" class="text-black">Recovery</option>
+
             </select>
 
             <input type="hidden" name="lat" id="lat">

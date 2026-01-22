@@ -152,10 +152,11 @@
             <div>
                 <label class="block text-sm text-white/80 mb-1">Customer Image</label>
 
-                @if($customer->image)
-                    <img src="{{ asset('storage/'.$customer->image) }}"
-                         class="h-24 rounded-xl mb-3 border border-white/20">
-                @endif
+               @if($customer->image)
+    <img src="{{ asset($customer->image) }}"
+         class="h-24 rounded-xl mb-3 border border-white/20">
+@endif
+
 
                 <input type="file" name="image" accept="image/*"
                        class="w-full text-white file:bg-white/20 file:text-white file:border-0

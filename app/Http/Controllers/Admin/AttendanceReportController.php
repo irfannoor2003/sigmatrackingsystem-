@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
 
 /* EXPORTS */
 use App\Exports\AttendanceExport;
@@ -28,24 +28,19 @@ class AttendanceReportController extends Controller
         $year  = $date->year;
 
         $staffId = $request->staff;
-
         $roles = ['salesman', 'it', 'account', 'store', 'office_boy'];
 
-
-        /** --------------------------------
-         * Staff list (for dropdown)
-         * -------------------------------- */
+        /** Staff list */
         $allStaff = User::whereIn('role', $roles)
             ->orderBy('name')
             ->get();
 
-        /** --------------------------------
-         * Attendance Stats (for table + insights)
-         * -------------------------------- */
+        /** Attendance stats */
         $attendanceStats = Attendance::select(
                 'salesman_id',
                 DB::raw("SUM(status = 'present') as presents"),
                 DB::raw("SUM(status = 'leave') as leaves"),
+                DB::raw("SUM(short_leave = 1) as short_leaves"),
                 DB::raw("SUM(total_minutes) as minutes")
             )
             ->whereMonth('date', $month)
@@ -53,9 +48,7 @@ class AttendanceReportController extends Controller
             ->groupBy('salesman_id')
             ->get();
 
-        /** --------------------------------
-         * Insight Cards Logic
-         * -------------------------------- */
+        /** Insights */
         $bestAttendance = $attendanceStats->sortByDesc('presents')->first();
         $mostLeaves     = $attendanceStats->sortByDesc('leaves')->first();
         $hardestWorker  = $attendanceStats->sortByDesc('minutes')->first();
@@ -68,9 +61,6 @@ class AttendanceReportController extends Controller
             ? round(($totalPresents / ($totalStaff * $daysInMonth)) * 100)
             : 0;
 
-        /** --------------------------------
-         * No attendance case
-         * -------------------------------- */
         if ($attendanceStats->isEmpty()) {
             return view('admin.attendance.index', compact(
                 'allStaff',
@@ -85,9 +75,7 @@ class AttendanceReportController extends Controller
             ]);
         }
 
-        /** --------------------------------
-         * Build Staff Table Data
-         * -------------------------------- */
+        /** Staff table */
         $staffQuery = User::whereIn('role', $roles)
             ->whereIn('id', $attendanceStats->pluck('salesman_id'));
 
@@ -100,6 +88,7 @@ class AttendanceReportController extends Controller
 
             $user->monthAttendance = $stats->presents ?? 0;
             $user->monthLeaves     = $stats->leaves ?? 0;
+            $user->shortLeaves     = $stats->short_leaves ?? 0;
 
             return $user;
         });
@@ -117,81 +106,87 @@ class AttendanceReportController extends Controller
     }
 
     /**
-     * ADMIN: Single Staff Monthly Attendance
+     * ADMIN: Single Staff Monthly Attendance (Calendar View)
      */
     public function staffReport($id, Request $request)
-{
-    $monthInput = $request->month ?? now()->format('Y-m');
-    $date = Carbon::createFromFormat('Y-m', $monthInput);
+    {
+        $monthInput = $request->month ?? now()->format('Y-m');
+        $date = Carbon::createFromFormat('Y-m', $monthInput);
+        $today = now()->toDateString();
 
-    $user = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-    // Existing attendance records (indexed by date)
-    $attendanceRecords = Attendance::where('salesman_id', $id)
-        ->whereMonth('date', $date->month)
-        ->whereYear('date', $date->year)
-        ->get()
-        ->keyBy(fn ($att) => Carbon::parse($att->date)->toDateString());
+        /** Attendance records */
+        $attendanceRecords = Attendance::where('salesman_id', $id)
+            ->whereMonth('date', $date->month)
+            ->whereYear('date', $date->year)
+            ->get()
+            ->keyBy(fn ($att) => $att->date->toDateString());
 
-    $holidays = config('pakistan_holidays');
+        /** Admin holidays */
+        $dbHolidays = Holiday::whereYear('date', $date->year)
+            ->whereMonth('date', $date->month)
+            ->pluck('title', 'date')
+            ->toArray();
 
-    $daysInMonth = $date->daysInMonth;
-    $calendar = collect();
+        $pakHolidays = config('pakistan_holidays', []);
 
-    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $calendar = collect();
 
-        $currentDate = Carbon::create(
-            $date->year,
-            $date->month,
-            $day
-        );
+        for ($day = 1; $day <= $date->daysInMonth; $day++) {
+            $currentDate = Carbon::create($date->year, $date->month, $day);
+            $dateString  = $currentDate->toDateString();
+            $md          = $currentDate->format('m-d');
 
-        $dateString = $currentDate->toDateString();
-        $md = $currentDate->format('m-d');
+            $dayData = [
+                'date' => $dateString,
+                'day'  => $currentDate->format('l'),
+                'status' => $dateString > $today ? 'future' : 'absent',
+                'label'  => $dateString > $today ? 'Upcoming' : 'Absent',
+                'attendance' => null,
+            ];
 
-        // Default day structure
-       $today = now()->toDateString();
+            /** Admin holiday */
+            if (isset($dbHolidays[$dateString])) {
+                $dayData['status'] = 'off';
+                $dayData['label']  = $dbHolidays[$dateString];
+            }
+            /** Pakistan holiday */
+            elseif (isset($pakHolidays[$md])) {
+                $dayData['status'] = 'off';
+                $dayData['label']  = $pakHolidays[$md];
+            }
+            /** Sunday */
+            elseif ($currentDate->isSunday()) {
+                $dayData['status'] = 'off';
+                $dayData['label']  = 'Sunday';
+            }
+            /** Attendance */
+            elseif ($attendanceRecords->has($dateString)) {
+                $attendance = $attendanceRecords[$dateString];
+                $dayData['attendance'] = $attendance;
 
-$dayData = [
-    'date' => $dateString,
-    'day'  => $currentDate->format('l'),
-    'status' => $dateString > $today ? 'future' : 'absent',
-    'label'  => $dateString > $today ? 'Upcoming' : 'Absent',
-    'attendance' => null,
-];
+                if ($attendance->status === 'leave') {
+                    $dayData['status'] = 'leave';
+                    $dayData['label']  = 'Leave';
+                } elseif ($attendance->short_leave) {
+                    $dayData['status'] = 'short_leave';
+                    $dayData['label']  = 'Short Leave';
+                } else {
+                    $dayData['status'] = 'present';
+                    $dayData['label']  = 'Present';
+                }
+            }
 
-
-        // 🎉 Pakistan Holiday
-        if (isset($holidays[$md])) {
-            $dayData['status'] = 'off';
-            $dayData['label']  = $holidays[$md];
+            $calendar->push($dayData);
         }
 
-        // 🌙 Sunday OFF
-        elseif ($currentDate->isSunday()) {
-            $dayData['status'] = 'off';
-            $dayData['label']  = 'Sunday';
-        }
-
-        // ✅ Attendance Exists
-        elseif ($attendanceRecords->has($dateString)) {
-            $attendance = $attendanceRecords[$dateString];
-
-            $dayData['attendance'] = $attendance;
-            $dayData['status'] = $attendance->status;
-            $dayData['label']  = ucfirst($attendance->status);
-        }
-
-        $calendar->push($dayData);
+        return view('admin.attendance.staff', compact(
+            'user',
+            'calendar',
+            'monthInput'
+        ));
     }
-
-    return view('admin.attendance.staff', compact(
-        'user',
-        'calendar',
-        'monthInput'
-    ));
-}
-
 
     /**
      * ADMIN: Mark Leave
@@ -206,14 +201,13 @@ $dayData = [
         Attendance::updateOrCreate(
             [
                 'salesman_id' => $id,
-                'date'        => Carbon::parse($request->date)->toDateString(),
+                'date' => $request->date,
             ],
             [
-                'status'        => 'leave',
-                'clock_in'      => null,
-                'clock_out'     => null,
-                'total_minutes' => 0,
-                'note'          => $request->note,
+                'status' => 'leave',
+                'note' => $request->note,
+                'office_verified' => true,
+                'short_leave' => false,
             ]
         );
 
@@ -221,85 +215,86 @@ $dayData = [
     }
 
     /**
-     * ADMIN: Update Attendance
+     * ADMIN: Update Attendance (Apply Short Leave Rules)
      */
     public function updateAttendance(Request $request, $attendanceId)
     {
-        $request->validate([
-            'clock_in'  => 'nullable|date',
-            'clock_out' => 'nullable|date|after_or_equal:clock_in',
-            'note'      => 'nullable|string|max:500',
-        ]);
-
         $attendance = Attendance::findOrFail($attendanceId);
 
+        $clockOut = now();
+        $shortLeave = false;
+
+        if ($attendance->clock_in && $attendance->clock_in->format('H:i') >= '12:00') {
+            $shortLeave = true;
+        }
+
+        if ($clockOut->format('H:i') < '17:00') {
+            $shortLeave = true;
+        }
+
         $attendance->update([
-            'clock_in' => $request->clock_in,
-            'clock_out' => $request->clock_out,
-            'status' => 'present',
-            'note' => $request->note,
-            'total_minutes' => $request->clock_in && $request->clock_out
-                ? Carbon::parse($request->clock_in)
-                    ->diffInMinutes(Carbon::parse($request->clock_out))
+            'clock_out' => $clockOut,
+            'total_minutes' => $attendance->clock_in
+                ? $attendance->clock_in->diffInMinutes($clockOut)
                 : 0,
+            'short_leave' => $shortLeave,
         ]);
 
         return back()->with('success', 'Attendance updated successfully.');
     }
 
-    /**
-     * EXPORT: Excel
-     */
-    public function exportExcel(Request $request)
-    {
-        $monthInput = $request->month;
-        $staffId = $request->staff;
-
-        if ($monthInput) {
-            $date = Carbon::createFromFormat('Y-m', $monthInput);
-            $month = $date->month;
-            $year = $date->year;
-        }
-
-        return Excel::download(
-            new AttendanceExport($staffId ?? null, $month ?? null, $year ?? null),
-            'attendance.xlsx'
-        );
-    }
-
-    /**
-     * EXPORT: PDF
-     */
-    public function exportPdf(Request $request)
-    {
-        $query = Attendance::with('salesman');
-
-        if ($request->staff) {
-            $query->where('salesman_id', $request->staff);
-        }
-
-        if ($request->month) {
-            $date = Carbon::createFromFormat('Y-m', $request->month);
-            $query->whereMonth('date', $date->month)
-                  ->whereYear('date', $date->year);
-        }
-
-        $attendances = $query->orderBy('date', 'desc')->get();
-
-        return Pdf::loadView('admin.attendance.pdf', compact('attendances'))
-            ->download('attendance.pdf');
-    }
-
-public function leaveRequests()
+/**
+ * EXPORT: ALL Attendance (Excel)
+ */
+public function exportAllExcel(Request $request)
 {
-    $today = Carbon::today()->toDateString();
+    $monthInput = $request->month ?? now()->format('Y-m');
+    $date = Carbon::createFromFormat('Y-m', $monthInput);
 
-    $leaves = Attendance::with('user')
-        ->where('date', $today)
-        ->where('status', 'leave')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    return view('admin.attendance.leave-requests', compact('leaves'));
+    return Excel::download(
+        new AttendanceExport(
+            null,               // ❌ no staff filter
+            $date->month,
+            $date->year
+        ),
+        'attendance_all_' . $monthInput . '.xlsx'
+    );
 }
+
+/**
+ * EXPORT: SINGLE Staff Attendance (Excel)
+ */
+public function exportSingleExcel($id, Request $request)
+{
+    $monthInput = $request->month ?? now()->format('Y-m');
+    $date = Carbon::createFromFormat('Y-m', $monthInput);
+
+    $user = User::findOrFail($id);
+
+    return Excel::download(
+        new AttendanceExport(
+            $user->id,
+            $date->month,
+            $date->year
+        ),
+        'attendance_' . $user->name . '_' . $monthInput . '.xlsx'
+    );
+}
+
+
+    /**
+     * ADMIN: Today Leave Requests
+     */
+    public function leaveRequests()
+    {
+        $today = Carbon::today()->toDateString();
+
+        $leaves = Attendance::with('user')
+            ->where('date', $today)
+            ->where('status', 'leave')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.attendance.leave-requests', compact('leaves'));
+    }
 }

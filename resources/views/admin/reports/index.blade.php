@@ -76,7 +76,7 @@
         <table class="w-full border border-white/20 rounded-xl overflow-hidden">
             <thead class="bg-white/10 backdrop-blur-xl border-b border-white/20">
     <tr>
-        <th class="p-3 text-left text-white text-sm">
+        <th class="p-3 text-left text-white text-sm print:hidden">
             <div class="flex items-center gap-2">
                 <i data-lucide="hash" class="w-4 h-4 text-white/60"></i>
                 Id
@@ -138,7 +138,7 @@
 
                 @forelse($visits as $v)
                     <tr class="hover:bg-white/5 transition">
-                        <td class="p-2 text-white/90">{{ $v->id }}</td>
+                        <td class="p-2 text-white/90 print:hidden">{{ $v->id }}</td>
                         <td class="p-2 text-white/90">{{ $v->salesman->name }}</td>
                         <td class="p-2 text-white/90">{{ $v->customer->name }}</td>
 
@@ -251,5 +251,67 @@
     </div>
 
 </div>
+<style>
+    @media print {
+        /* 1. Hide everything except the report container */
+        nav, .sidebar, form, button, .pagination, footer {
+            display: none !important;
+        }
 
+        /* 2. Reset background for paper (White background, Black text) */
+        body {
+            background: white !important;
+            color: black !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        .bg-white\/10, .backdrop-blur-xl, .bg-white\/5 {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* 3. Ensure the table is visible and spans full width */
+        .hidden.md\:block {
+            display: block !important;
+        }
+
+        /* 4. Force Table Styling */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            color: black !important;
+        }
+
+        th, td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+            color: black !important;
+            text-align: left !important;
+        }
+
+        th {
+            background-color: #f2f2f2 !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* 5. Clean up specific elements */
+        h1 {
+            color: black !important;
+            margin-bottom: 20px;
+        }
+
+        /* Hide the mobile view cards entirely during print */
+        .md\:hidden {
+            display: none !important;
+        }
+
+        /* Remove icons if they look messy in print */
+        [data-lucide] {
+            display: none !important;
+        }
+    }
+</style>
 @endsection

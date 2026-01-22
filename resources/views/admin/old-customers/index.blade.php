@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="p-6 text-white max-w-7xl mx-auto">
+<div class=" text-white max-w-7xl mx-auto">
 
     {{-- Header --}}
     <h1 class="text-3xl font-bold mb-6 tracking-wide flex items-center gap-2">
@@ -57,7 +57,7 @@
     {{-- DESKTOP TABLE --}}
     <div class="overflow-x-auto bg-white/5 border border-white/10 rounded-2xl hidden md:block">
         <table class="min-w-full text-sm">
-            <thead class="bg-white/10 text-white/80 uppercase text-xs">
+            <thead class="bg-white/10 text-white/80  text-xs">
                 <tr>
                     <th class="p-4 text-center">
                         <input type="checkbox" id="select-all-old">
@@ -67,6 +67,7 @@
                     <th class="p-4"><i data-lucide="user" class="inline w-4 h-4 mr-1"></i>Person</th>
                     <th class="p-4"><i data-lucide="mail" class="inline w-4 h-4 mr-1"></i>Email</th>
                     <th class="p-4"><i data-lucide="phone" class="inline w-4 h-4 mr-1"></i>Mobile</th>
+                    <th class="p-4"><i data-lucide="map-pin" class="inline w-4 h-4 mr-1"></i>Address</th>
                 </tr>
             </thead>
 
@@ -81,6 +82,7 @@
                         <td class="p-4">{{ $customer->contact_person ?? '-' }}</td>
                         <td class="p-4">{{ $customer->email ?? '-' }}</td>
                         <td class="p-4">{{ $customer->contact ?? '-' }}</td>
+                        <td class="p-4">{{ $customer->address ?? '-' }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -102,7 +104,10 @@
                     </div>
                     <input type="checkbox" class="old-customer-checkbox" value="{{ $customer->id }}">
                 </div>
-
+<div class="text-sm text-white/70 flex items-center gap-2">
+                    <i data-lucide="hash" class="w-4 h-4"></i>
+                    {{ $customer->id ?? '-' }}
+                </div>
                 <div class="text-sm text-white/70 flex items-center gap-2">
                     <i data-lucide="user" class="w-4 h-4"></i>
                     {{ $customer->contact_person ?? '-' }}
@@ -116,6 +121,10 @@
                 <div class="text-sm text-white/70 flex items-center gap-2">
                     <i data-lucide="phone" class="w-4 h-4"></i>
                     {{ $customer->contact ?? '-' }}
+                </div>
+                <div class="text-sm text-white/70 flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    {{ $customer->address ?? '-' }}
                 </div>
             </div>
         @empty

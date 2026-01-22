@@ -14,7 +14,8 @@
                 <th class="p-2">Status</th>
                 <th class="p-2">Notes</th>
                 <th class="p-2">Duration (min)</th>
-                <th class="p-2">Date</th>
+                <th class="p-2">Visit Started Date</th>
+                <th class="p-2">Date & Time</th>
             </tr>
         </thead>
         <tbody>
@@ -25,7 +26,12 @@
                 <td class="p-2">{{ ucfirst($v->status) }}</td>
                 <td class="p-2">{{ $v->notes }}</td>
                 <td class="p-2">{{ $v->duration ?? '-' }}</td>
-                <td class="p-2">{{ $v->started_at->format('Y-m-d H:i') }}</td>
+                <td class="p-2">
+                    {{ optional($v->started_at)->format('Y-m-d') }}
+                </td>
+                <td class="p-2">
+                    {{ optional($v->started_at)->format('Y-m-d H:i') }}
+                </td>
             </tr>
             @endforeach
         </tbody>

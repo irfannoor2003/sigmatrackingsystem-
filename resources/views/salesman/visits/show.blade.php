@@ -153,9 +153,9 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5"> @foreach($visit->images as $img)
                         <div
                             class="rounded-xl overflow-hidden bg-white/10 border border-white/10 shadow-lg cursor-pointer preview-image"
-                            data-image="{{ asset('storage/' . $img) }}"
+                            data-image="{{ asset($img) }}"
                         >
-                            <img src="{{ asset('storage/' . $img) }}"
+                            <img src="{{ asset($img) }}"
                                  class="w-full h-32 sm:h-40 object-cover"> </div>
                     @endforeach
                 </div>

@@ -157,18 +157,20 @@
             </button>
         </div>
 
-        @if($visit->images && count($visit->images) > 0)
-            <div class="flex justify-center">
-                <img id="mainPreview"
-                     onclick="openFullscreen(this.src)"
-                     src="{{ asset('storage/' . $visit->images[0]) }}"
-                     class="cursor-zoom-in max-h-[250px] object-contain rounded-xl border border-white/20 shadow-lg bg-black/30 p-2">
-            </div>
-        @else
-            <p class="text-white/60 text-center py-10 flex items-center justify-center">
-                <i data-lucide="image-off" class="w-5 h-5 mr-2"></i> No Images Available
-            </p>
-        @endif
+        @if($visit->images && count($visit->images))
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5"> @foreach($visit->images as $img)
+                        <div
+    class="rounded-xl overflow-hidden bg-white/10 border border-white/10 shadow-lg cursor-pointer preview-image flex itmes-center justify-center"
+    data-image="{{ asset($img) }}"
+>
+                              <div class="w-full aspect-square overflow-hidden">
+        <img src="{{ asset($img) }}" class="object-cover w-full h-full">
+    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-white/60 text-lg">No images available</p>
+            @endif
 
     </div>
 </div>
@@ -195,6 +197,10 @@
     function toggleImageModal() {
         const modal = document.getElementById('imageModal');
         const content = document.getElementById('imageModalContent');
+
+document.querySelectorAll('.preview-image').forEach(el => {
+    el.addEventListener('click', () => openFullscreen(el.dataset.image));
+});
 
         modal.classList.toggle('hidden');
 

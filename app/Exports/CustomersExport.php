@@ -62,9 +62,11 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping
             $c->salesman->name ?? '-',
 
             // ✅ Clickable image link (opens in Chrome/browser)
-            $c->image
-                ? '=HYPERLINK("' . asset('storage/' . $c->image) . '", "View Image")'
-                : '-',
+
+                $c->image
+    ? '=HYPERLINK("' . url($c->image) . '", "View Image")'
+    : '-',
+
              $c->address ?? '-',
             $c->created_at->format('Y-m-d'),
         ];

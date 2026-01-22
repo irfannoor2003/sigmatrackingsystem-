@@ -3,73 +3,87 @@
 @section('title','My Attendance')
 
 @section('content')
-<div class="max-w-xl mx-auto mt-10 px-4">
-
+<div class="max-w-xl mx-auto mt-10 px-0">
 <div class="glass border border-white/20 p-6 rounded-3xl shadow-2xl">
 
-    {{-- Header --}}
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold text-white tracking-wide">
-            ⏱ My Attendance
-        </h2>
-        <span class="text-sm text-white/70">
-            {{ now()->format('d M Y') }}
-        </span>
-    </div>
+{{-- Header --}}
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-bold text-white tracking-wide">
+        ⏱ My Attendance
+    </h2>
+    <span class="text-sm text-white/70">
+        {{ now()->format('d M Y') }}
+    </span>
+</div>
 
-    {{-- Status --}}
-    <div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20">
+@php
+    $isHoliday = !empty($todayHoliday);
+    $isLeave   = $attendance && $attendance->status === 'leave';
+@endphp
 
-        @if($attendance && $attendance->status === 'leave')
-            <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-sm font-semibold">
-                🚫 On Leave
-            </span>
+{{-- Status --}}
+<div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20">
 
-            @if($attendance->note)
-                <p class="mt-2 text-sm text-white/80">
-                    📝 Reason: {{ $attendance->note }}
-                </p>
-            @endif
+  @if($isHoliday)
+    <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-sm font-semibold">
+        🎉 Company Holiday — {{ $todayHoliday }}
+    </span>
 
-        @elseif(!$attendance || !$attendance->clock_in)
-            <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-sm font-semibold">
-                ⚠ Not Clocked In
-            </span>
+  @elseif($isLeave)
+    <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-sm font-semibold">
+        🚫 On Leave
+    </span>
+    @if($attendance->note)
+        <p class="mt-2 text-sm text-white/80">
+            📝 Reason: {{ $attendance->note }}
+        </p>
+    @endif
 
-        @elseif($attendance && !$attendance->clock_out)
-            <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-sm font-semibold">
-                🟢 Working
-            </span>
+  @elseif(!$attendance || !$attendance->clock_in)
+    <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-sm font-semibold">
+        ⚠ Not Clocked In
+    </span>
 
-        @else
-            <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-semibold">
-                ✅ Completed
-            </span>
-        @endif
+  @elseif(!$attendance->clock_out)
+    <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-sm font-semibold">
+        🟢 Working
+    </span>
 
-        <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
-            <div class="bg-black/20 p-3 rounded-xl">
-                <p class="text-white/60">Clock In</p>
-                <p class="text-white font-semibold">
-                    {{ $attendance->clock_in ?? '--:--' }}
-                </p>
-            </div>
+  @else
+    <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-semibold">
+        ✅ Completed
+    </span>
+  @endif
 
-            <div class="bg-black/20 p-3 rounded-xl">
-                <p class="text-white/60">Clock Out</p>
-                <p class="text-white font-semibold">
-                    {{ $attendance->clock_out ?? '--:--' }}
-                </p>
-            </div>
-        </div>
+  <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+      <div class="bg-black/20 p-3 rounded-xl">
+          <p class="text-white/60">Clock In</p>
+          <p class="text-white font-semibold">
+              {{ $attendance->clock_in ?? '--:--' }}
+          </p>
+      </div>
 
-        @if($attendance && $attendance->clock_in && $attendance->status !== 'leave')
-            <div class="mt-3 text-sm text-white/70">
-                ⏳ Working Time:
-                <strong>{{ $attendance->working_duration }}</strong>
-            </div>
-        @endif
-    </div>
+      <div class="bg-black/20 p-3 rounded-xl">
+          <p class="text-white/60">Clock Out</p>
+          <p class="text-white font-semibold">
+              {{ $attendance->clock_out ?? '--:--' }}
+          </p>
+      </div>
+  </div>
+
+  @if($attendance && $attendance->clock_in && !$isLeave)
+      <div class="mt-3 text-sm text-white/70">
+          ⏳ Working Time:
+          <strong>{{ $attendance->working_duration }}</strong>
+      </div>
+  @endif
+</div>
+
+@if($isHoliday)
+<div class="mb-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-sm">
+    🎉 Attendance actions are disabled due to company holiday.
+</div>
+@endif
 
 @php
     $role = auth()->user()->role;
@@ -90,52 +104,55 @@
 {{-- Actions --}}
 <div class="flex gap-4 mb-4">
 
-    {{-- Clock In --}}
-    <form id="clockinForm" method="POST" action="{{ $clockInRoute }}" class="flex-1">
-        @csrf
-        <input type="hidden" name="lat" id="clockin_lat">
-        <input type="hidden" name="lng" id="clockin_lng">
+{{-- Clock In --}}
+<form id="clockinForm" method="POST" action="{{ $clockInRoute }}" class="flex-1">
+    @csrf
+    <input type="hidden" name="lat" id="clockin_lat">
+    <input type="hidden" name="lng" id="clockin_lng">
+    <input type="hidden" name="qr_token" id="qr_token">
 
-        <button type="button"
-            onclick="clockIn()"
-            @if($attendance && ($attendance->clock_in || $attendance->status === 'leave'))
-                disabled
-            @endif
-            class="w-full py-3 rounded-xl font-semibold text-white
-            bg-gradient-to-r from-green-500 to-emerald-600
-            hover:opacity-90 transition shadow-lg
-            disabled:opacity-40 disabled:cursor-not-allowed">
-            ⏰ Clock In
-        </button>
-    </form>
+    <button type="button"
+    onclick="openQRModal()" title="{{ $hideClockInButton ? 'Clock-in not allowed after 3:00 PM' : '' }}"
 
-    {{-- Clock Out --}}
-    <form id="clockoutForm" method="POST" action="{{ $clockOutRoute }}" class="flex-1">
-        @csrf
-        <input type="hidden" name="lat" id="clockout_lat">
-        <input type="hidden" name="lng" id="clockout_lng">
+    @if(
+        $isHoliday ||
+        $isLeave ||
+        $hideClockInButton ||
+        ($attendance && $attendance->clock_in)
+    ) disabled @endif
+    class="w-full py-3 rounded-xl font-semibold text-white
+    bg-gradient-to-r from-green-500 to-emerald-600
+    hover:opacity-90 transition shadow-lg
+    disabled:opacity-40 disabled:cursor-not-allowed">
+    📷 Scan & Clock In
+</button>
 
-        <button type="button"
-            onclick="clockOut()"
-            @if(!$attendance || !$attendance->clock_in || $attendance->clock_out || $attendance->status === 'leave')
-                disabled
-            @endif
-            class="w-full py-3 rounded-xl font-semibold text-white
-            bg-gradient-to-r from-red-500 to-pink-600
-            hover:opacity-90 transition shadow-lg
-            disabled:opacity-40 disabled:cursor-not-allowed">
-            🚪 Clock Out
-        </button>
-    </form>
+</form>
+
+{{-- Clock Out --}}
+<form id="clockoutForm" method="POST" action="{{ $clockOutRoute }}" class="flex-1">
+    @csrf
+    <input type="hidden" name="lat" id="clockout_lat">
+    <input type="hidden" name="lng" id="clockout_lng">
+
+    <button type="button"
+        onclick="clockOut()"
+        @if($isHoliday || $isLeave || !$attendance || !$attendance->clock_in || $attendance->clock_out) disabled @endif
+        class="w-full py-3 rounded-xl font-semibold text-white
+        bg-gradient-to-r from-red-500 to-pink-600
+        hover:opacity-90 transition shadow-lg
+        disabled:opacity-40 disabled:cursor-not-allowed">
+        🚪 Clock Out
+    </button>
+</form>
 </div>
 
-{{-- Request Leave Button --}}
+{{-- Request Leave --}}
 @if(
-    !$attendance ||
-    (
-        !$attendance->clock_in &&
-        $attendance->status !== 'leave'
-    )
+    !$isHoliday &&
+    !$isLeave &&
+    (!$attendance || !$attendance->clock_in) &&
+    !$hideLeaveButton
 )
 <button
     onclick="document.getElementById('leaveModal').classList.remove('hidden')"
@@ -144,12 +161,17 @@
     🤒 Request Leave
 </button>
 @endif
-
+@if($hideLeaveButton)
+<p class="text-xs text-red-400 text-center mb-3">
+    ⏰ Leave requests are disabled after 12:00 PM
+</p>
+@endif
 
 {{-- Monthly History --}}
 <div class="mt-4 text-center">
     <a href="{{ $historyRoute }}"
-       class="text-indigo-300 hover:underline text-sm font-semibold">
+       class="text-indigo-300 hover:underline text-sm font-semibold"
+>
         📅 View Monthly Attendance History
     </a>
 </div>
@@ -158,53 +180,136 @@
 </div>
 
 {{-- Leave Modal --}}
-<div id="leaveModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-96">
-        <h3 class="text-xl font-bold mb-4">Leave Reason</h3>
+<div id="leaveModal"
+     class="hidden fixed inset-0 z-[9999] flex items-center justify-center
+            bg-black/70 backdrop-blur-xl p-4">
 
-        <form method="POST" action="{{ route('attendance.leave') }}">
-            @csrf
+<div class="relative w-full max-w-md bg-white/10 backdrop-blur-2xl
+            border border-white/20 rounded-3xl shadow-2xl p-6">
 
-            <textarea name="reason" required
-                class="w-full border rounded-lg p-3"
-                placeholder="Explain your reason (illness, emergency, etc)"></textarea>
+<h3 class="text-2xl font-bold text-white mb-6">Leave Reason</h3>
 
-            <div class="mt-4 flex justify-end gap-3">
-                <button type="button"
-                    onclick="document.getElementById('leaveModal').classList.add('hidden')"
-                    class="px-4 py-2 border rounded">
-                    Cancel
-                </button>
+<form method="POST" action="{{ route('attendance.leave') }}">
+    @csrf
+    <textarea name="note" required rows="4"
+    class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10
+           text-white resize-none"
+    placeholder="Explain your reason"></textarea>
 
-                <button class="px-4 py-2 bg-red-600 text-white rounded">
-                    Submit
-                </button>
-            </div>
-        </form>
+
+    <div class="flex justify-end gap-3 mt-4">
+        <button type="button"
+            onclick="document.getElementById('leaveModal').classList.add('hidden')"
+            class="px-5 py-2 rounded-xl bg-white/10 text-white">
+            Cancel
+        </button>
+
+        <button type="submit"
+            class="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold">
+            Submit Leave
+        </button>
     </div>
+</form>
 </div>
+</div>
+
+{{-- QR SCANNER MODAL --}}
+<div id="qrModal"
+     class="hidden fixed inset-0 z-[9999] flex items-center justify-center
+            bg-black/80 backdrop-blur-xl p-4">
+
+<div class="relative w-full max-w-md bg-white/10 backdrop-blur-2xl
+            border border-white/20 rounded-3xl shadow-2xl p-6">
+
+<h3 class="text-xl font-bold text-white mb-4 text-center">
+    📷 Scan Office QR Code
+</h3>
+
+
+<div id="qrPreview" class="w-full rounded-xl mb-4 overflow-hidden bg-black" style="min-height: 250px;"></div>
+<p id="scannerStatus" class="text-white text-center text-sm">Scanning QR...</p>
+
+<p class="text-sm text-center text-white/60">
+    GPS + QR required
+</p>
+
+<button onclick="closeQRModal()"
+    class="w-full mt-4 py-2 rounded-xl bg-red-600 text-white font-semibold">
+    Cancel
+</button>
+</div>
+</div>
+
 @endsection
 
 @section('scripts')
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-function geoSubmit(formId, latId, lngId) {
+let qrScanner = null;
+
+function openQRModal() {
     if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
+        alert('GPS not supported');
         return;
     }
 
+    navigator.geolocation.getCurrentPosition(pos => {
+        document.getElementById('clockin_lat').value = pos.coords.latitude;
+        document.getElementById('clockin_lng').value = pos.coords.longitude;
+
+        document.getElementById('qrModal').classList.remove('hidden');
+        document.getElementById('scannerStatus').innerText = "Initializing camera...";
+
+        // Initialize on a DIV, not a VIDEO tag
+        if (!qrScanner) {
+            qrScanner = new Html5Qrcode("qrPreview");
+        }
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        qrScanner.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('qr_token').value = qrCodeMessage;
+                stopScanner(); // Clean up
+                document.getElementById('clockinForm').submit();
+            }
+        ).catch(err => {
+            console.error("Camera error:", err);
+            document.getElementById('scannerStatus').innerText = "Camera error: " + err;
+        });
+
+    }, err => alert("GPS Error: " + err.message), { enableHighAccuracy: true });
+}
+
+// Add a helper to stop the scanner safely
+function stopScanner() {
+    if (qrScanner && qrScanner.isScanning) {
+        qrScanner.stop().then(() => {
+            qrScanner.clear();
+        }).catch(err => console.log("Stop error", err));
+    }
+}
+
+function closeQRModal() {
+    stopScanner();
+    document.getElementById('qrModal').classList.add('hidden');
+}
+
+
+/* CLOCK OUT (GPS ONLY) */
+function geoSubmit(formId, latId, lngId) {
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        pos => {
             document.getElementById(latId).value = pos.coords.latitude;
             document.getElementById(lngId).value = pos.coords.longitude;
             document.getElementById(formId).submit();
         },
-        (err) => alert('Unable to get GPS: ' + err.message),
-        { enableHighAccuracy: true, timeout: 10000 }
+        err => alert(err.message),
+        { enableHighAccuracy: true }
     );
 }
-
-function clockIn()  { geoSubmit('clockinForm','clockin_lat','clockin_lng'); }
 function clockOut() { geoSubmit('clockoutForm','clockout_lat','clockout_lng'); }
 </script>
 @endsection

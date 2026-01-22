@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="p-6 text-white">
+<div class=" text-white">
 
 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
     <h1 class="text-3xl font-bold tracking-wide flex items-center gap-2">

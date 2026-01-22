@@ -35,7 +35,7 @@
                         text-align:center;
                         color:#ffffff;
                     ">
-                     <img src="{{ config('app.url') }}/images/company-logo.png"
+                      <img src="{{ asset('images/company-logo.webp') }}"
      alt="Company Logo"
      style="
         max-width:180px;
@@ -44,6 +44,7 @@
         display:block;
         margin:0 auto 6px auto;
      ">
+
 
 
 <p style="
@@ -146,7 +147,7 @@
                 color:#9ca3af;
                 text-align:center;
             ">
-                © {{ date('Y') }} {{ config('app.name') }} · All rights reserved
+                漏 {{ date('Y') }} {{ config('app.name') }} 路 All rights reserved
             </p>
 
         </td>
