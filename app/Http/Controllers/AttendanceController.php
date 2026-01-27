@@ -56,7 +56,7 @@ class AttendanceController extends Controller
     /* ================= QR VALIDATION ================= */
     private function validateOfficeQr(?string $qrToken): bool
     {
-        if (!$qrToken) return true;
+        if (!$qrToken) return false;
         $officeQr = config('office.qr_token');
         return hash_equals($officeQr, $qrToken);
     }
@@ -98,6 +98,7 @@ class AttendanceController extends Controller
     /* ================= CLOCK IN ================= */
     public function clockIn(Request $request)
     {
+
         $user = $this->staffUser();
         $today = today()->toDateString();
 
@@ -122,6 +123,21 @@ class AttendanceController extends Controller
         if ($existing && $existing->clock_in) {
             return back()->with('error', 'Already checked in today.');
         }
+$deviceHash = $this->deviceHash($request);
+
+$existingDeviceAttendance = Attendance::where('date', $today)
+    ->where('device_hash', $deviceHash)
+    ->first();
+
+if (
+    $existingDeviceAttendance &&
+    $existingDeviceAttendance->salesman_id !== $user->id
+) {
+    return back()->with(
+        'error',
+        'This device is already used by another staff today.'
+    );
+}
 
         $officeLat = config('office.lat');
         $officeLng = config('office.lng');
@@ -154,8 +170,7 @@ class AttendanceController extends Controller
             'office_verified' => true,
             'qr_verified'     => (bool) $request->qr_token,
             'checkin_method'  => $request->qr_token ? 'qr' : 'gps',
-
-            'device_hash'     => $this->deviceHash($request),
+            'device_hash' => $deviceHash,
             'checkin_ip'      => $request->ip(),
         ]);
 
