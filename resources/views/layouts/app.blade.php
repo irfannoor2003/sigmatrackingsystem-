@@ -207,14 +207,26 @@
 
 @endif
 
-                 @if (in_array($role, ['it', 'account', 'store', 'office_boy']))
+               @if (in_array($role, ['it', 'account', 'store', 'office_boy']))
+
+    {{-- Staff Dashboard --}}
+    <a href="{{ route('staff.dashboard') }}"
+       class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
+       {{ request()->routeIs('staff.dashboard') ? 'sidebar-active' : '' }}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
+    </a>
+
+    {{-- Attendance --}}
     <a href="{{ route('staff.attendance.index') }}"
        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 mt-1
        {{ request()->routeIs('staff.attendance.*') ? 'sidebar-active' : '' }}">
         <i data-lucide="clock" class="w-5 h-5"></i>
         Attendance
     </a>
+
 @endif
+
 
 
 
@@ -444,14 +456,26 @@
 
 @endif
 
-                            @if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
+                    @if (in_array(auth()->user()->role, ['it', 'account', 'store', 'office_boy']))
+
+    {{-- Staff Dashboard --}}
+    <a href="{{ route('staff.dashboard') }}"
+       class="flex items-center gap-3 py-2 rounded hover:bg-white/10
+       {{ request()->routeIs('staff.dashboard') ? 'sidebar-active-mobile' : '' }}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
+    </a>
+
+    {{-- Attendance --}}
     <a href="{{ route('staff.attendance.index') }}"
        class="flex items-center gap-3 py-2 rounded hover:bg-white/10
        {{ request()->routeIs('staff.attendance.*') ? 'sidebar-active-mobile' : '' }}">
         <i data-lucide="clock" class="w-5 h-5"></i>
         Attendance
     </a>
+
 @endif
+
 
 
                             <form method="POST" action="{{ route('logout') }}"

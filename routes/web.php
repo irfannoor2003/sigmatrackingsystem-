@@ -15,6 +15,8 @@ use App\Http\Controllers\SalesmanDashboardController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StaffDashboardController;
+
 
 // Admin
 use App\Http\Controllers\Admin\AttendanceReportController;
@@ -47,7 +49,7 @@ Route::get('/dashboard', function () {
         'admin'    => redirect()->route('admin.dashboard'),
         'salesman' => redirect()->route('salesman.dashboard'),
         'it', 'account', 'store', 'office_boy'
-            => redirect()->route('staff.attendance.index'),
+            => redirect()->route('staff.dashboard'),
         default    => abort(403),
     };
 })->middleware('auth')->name('dashboard');
@@ -234,14 +236,16 @@ Route::middleware(['auth', 'role:salesman'])
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:it,account,store,office_boy'])
-    ->prefix('staff/attendance')
-    ->name('staff.attendance.')
+    ->prefix('staff')
+    ->name('staff.')
     ->group(function () {
-
-        Route::get('/', [AttendanceController::class, 'index'])->name('index');
-        Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clockin');
-        Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clockout');
-        Route::get('/history', [AttendanceController::class, 'history'])->name('history');
+        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+            Route::get('/', [AttendanceController::class, 'index'])->name('index');
+            Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clockin');
+            Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clockout');
+            Route::get('/history', [AttendanceController::class, 'history'])->name('history');
+        });
     });
 
 /*

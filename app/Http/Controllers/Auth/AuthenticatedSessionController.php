@@ -23,27 +23,54 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+{
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    // Check if user is already logged in
+    if ($user->session_id && $user->session_id !== $request->session()->getId()) {
+        Auth::guard('web')->logout(); // log out current attempt
+        return redirect()->back()->withErrors([
+            'email' => 'This user is already logged in from another device.'
+        ]);
     }
+
+    // Regenerate session & store session_id
+    $request->session()->regenerate();
+    $user->session_id = $request->session()->getId();
+    $user->save();
+
+    // Redirect based on role
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'salesman') {
+        return redirect()->route('salesman.dashboard');
+    }
+
+    return redirect('/dashboard'); // fallback
+}
+
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+{
+    $user = Auth::user();
+    if ($user) {
+        $user->session_id = null;
+        $user->save();
     }
+
+    Auth::guard('web')->logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/');
+}
+
     protected function authenticated($request, $user)
 {
     if ($user->role === 'admin') {
