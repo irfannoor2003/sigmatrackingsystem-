@@ -269,5 +269,6 @@ Route::post('/attendance/clock-in-request',
 
 Route::get('/attendance/verify/{token}',
     [AttendanceController::class, 'verifyClockIn']
-)->name('attendance.verify');
+)->name('attendance.verify')->middleware('signed');
+
 

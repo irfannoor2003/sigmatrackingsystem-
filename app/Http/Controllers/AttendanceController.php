@@ -133,20 +133,28 @@ class AttendanceController extends Controller
             ->whereNull('verified_at')
             ->delete();
 
+
+
         $token = Str::uuid()->toString();
 
-        AttendanceVerification::create([
-            'user_id'    => $user->id,
-            'token'      => $token,
-            'expires_at' => now()->addMinute(),
-            'payload'    => json_encode([
-                'lat'      => $request->lat,
-                'lng'      => $request->lng,
-                'distance' => $distance,
-                'qr'       => (bool) $request->qr_token,
-                'ip'       => $request->ip(),
-            ])
-        ]);
+AttendanceVerification::create([
+    'user_id'    => $user->id,
+    'token'      => $token,
+    'expires_at' => now()->addMinute(),
+    'payload'    => json_encode([
+        'lat'        => $request->lat,
+        'lng'        => $request->lng,
+        'distance'   => $distance,
+        'qr'         => (bool) $request->qr_token,
+        'ip'         => $request->ip(),
+
+        // 🔐 DEVICE FINGERPRINT (IMPORTANT)
+        'fingerprint' => sha1(
+            $request->userAgent() . '|' . $request->ip()
+        ),
+    ])
+]);
+
 
         $link = URL::temporarySignedRoute(
             'attendance.verify',
@@ -165,59 +173,84 @@ class AttendanceController extends Controller
 
     /* ================= VERIFY CLOCK IN ================= */
     public function verifyClockIn(Request $request, $token)
-    {
-        if (! $request->hasValidSignature()) {
-            abort(403, 'Invalid or expired verification link.');
-        }
-
-        $verification = AttendanceVerification::where('token', $token)
-            ->whereNull('verified_at')
-            ->firstOrFail();
-
-        if (now()->greaterThan($verification->expires_at)) {
-            abort(403, 'Verification link expired.');
-        }
-
-        $data = json_decode($verification->payload, true);
-        if (! is_array($data)) {
-            abort(403, 'Invalid verification payload.');
-        }
-
-        $user = User::findOrFail($verification->user_id);
-        Auth::login($user);
-
-        $today = today()->toDateString();
-
-        if (Attendance::where('salesman_id', $user->id)->where('date', $today)->exists()) {
-            abort(403, 'Attendance already marked.');
-        }
-
-        $clockIn = now();
-
-        Attendance::create([
-            'salesman_id'     => $user->id,
-            'date'            => $today,
-            'status'          => 'present',
-            'clock_in'        => $clockIn,
-            'short_leave'     => $clockIn->format('H:i') >= '12:00',
-            'lat'             => $data['lat'],
-            'lng'             => $data['lng'],
-            'distance_meters' => $data['distance'],
-            'office_verified' => true,
-            'qr_verified'     => $data['qr'],
-            'checkin_method'  => $data['qr'] ? 'qr' : 'gps',
-            'checkin_ip'      => $data['ip'],
-        ]);
-
-        $verification->update(['verified_at' => now()]);
-
-        $route = $user->role === 'salesman'
-            ? 'salesman.attendance.index'
-            : 'staff.attendance.index';
-
-        return redirect()->route($route)
-            ->with('success', '✅ Clock-in verified successfully.');
+{
+    // 1️⃣ Signed URL check
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Invalid or expired verification link.');
     }
+
+    // 2️⃣ Load verification record
+    $verification = AttendanceVerification::where('token', $token)
+        ->whereNull('verified_at')
+        ->firstOrFail();
+
+    if (now()->greaterThan($verification->expires_at)) {
+        abort(403, 'Verification link expired.');
+    }
+
+    // 3️⃣ Decode payload
+    $data = json_decode($verification->payload, true);
+    if (! is_array($data)) {
+        abort(403, 'Invalid verification payload.');
+    }
+
+    // 4️⃣ DEVICE MATCH CHECK 🔐 (CORE SECURITY)
+    $currentFingerprint = sha1(
+        $request->userAgent() . '|' . $request->ip()
+    );
+
+    if ($currentFingerprint !== ($data['fingerprint'] ?? null)) {
+        abort(403, 'This link must be opened from the same device used to scan the QR.');
+    }
+
+    // 5️⃣ Login user safely
+    $user = User::findOrFail($verification->user_id);
+    Auth::login($user);
+
+    $today = today()->toDateString();
+
+    // 6️⃣ Prevent duplicate attendance
+    if (Attendance::where('salesman_id', $user->id)
+        ->where('date', $today)
+        ->exists()) {
+        abort(403, 'Attendance already marked.');
+    }
+
+    $clockIn = now();
+
+    Attendance::create([
+        'salesman_id'     => $user->id,
+        'date'            => $today,
+        'status'          => 'present',
+        'clock_in'        => $clockIn,
+        'short_leave'     => $clockIn->format('H:i') >= '12:00',
+
+        'lat'             => $data['lat'],
+        'lng'             => $data['lng'],
+        'distance_meters' => $data['distance'],
+
+        'office_verified' => true,
+        'qr_verified'     => $data['qr'],
+        'checkin_method'  => $data['qr'] ? 'qr' : 'gps',
+        'checkin_ip'      => $data['ip'],
+    ]);
+
+    // 7️⃣ Mark verification used
+    $verification->update([
+        'verified_at' => now()
+    ]);
+
+    // 8️⃣ Redirect correctly
+    $redirectRoute = match ($user->role) {
+        'salesman' => 'salesman.attendance.index',
+        default => 'staff.attendance.index',
+    };
+
+    return redirect()
+        ->route($redirectRoute)
+        ->with('success', '✅ Clock-in verified successfully.');
+}
+
 
     /* ================= CLOCK OUT ================= */
     public function clockOut(Request $request)
