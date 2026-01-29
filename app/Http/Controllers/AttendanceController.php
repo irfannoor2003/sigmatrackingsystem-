@@ -4,8 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Holiday;
+use App\Models\AttendanceVerification;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use App\Mail\AttendanceClockInVerificationMail;
 
 class AttendanceController extends Controller
 {
@@ -13,9 +20,9 @@ class AttendanceController extends Controller
     private function staffUser()
     {
         $user = auth()->user();
-        if (!$user) abort(403);
+        if (! $user) abort(403);
 
-        if (!in_array($user->role, [
+        if (! in_array($user->role, [
             'salesman','it','account','store','office_boy'
         ])) abort(403);
 
@@ -45,20 +52,10 @@ class AttendanceController extends Controller
         return round($earthRadius * (2 * atan2(sqrt($a), sqrt(1 - $a))));
     }
 
-    private function deviceHash(Request $request): string
-    {
-        $userAgent = $request->header('User-Agent') ?? 'unknown';
-        $ip = $request->ip() ?? '0.0.0.0';
-
-        return hash('sha256', $userAgent . '|' . $ip);
-    }
-
-    /* ================= QR VALIDATION ================= */
     private function validateOfficeQr(?string $qrToken): bool
     {
-        if (!$qrToken) return false;
-        $officeQr = config('office.qr_token');
-        return hash_equals($officeQr, $qrToken);
+        if (! $qrToken) return false;
+        return hash_equals(config('office.qr_token'), $qrToken);
     }
 
     /* ================= INDEX ================= */
@@ -75,7 +72,8 @@ class AttendanceController extends Controller
             ? Holiday::title($today)
             : null;
 
-        $hideLeaveButton = now()->hour >= 12;
+        // ✅ ALWAYS DEFINED
+        $hideLeaveButton   = now()->hour >= 12;
         $hideClockInButton = now()->hour >= 15;
 
         return view(
@@ -98,12 +96,11 @@ class AttendanceController extends Controller
     /* ================= CLOCK IN ================= */
     public function clockIn(Request $request)
     {
-
         $user = $this->staffUser();
         $today = today()->toDateString();
 
         if (Holiday::isHoliday($today)) {
-            return back()->with('error', 'Attendance is disabled due to company holiday.');
+            return back()->with('error', 'Attendance disabled due to holiday.');
         }
 
         $request->validate([
@@ -112,46 +109,87 @@ class AttendanceController extends Controller
             'qr_token' => 'nullable|string',
         ]);
 
-        if (!$this->validateOfficeQr($request->qr_token)) {
+        if (! $this->validateOfficeQr($request->qr_token)) {
             return back()->with('error', 'Invalid QR code.');
         }
 
-        $existing = Attendance::where('salesman_id', $user->id)
-            ->where('date', $today)
-            ->first();
-
-        if ($existing && $existing->clock_in) {
+        if (Attendance::where('salesman_id', $user->id)->where('date', $today)->exists()) {
             return back()->with('error', 'Already checked in today.');
         }
-$deviceHash = $this->deviceHash($request);
-
-$existingDeviceAttendance = Attendance::where('date', $today)
-    ->where('device_hash', $deviceHash)
-    ->first();
-
-if (
-    $existingDeviceAttendance &&
-    $existingDeviceAttendance->salesman_id !== $user->id
-) {
-    return back()->with(
-        'error',
-        'This device is already used by another staff today.'
-    );
-}
-
-        $officeLat = config('office.lat');
-        $officeLng = config('office.lng');
-        $officeRadius = config('office.radius');
 
         $distance = $this->distanceInMeters(
             $request->lat,
             $request->lng,
-            $officeLat,
-            $officeLng
+            config('office.lat'),
+            config('office.lng')
         );
 
-        if ($distance > $officeRadius) {
-            return back()->with('error', 'You are outside office radius.');
+        if ($distance > config('office.radius')) {
+            return back()->with('error', 'Outside office radius.');
+        }
+
+        // 🔥 Clear old unused verifications
+        AttendanceVerification::where('user_id', $user->id)
+            ->whereNull('verified_at')
+            ->delete();
+
+        $token = Str::uuid()->toString();
+
+        AttendanceVerification::create([
+            'user_id'    => $user->id,
+            'token'      => $token,
+            'expires_at' => now()->addMinute(),
+            'payload'    => json_encode([
+                'lat'      => $request->lat,
+                'lng'      => $request->lng,
+                'distance' => $distance,
+                'qr'       => (bool) $request->qr_token,
+                'ip'       => $request->ip(),
+            ])
+        ]);
+
+        $link = URL::temporarySignedRoute(
+            'attendance.verify',
+            now()->addMinute(),
+            ['token' => $token]
+        );
+
+        Mail::to($user->email)
+            ->send(new AttendanceClockInVerificationMail($link));
+
+        return back()->with(
+            'success',
+            '📧 Verification email sent. Confirm within 1 minute.'
+        );
+    }
+
+    /* ================= VERIFY CLOCK IN ================= */
+    public function verifyClockIn(Request $request, $token)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403, 'Invalid or expired verification link.');
+        }
+
+        $verification = AttendanceVerification::where('token', $token)
+            ->whereNull('verified_at')
+            ->firstOrFail();
+
+        if (now()->greaterThan($verification->expires_at)) {
+            abort(403, 'Verification link expired.');
+        }
+
+        $data = json_decode($verification->payload, true);
+        if (! is_array($data)) {
+            abort(403, 'Invalid verification payload.');
+        }
+
+        $user = User::findOrFail($verification->user_id);
+        Auth::login($user);
+
+        $today = today()->toDateString();
+
+        if (Attendance::where('salesman_id', $user->id)->where('date', $today)->exists()) {
+            abort(403, 'Attendance already marked.');
         }
 
         $clockIn = now();
@@ -162,19 +200,23 @@ if (
             'status'          => 'present',
             'clock_in'        => $clockIn,
             'short_leave'     => $clockIn->format('H:i') >= '12:00',
-
-            'lat'             => $request->lat,
-            'lng'             => $request->lng,
-            'distance_meters' => $distance,
-
+            'lat'             => $data['lat'],
+            'lng'             => $data['lng'],
+            'distance_meters' => $data['distance'],
             'office_verified' => true,
-            'qr_verified'     => (bool) $request->qr_token,
-            'checkin_method'  => $request->qr_token ? 'qr' : 'gps',
-            'device_hash' => $deviceHash,
-            'checkin_ip'      => $request->ip(),
+            'qr_verified'     => $data['qr'],
+            'checkin_method'  => $data['qr'] ? 'qr' : 'gps',
+            'checkin_ip'      => $data['ip'],
         ]);
 
-        return back()->with('success', '✅ Check-in successful.');
+        $verification->update(['verified_at' => now()]);
+
+        $route = $user->role === 'salesman'
+            ? 'salesman.attendance.index'
+            : 'staff.attendance.index';
+
+        return redirect()->route($route)
+            ->with('success', '✅ Clock-in verified successfully.');
     }
 
     /* ================= CLOCK OUT ================= */
@@ -184,7 +226,7 @@ if (
         $today = today()->toDateString();
 
         if (Holiday::isHoliday($today)) {
-            return back()->with('error', 'Today is a company holiday.');
+            return back()->with('error', 'Holiday today.');
         }
 
         $request->validate([
@@ -200,18 +242,14 @@ if (
             return back()->with('error', 'Already clocked out.');
         }
 
-        $officeLat = config('office.lat');
-        $officeLng = config('office.lng');
-        $officeRadius = config('office.radius');
-
         $distance = $this->distanceInMeters(
             $request->lat,
             $request->lng,
-            $officeLat,
-            $officeLng
+            config('office.lat'),
+            config('office.lng')
         );
 
-        if ($distance > $officeRadius) {
+        if ($distance > config('office.radius')) {
             return back()->with('error', 'Clock-out allowed only inside office.');
         }
 
@@ -222,9 +260,7 @@ if (
             'total_minutes' => $attendance->clock_in
                 ? $attendance->clock_in->diffInMinutes($clockOut)
                 : 0,
-            'short_leave' =>
-                $attendance->short_leave ||
-                $clockOut->format('H:i') < '17:00',
+            'short_leave' => $attendance->short_leave || $clockOut->format('H:i') < '17:00',
             'lat' => $request->lat,
             'lng' => $request->lng,
         ]);
@@ -250,37 +286,22 @@ if (
         $date = $start->copy();
 
         while ($date <= $end) {
-
-            $dateKey = $date->format('Y-m-d');
-            $attendance = $attendances->get($dateKey);
-            $holiday = Holiday::isHoliday($dateKey);
-
-            if ($holiday) {
-                $status = 'holiday';
-            } elseif ($date->isFuture()) {
-                $status = 'future';
-            } elseif ($attendance && $attendance->status === 'leave') {
-                $status = 'leave';
-            } elseif ($attendance && $attendance->clock_in) {
-                $status = 'present';
-            } else {
-                $status = 'absent';
-            }
+            $key = $date->format('Y-m-d');
+            $attendance = $attendances->get($key);
 
             $calendar[] = [
-                'date' => $dateKey,
-                'status' => $status,
+                'date' => $key,
+                'status' =>
+                    Holiday::isHoliday($key) ? 'holiday' :
+                    ($attendance?->status ?? ($date->isFuture() ? 'future' : 'absent')),
                 'attendance' => $attendance,
-                'holiday' => $holiday ? Holiday::title($dateKey) : null,
+                'holiday' => Holiday::title($key),
             ];
 
             $date->addDay();
         }
 
-        return view(
-            $this->viewPath('history'),
-            compact('calendar', 'monthInput')
-        );
+        return view($this->viewPath('history'), compact('calendar', 'monthInput'));
     }
 
     /* ================= REQUEST LEAVE ================= */
@@ -290,27 +311,23 @@ if (
         $today = today()->toDateString();
 
         if (now()->hour >= 12) {
-            return back()->with('error', 'Leave request is allowed only before 12:00 PM.');
+            return back()->with('error', 'Leave allowed before 12 PM only.');
         }
 
         if (Holiday::isHoliday($today)) {
-            return back()->with('error', 'Cannot request leave on a holiday.');
+            return back()->with('error', 'Holiday today.');
         }
 
-        $existing = Attendance::where('salesman_id', $user->id)
-            ->where('date', $today)
-            ->first();
-
-        if ($existing) {
-            return back()->with('error', 'Attendance already exists for today.');
+        if (Attendance::where('salesman_id', $user->id)->where('date', $today)->exists()) {
+            return back()->with('error', 'Attendance already exists.');
         }
 
         Attendance::create([
             'salesman_id' => $user->id,
-            'date'        => $today,
-            'status'      => 'leave',
-            'leave_type'  => $request->leave_type ?? 'casual',
-            'note'        => $request->note,
+            'date' => $today,
+            'status' => 'leave',
+            'leave_type' => $request->leave_type ?? 'casual',
+            'note' => $request->note,
         ]);
 
         return back()->with('success', 'Leave requested successfully.');

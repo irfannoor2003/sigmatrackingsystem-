@@ -259,3 +259,15 @@ Route::middleware('auth')
 Route::middleware('auth')
     ->post('/attendance/leave', [AttendanceController::class, 'requestLeave'])
     ->name('attendance.leave');
+
+
+
+
+Route::post('/attendance/clock-in-request',
+    [AttendanceController::class, 'clockInRequest']
+)->middleware('auth');
+
+Route::get('/attendance/verify/{token}',
+    [AttendanceController::class, 'verifyClockIn']
+)->name('attendance.verify');
+

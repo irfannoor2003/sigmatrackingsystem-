@@ -7,12 +7,13 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Show login page
      */
     public function create(): View
     {
@@ -20,66 +21,72 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle login
      */
-    public function store(LoginRequest $request): RedirectResponse
+  public function store(LoginRequest $request): RedirectResponse
 {
-    $request->authenticate();
+    $credentials = $request->only('email', 'password');
 
-    $user = Auth::user();
+    // 🔍 Find user BEFORE login
+    $user = \App\Models\User::where('email', $credentials['email'])->first();
 
-    // Check if user is already logged in
-    if ($user->session_id && $user->session_id !== $request->session()->getId()) {
-        Auth::guard('web')->logout(); // log out current attempt
-        return redirect()->back()->withErrors([
-            'email' => 'This user is already logged in from another device.'
+    // 🔒 Block if an active session already exists
+    if ($user) {
+        $activeSession = DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->where(
+                'last_activity',
+                '>=',
+                now()->subMinutes(config('session.lifetime'))->timestamp
+            )
+            ->exists();
+
+        if ($activeSession) {
+            return back()->withErrors([
+                'email' => 'This account is already logged in on another device.'
+            ]);
+        }
+    }
+
+    // ❌ Invalid credentials
+    if (!Auth::attempt($credentials)) {
+        return back()->withErrors([
+            'email' => 'Invalid credentials.',
         ]);
     }
 
-    // Regenerate session & store session_id
+    // 🔁 Regenerate session
     $request->session()->regenerate();
-    $user->session_id = $request->session()->getId();
-    $user->save();
 
-    // Redirect based on role
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->role === 'salesman') {
-        return redirect()->route('salesman.dashboard');
-    }
+    // 🔥 THIS IS THE KEY LINE (bind user to session)
+    DB::table('sessions')
+        ->where('id', session()->getId())
+        ->update(['user_id' => Auth::id()]);
 
-    return redirect('/dashboard'); // fallback
+    return match (Auth::user()->role) {
+        'admin'    => redirect()->route('admin.dashboard'),
+        'salesman' => redirect()->route('salesman.dashboard'),
+        default    => redirect('/dashboard'),
+    };
 }
 
 
     /**
-     * Destroy an authenticated session.
+     * Logout
      */
-    public function destroy(Request $request): RedirectResponse
+   public function destroy(Request $request): RedirectResponse
 {
-    $user = Auth::user();
-    if ($user) {
+    if ($user = Auth::user()) {
         $user->session_id = null;
         $user->save();
     }
 
-    Auth::guard('web')->logout();
+    Auth::logout();
 
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
     return redirect('/');
-}
-
-    protected function authenticated($request, $user)
-{
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->role === 'salesman') {
-        return redirect()->route('salesman.dashboard');
-    }
-
-    return redirect('/'); // fallback
 }
 
 }
